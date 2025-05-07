@@ -1,3 +1,4 @@
+
 import { CarCard } from '@/components/CarCard';
 import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
@@ -50,6 +51,17 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
   const currentPage = Number(searchParams?.page || 1);
   const totalPages = Math.ceil(cars.length / ITEMS_PER_PAGE);
   const paginatedCars = cars.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  // Helper function to build query string for pagination links
+  const buildPageQueryString = (pageNumber: number) => {
+    const params = new URLSearchParams();
+    params.set('page', pageNumber.toString());
+    if (filters.location) params.set('location', filters.location);
+    if (filters.carType !== 'all') params.set('carType', filters.carType);
+    if (filters.priceRange) params.set('price', filters.priceRange.join(','));
+    return `?${params.toString()}`;
+  }
+
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -122,7 +134,7 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
             <Pagination className="mt-12">
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious href={currentPage > 1 ? `/cars?page=${currentPage - 1}${Object.entries(filters).map(([key,value]) => `&${key}=${value}`).join('')}` : '#'} aria-disabled={currentPage <= 1} />
+                  <PaginationPrevious href={currentPage > 1 ? buildPageQueryString(currentPage - 1) : '#'} aria-disabled={currentPage <= 1} />
                 </PaginationItem>
                 {[...Array(totalPages)].map((_, i) => {
                   const pageNum = i + 1;
@@ -131,7 +143,7 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
                     return (
                       <PaginationItem key={pageNum}>
                         <PaginationLink 
-                          href={`/cars?page=${pageNum}${Object.entries(filters).map(([key,value]) => `&${key}=${value}`).join('')}`}
+                          href={buildPageQueryString(pageNum)}
                           isActive={currentPage === pageNum}
                         >
                           {pageNum}
@@ -144,7 +156,7 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
                   return null;
                 })}
                 <PaginationItem>
-                  <PaginationNext href={currentPage < totalPages ? `/cars?page=${currentPage + 1}${Object.entries(filters).map(([key,value]) => `&${key}=${value}`).join('')}` : '#'} aria-disabled={currentPage >= totalPages} />
+                  <PaginationNext href={currentPage < totalPages ? buildPageQueryString(currentPage + 1) : '#'} aria-disabled={currentPage >= totalPages} />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
