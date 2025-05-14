@@ -20,7 +20,7 @@ export interface Car {
   fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
   transmission?: 'Automatic' | 'Manual';
   seats?: number;
-  isVisible?: boolean; // Added for fleet visibility management
+  isVisible?: boolean; 
 }
 
 export interface Agency {
@@ -56,12 +56,14 @@ export interface Booking {
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'declined';
   createdAt: string; // ISO date string
-  renterName?: string; // Optional: for agency view
-  renterEmail?: string; // Optional: for agency view
+  renterName?: string; 
+  renterEmail?: string; 
 }
 
 export interface NavItem {
   href: string;
   label: string;
   icon?: React.ElementType;
+  requiresAuth?: boolean; // Added to control visibility based on auth state
 }
+
