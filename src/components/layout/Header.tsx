@@ -41,14 +41,13 @@ export function Header() {
     if (Icon) {
       return (
         <Link href={href} onClick={onClick} className={linkClasses}>
-          <span className="flex items-center gap-x-2">
-            <Icon className="h-4 w-4 md:hidden" />
+          <span className="flex items-center gap-x-2"> {/* Ensure consistent inner structure */}
+            <Icon className="h-4 w-4 md:hidden" /> {/* md:hidden means icon is primarily for mobile */}
             {label}
           </span>
         </Link>
       );
     }
-
     // No Icon: Render label directly as child of Link
     return (
       <Link href={href} onClick={onClick} className={linkClasses}>
@@ -66,16 +65,22 @@ export function Header() {
     router.push('/');
   };
 
-  const alwaysVisibleMainLinks = NAV_LINKS_MAIN.filter(link => !link.requiresAuth);
-  const authRequiredMainLinks = NAV_LINKS_MAIN.filter(link => link.requiresAuth);
+  const mainLinksToDisplay = NAV_LINKS_MAIN.filter(link => {
+    if (link.requiresAuth) {
+      return mounted && isLoggedIn; // Only show if mounted and logged in
+    }
+    // For links not requiring auth (like Features, Pricing)
+    if ((link.label === 'Features' || link.label === 'Pricing')) {
+      return !isLoggedIn || !mounted; // Show if NOT logged in OR not mounted yet (initial render)
+    }
+    return true; // Other non-auth links (if any) always show
+  });
+
 
   const renderDesktopNavLinks = () => {
     return (
       <>
-        {alwaysVisibleMainLinks.map((item) => (
-          <NavLink key={item.label} {...item} />
-        ))}
-        {mounted && isLoggedIn && authRequiredMainLinks.map((item) => (
+        {mainLinksToDisplay.map((item) => (
           <NavLink key={item.label} {...item} />
         ))}
       </>
@@ -90,7 +95,7 @@ export function Header() {
             key={item.label} 
             className={cn(
                 buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', size: "sm"}), 
-                "opacity-50 cursor-not-allowed" // Ensure this is styled as a placeholder
+                "opacity-50 cursor-not-allowed" 
             )}
         >
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -128,10 +133,7 @@ export function Header() {
   const renderMobileNavLinks = () => {
     return (
       <>
-        {alwaysVisibleMainLinks.map((item) => (
-           <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2" />
-        ))}
-        {mounted && isLoggedIn && authRequiredMainLinks.map((item) => (
+        {mainLinksToDisplay.map((item) => (
            <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2" />
         ))}
       </>
@@ -145,7 +147,7 @@ export function Header() {
             key={item.label} 
             className={cn(
                 buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', className: "w-full justify-start"}), 
-                "opacity-50 cursor-not-allowed" // Ensure this is styled as a placeholder
+                "opacity-50 cursor-not-allowed"
             )}
         >
            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
