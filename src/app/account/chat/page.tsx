@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, Send, Search, ArrowLeft } from 'lucide-react';
+import { Badge } from "@/components/ui/badge"; // Added import
 
 // Mock data - replace with actual data fetching
 const mockConversations = [
@@ -57,7 +58,7 @@ export default function ChatPage() {
               <div key={conv.id} className={`p-4 border-b hover:bg-background cursor-pointer ${selectedConversationId === conv.id ? 'bg-primary/10' : ''}`}>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={conv.avatarUrl} alt={conv.userName} data-ai-hint="person avatar" />
+                    <AvatarImage src={conv.avatarUrl} alt={conv.userName} data-ai-hint="person avatar"/>
                     <AvatarFallback>{conv.userName.substring(0,1)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
