@@ -1,3 +1,4 @@
+
 export type CarType = 'Sedan' | 'SUV' | 'Truck' | 'Van' | 'SportsCar' | 'Convertible' | 'Coupe' | 'Hatchback' | 'Minivan';
 
 export interface Car {
@@ -13,8 +14,8 @@ export interface Car {
   averageRating?: number;
   description?: string;
   features?: string[];
-  agencyId?: string; // Optional for now
-  agencyName?: string; // Optional for now
+  agencyId?: string; 
+  agencyName?: string; 
   availability?: { startDate: string; endDate:string }[]; // ISO date strings
   fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
   transmission?: 'Automatic' | 'Manual';
@@ -54,6 +55,8 @@ export interface Booking {
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'declined';
   createdAt: string; // ISO date string
+  renterName?: string; // Optional: for agency view
+  renterEmail?: string; // Optional: for agency view
 }
 
 export interface NavItem {

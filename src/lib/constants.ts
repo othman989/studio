@@ -1,5 +1,6 @@
+
 import type { Car, NavItem } from '@/types';
-import { CarIcon, SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon } from 'lucide-react';
+import { CarIcon, SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon } from 'lucide-react';
 
 export const APP_NAME = "AutoPool";
 
@@ -17,8 +18,9 @@ export const NAV_LINKS_AUTH: NavItem[] = [
 
 export const NAV_LINKS_USER_MENU: NavItem[] = [
     { href: '/account/dashboard', label: 'Dashboard' },
-    { href: '/account/bookings', label: 'My Bookings' },
+    { href: '/account/bookings', label: 'My Bookings' }, // For renters primarily
     { href: '/account/listings', label: 'My Listings' }, // For agencies
+    { href: '/account/calendar', label: 'Agency Calendar', icon: CalendarRangeIcon }, // For agencies
     { href: '/account/chat', label: 'Messages', icon: MessageSquareIcon },
     { href: '/account/profile', label: 'Profile' },
 ];
@@ -39,6 +41,8 @@ export const SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Electric',
     transmission: 'Automatic',
+    agencyId: 'agency1',
+    agencyName: 'SF Green Rides',
   },
   {
     id: '2',
@@ -54,6 +58,8 @@ export const SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Electric',
     transmission: 'Automatic',
+    agencyId: 'agency1',
+    agencyName: 'LA EV Rentals',
   },
   {
     id: '3',
@@ -69,6 +75,8 @@ export const SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
+    agencyId: 'agency2',
+    agencyName: 'NY Luxury Fleet',
   },
   {
     id: '4',
@@ -84,6 +92,8 @@ export const SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Hybrid',
     transmission: 'Automatic',
+    agencyId: 'agency2',
+    agencyName: 'Chicago EcoDrive',
   },
    {
     id: '5',
@@ -99,6 +109,8 @@ export const SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
+    agencyId: 'agency1',
+    agencyName: 'Miami Premium Cars',
   },
   {
     id: '6',
@@ -114,6 +126,8 @@ export const SAMPLE_CARS: Car[] = [
     seats: 4,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
+    agencyId: 'agency3',
+    agencyName: 'Denver Adventure Rides',
   },
 ];
 
