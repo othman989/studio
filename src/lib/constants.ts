@@ -8,7 +8,7 @@ export const APP_NAME = "AutoPool";
 // Links always visible in the main navigation, or conditionally based on auth status
 export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true },
-  { href: '/account/listings/new', label: 'Inscrire Votre Voiture', icon: ListPlusIcon, requiresAuth: true },
+  { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true },
   { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false },
   { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
 ];
@@ -180,3 +180,4 @@ export const SAMPLE_CARS: Car[] = [
     ]
   }
 ];
+
