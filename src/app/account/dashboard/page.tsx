@@ -50,46 +50,54 @@ const AccountDashboardPage = () => {
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4 text-foreground">At a Glance</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
-              <CarIcon className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{dashboardStats.totalListings}</div>
-              <p className="text-xs text-muted-foreground">cars in your fleet</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
-              <CheckCircle2Icon className="h-5 w-5 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{dashboardStats.activeListings}</div>
-              <p className="text-xs text-muted-foreground">currently visible to renters</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
-              <ClockIcon className="h-5 w-5 text-yellow-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{dashboardStats.pendingBookings}</div>
-              <p className="text-xs text-muted-foreground">requests awaiting review</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
-              <MessageSquareIcon className="h-5 w-5 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{dashboardStats.unreadMessages}</div>
-              <p className="text-xs text-muted-foreground">new inquiries and replies</p>
-            </CardContent>
-          </Card>
+          <Link href="/account/listings" className="block hover:no-underline">
+            <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
+                <CarIcon className="h-5 w-5 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{dashboardStats.totalListings}</div>
+                <p className="text-xs text-muted-foreground">cars in your fleet</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/account/listings" className="block hover:no-underline">
+            <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
+                <CheckCircle2Icon className="h-5 w-5 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{dashboardStats.activeListings}</div>
+                <p className="text-xs text-muted-foreground">currently visible to renters</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/account/bookings" className="block hover:no-underline">
+            <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
+                <ClockIcon className="h-5 w-5 text-yellow-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{dashboardStats.pendingBookings}</div>
+                <p className="text-xs text-muted-foreground">requests awaiting review</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/account/chat" className="block hover:no-underline">
+            <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
+                <MessageSquareIcon className="h-5 w-5 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{dashboardStats.unreadMessages}</div>
+                <p className="text-xs text-muted-foreground">new inquiries and replies</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </section>
 
