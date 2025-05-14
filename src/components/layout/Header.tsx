@@ -20,10 +20,12 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setMounted(true); // Indicates component has mounted on client
   }, []);
 
   useEffect(() => {
+    // This effect runs after mount and whenever pathname changes,
+    // ensuring login state is synced from localStorage.
     if (mounted && typeof window !== 'undefined') {
       const loggedInStatus = window.localStorage.getItem('isLoggedIn');
       setIsLoggedIn(loggedInStatus === 'true');
@@ -39,10 +41,13 @@ export function Header() {
     );
 
     if (Icon) {
+      // If there's an icon, wrap icon and label in a span with flex for alignment
+      // The icon itself is lg:hidden meaning it will show on screens < lg (mobile menu)
+      // and hide on lg+ (desktop nav)
       return (
         <Link href={href} onClick={onClick} className={linkClasses}>
-          <span className="flex items-center gap-x-2"> {/* Ensure consistent inner structure */}
-            <Icon className="h-4 w-4 md:hidden" /> {/* md:hidden means icon is primarily for mobile */}
+          <span className="flex items-center gap-x-2">
+            <Icon className="h-4 w-4 lg:hidden" />
             {label}
           </span>
         </Link>
@@ -67,11 +72,12 @@ export function Header() {
 
   const mainLinksToDisplay = NAV_LINKS_MAIN.filter(link => {
     if (link.requiresAuth) {
-      return mounted && isLoggedIn; // Only show if mounted and logged in
+      return mounted && isLoggedIn;
     }
     // For links not requiring auth (like Features, Pricing)
-    if ((link.label === 'Features' || link.label === 'Pricing')) {
-      return !isLoggedIn || !mounted; // Show if NOT logged in OR not mounted yet (initial render)
+    // Check against French labels as those are in constants.ts
+    if ((link.label === 'Fonctionnalités' || link.label === 'Tarifs')) {
+        return !isLoggedIn || !mounted; // Show if NOT logged in OR not mounted yet (initial render)
     }
     return true; // Other non-auth links (if any) always show
   });
@@ -90,11 +96,12 @@ export function Header() {
   const renderDesktopAuthSection = () => {
     if (!mounted) {
       // Fallback for initial render to match server (logged-out state)
+      // Render non-interactive placeholders
       return NAV_LINKS_AUTH.map((item) => (
         <span 
             key={item.label} 
             className={cn(
-                buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', size: "sm"}), 
+                buttonVariants({variant: item.label === 'S\'inscrire' ? 'default' : 'outline', size: "sm"}), 
                 "opacity-50 cursor-not-allowed" 
             )}
         >
@@ -106,7 +113,7 @@ export function Header() {
 
     if (!isLoggedIn) {
       return NAV_LINKS_AUTH.map((item) => (
-        <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} size="sm" asChild>
+        <Button key={item.label} variant={item.label === 'S\'inscrire' ? 'default' : 'outline'} size="sm" asChild>
           <Link href={item.href}> 
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
             {item.label}
@@ -146,7 +153,7 @@ export function Header() {
         <span 
             key={item.label} 
             className={cn(
-                buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', className: "w-full justify-start"}), 
+                buttonVariants({variant: item.label === 'S\'inscrire' ? 'default' : 'outline', className: "w-full justify-start"}), 
                 "opacity-50 cursor-not-allowed"
             )}
         >
@@ -157,7 +164,7 @@ export function Header() {
     }
     if (!isLoggedIn) {
       return NAV_LINKS_AUTH.map((item) => (
-        <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} className="w-full justify-start" asChild>
+        <Button key={item.label} variant={item.label === 'S\'inscrire' ? 'default' : 'outline'} className="w-full justify-start" asChild>
            <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
             {item.label}
@@ -185,34 +192,35 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2" aria-label={`${APP_NAME} homepage`}>
+        <Link href="/" className="flex items-center gap-2" aria-label={`${APP_NAME} page d'accueil`}>
           <LogoIcon />
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+        {/* Desktop Navigation - visible on lg screens and up */}
+        <nav className="hidden lg:flex items-center space-x-6">
           {renderDesktopNavLinks()}
         </nav>
 
         <div className="flex items-center space-x-3">
-          <div className="hidden md:flex items-center space-x-3">
+          {/* Desktop Auth/User Section - visible on lg screens and up */}
+          <div className="hidden lg:flex items-center space-x-3">
             {renderDesktopAuthSection()}
           </div>
           
-          {/* Mobile Menu Trigger */}
+          {/* Mobile Menu Trigger - visible on screens smaller than lg */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open mobile menu">
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Ouvrir le menu mobile">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs p-6 flex flex-col">
               <div className="flex justify-between items-center mb-6">
-                <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} homepage`}>
+                <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} page d'accueil`}>
                   <LogoIcon />
                 </Link>
                 <SheetClose asChild>
-                   <Button variant="ghost" size="icon" aria-label="Close mobile menu">
+                   <Button variant="ghost" size="icon" aria-label="Fermer le menu mobile">
                       <X className="h-6 w-6" />
                     </Button>
                 </SheetClose>
