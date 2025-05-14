@@ -33,6 +33,9 @@ export default function LoginPage() {
         title: "Login Successful!",
         description: `Welcome back to ${APP_NAME}.`,
       });
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('isLoggedIn', 'true');
+      }
       router.push('/account/dashboard'); // Redirect to a protected dashboard page
     } else {
       toast({

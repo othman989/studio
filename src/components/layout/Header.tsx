@@ -2,30 +2,29 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react'; // Added useEffect
-import { Menu, X } from 'lucide-react'; // Removed unused icons Briefcase, UserCircle, CarFront
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { LogoIcon } from '@/components/icons/LogoIcon';
 import { NAV_LINKS_MAIN, NAV_LINKS_AUTH, APP_NAME, NAV_LINK_DASHBOARD, NAV_ACTION_LOGOUT } from '@/lib/constants';
 import type { NavItem } from '@/types';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulated auth state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
+  const router = useRouter(); // Added for potential logout redirect
 
-  // Simulate login state change when navigating to /login (for demo purposes)
-  // In a real app, this would be driven by an auth context/hook
   useEffect(() => {
-    if (pathname === '/login' && !isLoggedIn) {
-      // This is a crude way to simulate login on visiting the login page.
-      // A real app would set isLoggedIn after successful login.
-      // setIsLoggedIn(true); 
+    // Check localStorage only on the client side
+    if (typeof window !== 'undefined') {
+      const loggedInStatus = window.localStorage.getItem('isLoggedIn');
+      setIsLoggedIn(loggedInStatus === 'true');
     }
-  }, [pathname, isLoggedIn]);
+  }, [pathname]); // Rerun when pathname changes, e.g., after navigating from login
 
 
   const NavLink = ({ href, label, className, onClick, icon: Icon }: NavItem & { className?: string; onClick?: () => void }) => (
@@ -38,26 +37,23 @@ export function Header() {
         className
       )}
     >
-      {Icon && <Icon className="h-4 w-4 md:hidden" />} {/* Show icon on mobile for main links */}
+      {Icon && <Icon className="h-4 w-4 md:hidden" />}
       {label}
     </Link>
   );
   
   const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('isLoggedIn');
+    }
     setIsLoggedIn(false);
     setIsMobileMenuOpen(false); 
-    // In a real app, you'd also clear tokens, redirect, etc.
+    router.push('/'); // Redirect to home on logout
   };
 
-  const handleLoginNav = () => {
-    // This is a placeholder. In a real app, actual login happens on the login page.
-    // For demo, we toggle isLoggedIn state when "Sign In" is clicked.
-    // This will be removed once actual login flow is implemented.
-    // setIsLoggedIn(true); 
-    setIsMobileMenuOpen(false);
-  }
-
   const mainNavLinks = NAV_LINKS_MAIN.filter(link => !link.requiresAuth || isLoggedIn);
+  const alwaysVisibleMainLinks = NAV_LINKS_MAIN.filter(link => !link.requiresAuth);
+  const authRequiredMainLinks = NAV_LINKS_MAIN.filter(link => link.requiresAuth);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -68,7 +64,10 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          {mainNavLinks.map((item) => (
+          {alwaysVisibleMainLinks.map((item) => (
+            <NavLink key={item.label} {...item} />
+          ))}
+          {isLoggedIn && authRequiredMainLinks.map((item) => (
             <NavLink key={item.label} {...item} />
           ))}
         </nav>
@@ -78,7 +77,7 @@ export function Header() {
             {!isLoggedIn ? (
               NAV_LINKS_AUTH.map((item) => (
                 <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} size="sm" asChild>
-                  <Link href={item.href} onClick={item.label === 'Sign In' ? () => {} : () => {}}> 
+                  <Link href={item.href}> 
                     {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                     {item.label}
                   </Link>
@@ -120,7 +119,10 @@ export function Header() {
               </div>
               
               <nav className="flex flex-col space-y-4 flex-grow">
-                {mainNavLinks.map((item) => (
+                {alwaysVisibleMainLinks.map((item) => (
+                   <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2" />
+                ))}
+                {isLoggedIn && authRequiredMainLinks.map((item) => (
                    <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2" />
                 ))}
               </nav>
@@ -129,7 +131,7 @@ export function Header() {
                  {!isLoggedIn ? (
                     NAV_LINKS_AUTH.map((item) => (
                       <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} className="w-full" asChild>
-                         <Link href={item.href} onClick={item.label === 'Sign In' ? handleLoginNav : () => setIsMobileMenuOpen(false)}>
+                         <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
                           {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                           {item.label}
                         </Link>
