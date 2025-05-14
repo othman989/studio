@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { UserPlus, Mail, ArrowLeft, Phone, Briefcase, Building } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
 
 export default function RenterSignUpPage() {
@@ -17,32 +17,38 @@ export default function RenterSignUpPage() {
   const { toast } = useToast();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [organization, setOrganization] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
 
-    if (password !== confirmPassword) {
-      toast({ title: "Passwords Don't Match", description: "Please ensure your passwords match.", variant: "destructive" });
-      setSubmitting(false);
-      return;
-    }
-    if (password.length < 6) {
-      toast({ title: "Password Too Short", description: "Password must be at least 6 characters long.", variant: "destructive" });
+    if (!fullName || !email) {
+      toast({ title: "Missing Required Fields", description: "Please fill in Full Name and Email Address.", variant: "destructive" });
       setSubmitting(false);
       return;
     }
 
-    // Simulate API call for renter registration
-    console.log('Renter Registration:', { fullName, email, password });
+    const renterApplicationData = {
+      fullName,
+      email,
+      phoneNumber,
+      jobTitle,
+      organization,
+      submittedAt: new Date().toISOString(),
+    };
+
+    // Simulate API call for renter application submission
+    console.log('Renter Application Submitted:', renterApplicationData);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     toast({
-      title: "Registration Successful!",
-      description: `Welcome to ${APP_NAME}, ${fullName}! You can now log in.`,
+      title: "Application Submitted!",
+      description: `Thank you for applying to rent with ${APP_NAME}, ${fullName}! We will review your information and contact you via email with your account details if approved.`,
+      duration: 7000,
     });
     router.push('/login'); 
     setSubmitting(false);
@@ -62,13 +68,13 @@ export default function RenterSignUpPage() {
           <div className="flex justify-center items-center mb-4">
             <UserPlus className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold">Create Your Renter Account</CardTitle>
-          <CardDescription>Sign up to start finding and booking great cars on {APP_NAME}.</CardDescription>
+          <CardTitle className="text-3xl font-bold">Apply to Rent with {APP_NAME}</CardTitle>
+          <CardDescription>Submit your application to start finding and booking great cars.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="fullName" className="flex items-center gap-1 mb-1">Full Name</Label>
+              <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><UserPlus className="h-4 w-4 text-muted-foreground"/>Full Name *</Label>
               <Input 
                 id="fullName" 
                 type="text" 
@@ -80,7 +86,7 @@ export default function RenterSignUpPage() {
               />
             </div>
             <div>
-              <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email Address</Label>
+              <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email Address *</Label>
               <Input 
                 id="email" 
                 type="email" 
@@ -92,42 +98,53 @@ export default function RenterSignUpPage() {
               />
             </div>
             <div>
-              <Label htmlFor="password" className="flex items-center gap-1 mb-1"><Lock className="h-4 w-4 text-muted-foreground"/>Password</Label>
+              <Label htmlFor="phoneNumber" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Phone Number (Optional)</Label>
               <Input 
-                id="password" 
-                type="password" 
-                placeholder="•••••••• (min. 6 characters)" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
-                minLength={6}
+                id="phoneNumber" 
+                type="tel" 
+                placeholder="(555) 123-4567" 
+                value={phoneNumber} 
+                onChange={(e) => setPhoneNumber(e.target.value)} 
                 className="h-11"
               />
             </div>
             <div>
-              <Label htmlFor="confirmPassword" className="flex items-center gap-1 mb-1"><Lock className="h-4 w-4 text-muted-foreground"/>Confirm Password</Label>
+              <Label htmlFor="jobTitle" className="flex items-center gap-1 mb-1"><Briefcase className="h-4 w-4 text-muted-foreground"/>Job Title (Optional)</Label>
               <Input 
-                id="confirmPassword" 
-                type="password" 
-                placeholder="••••••••" 
-                value={confirmPassword} 
-                onChange={(e) => setConfirmPassword(e.target.value)} 
-                required 
+                id="jobTitle" 
+                type="text" 
+                placeholder="e.g. Software Engineer" 
+                value={jobTitle} 
+                onChange={(e) => setJobTitle(e.target.value)} 
+                className="h-11"
+              />
+            </div>
+            <div>
+              <Label htmlFor="organization" className="flex items-center gap-1 mb-1"><Building className="h-4 w-4 text-muted-foreground"/>Organization (Optional)</Label>
+              <Input 
+                id="organization" 
+                type="text" 
+                placeholder="e.g. Tech Solutions Inc." 
+                value={organization} 
+                onChange={(e) => setOrganization(e.target.value)} 
                 className="h-11"
               />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? 'Creating Account...' : 'Sign Up'}
+              {submitting ? 'Submitting Application...' : 'Submit Application'}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Button variant="link" asChild className="p-0 h-auto font-medium">
-              <Link href="/login">Sign In</Link>
-            </Button>
-          </p>
+        <CardFooter className="flex flex-col items-center space-y-2">
+            <p className="text-xs text-muted-foreground text-center">
+                An admin will review your submission. If approved, you will receive your account credentials via email.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+                Already have an account?{' '}
+                <Button variant="link" asChild className="p-0 h-auto font-medium">
+                <Link href="/login">Sign In</Link>
+                </Button>
+            </p>
         </CardFooter>
       </Card>
     </div>
