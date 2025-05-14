@@ -20,12 +20,10 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true); // Indicates component has mounted on client
+    setMounted(true); 
   }, []);
 
   useEffect(() => {
-    // This effect runs after mount and whenever pathname changes,
-    // ensuring login state is synced from localStorage.
     if (mounted && typeof window !== 'undefined') {
       const loggedInStatus = window.localStorage.getItem('isLoggedIn');
       setIsLoggedIn(loggedInStatus === 'true');
@@ -40,23 +38,14 @@ export function Header() {
       className
     );
 
-    if (Icon) {
-      // If there's an icon, wrap icon and label in a span with flex for alignment
-      // The icon itself is lg:hidden meaning it will show on screens < lg (mobile menu)
-      // and hide on lg+ (desktop nav)
-      return (
-        <Link href={href} onClick={onClick} className={linkClasses}>
-          <span className="flex items-center gap-x-2">
-            <Icon className="h-4 w-4 lg:hidden" />
-            {label}
-          </span>
-        </Link>
-      );
-    }
-    // No Icon: Render label directly as child of Link
+    // Always wrap in a span for consistent structure, Icon conditional rendering happens inside
     return (
       <Link href={href} onClick={onClick} className={linkClasses}>
-        {label}
+        <span className={cn("flex items-center", Icon ? "gap-x-2" : "")}>
+          {/* lg:hidden on icon means it's primarily for mobile, hidden on desktop */}
+          {Icon && <Icon className="h-4 w-4 lg:hidden" />} 
+          {label}
+        </span>
       </Link>
     );
   };
@@ -72,21 +61,23 @@ export function Header() {
 
   const mainLinksToDisplay = NAV_LINKS_MAIN.filter(link => {
     if (link.requiresAuth) {
-      return mounted && isLoggedIn;
+      return mounted && isLoggedIn; 
     }
-    // For links not requiring auth (like Features, Pricing)
-    // Check against French labels as those are in constants.ts
     if ((link.label === 'Fonctionnalités' || link.label === 'Tarifs')) {
-        return !isLoggedIn || !mounted; // Show if NOT logged in OR not mounted yet (initial render)
+        return !isLoggedIn || !mounted; 
     }
-    return true; // Other non-auth links (if any) always show
+    return true; 
   });
 
 
   const renderDesktopNavLinks = () => {
+    let linksToRender = [...mainLinksToDisplay];
+    if (mounted && isLoggedIn) {
+      linksToRender.unshift(NAV_LINK_DASHBOARD); // Add Dashboard to the beginning
+    }
     return (
       <>
-        {mainLinksToDisplay.map((item) => (
+        {linksToRender.map((item) => (
           <NavLink key={item.label} {...item} />
         ))}
       </>
@@ -95,8 +86,7 @@ export function Header() {
 
   const renderDesktopAuthSection = () => {
     if (!mounted) {
-      // Fallback for initial render to match server (logged-out state)
-      // Render non-interactive placeholders
+      // Fallback for initial render: non-interactive placeholders matching server
       return NAV_LINKS_AUTH.map((item) => (
         <span 
             key={item.label} 
@@ -121,14 +111,9 @@ export function Header() {
         </Button>
       ));
     }
+    // If mounted AND isLoggedIn: Only show Logout button here, Dashboard is in main nav
     return (
       <>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href={NAV_LINK_DASHBOARD.href}>
-            {NAV_LINK_DASHBOARD.icon && <NAV_LINK_DASHBOARD.icon className="mr-2 h-4 w-4" />}
-            {NAV_LINK_DASHBOARD.label}
-          </Link>
-        </Button>
         <Button variant="outline" size="sm" onClick={handleLogout}>
            {NAV_ACTION_LOGOUT.icon && <NAV_ACTION_LOGOUT.icon className="mr-2 h-4 w-4" />}
           {NAV_ACTION_LOGOUT.label}
@@ -138,9 +123,13 @@ export function Header() {
   };
 
   const renderMobileNavLinks = () => {
+    let linksToRender = [...mainLinksToDisplay];
+    if (mounted && isLoggedIn) {
+      linksToRender.unshift(NAV_LINK_DASHBOARD); // Add Dashboard to the beginning
+    }
     return (
       <>
-        {mainLinksToDisplay.map((item) => (
+        {linksToRender.map((item) => (
            <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2" />
         ))}
       </>
@@ -172,14 +161,9 @@ export function Header() {
         </Button>
       ));
     }
+    // If mounted AND isLoggedIn: Only show Logout button here
     return (
       <>
-        <Button variant="ghost" className="w-full justify-start" asChild>
-          <Link href={NAV_LINK_DASHBOARD.href} onClick={() => setIsMobileMenuOpen(false)}>
-            {NAV_LINK_DASHBOARD.icon && <NAV_LINK_DASHBOARD.icon className="mr-2 h-4 w-4" />}
-            {NAV_LINK_DASHBOARD.label}
-          </Link>
-        </Button>
         <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
           {NAV_ACTION_LOGOUT.icon && <NAV_ACTION_LOGOUT.icon className="mr-2 h-4 w-4" />}
           {NAV_ACTION_LOGOUT.label}
