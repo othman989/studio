@@ -60,9 +60,9 @@ export function Header() {
   const authRequiredMainLinks = NAV_LINKS_MAIN.filter(link => link.requiresAuth);
 
   const renderDesktopNavLinks = () => {
-    // Server renders alwaysVisibleMainLinks with inactive class.
-    // Client initial render (mounted=false) will also render NavLinks which default to inactive class.
-    // When mounted=true, NavLink re-evaluates active class.
+    // Always render NavLink for alwaysVisibleMainLinks.
+    // The NavLink component itself handles `mounted` for its active class.
+    // Auth-required links are gated by `mounted && isLoggedIn`.
     return (
       <>
         {alwaysVisibleMainLinks.map((item) => (
@@ -76,12 +76,8 @@ export function Header() {
   };
 
   const renderDesktopAuthSection = () => {
-    // Server renders logged-out state (isLoggedIn=false).
-    // Client initial render (mounted=false, isLoggedIn=false) matches server.
-    // After mount, isLoggedIn updates from localStorage, and this section re-renders.
     if (!mounted) {
       // Fallback for initial render to match server (logged-out state)
-      // Renders non-interactive placeholders or simplified auth links.
       return NAV_LINKS_AUTH.map((item) => (
         <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} size="sm" disabled>
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -117,6 +113,7 @@ export function Header() {
   };
 
   const renderMobileNavLinks = () => {
+     // Always render NavLink for alwaysVisibleMainLinks for mobile as well.
     return (
       <>
         {alwaysVisibleMainLinks.map((item) => (
@@ -215,5 +212,3 @@ export function Header() {
     </header>
   );
 }
-
-    
