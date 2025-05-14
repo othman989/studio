@@ -1,4 +1,9 @@
 
+"use client"; // Added to enable client-side interactivity
+
+import React, { useState, useEffect } from 'react'; // Import React, useState, useEffect
+import { useSearchParams } from 'next/navigation'; // For accessing searchParams in Client Component
+import type { Car } from '@/types'; // Import Car type
 import { CarCard } from '@/components/CarCard';
 import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
@@ -7,17 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Search, Filter, XCircle } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+// Separator was imported but not used, removing for cleanliness.
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination.tsx";
 
 
+// Metadata can be exported from a Client Component file, Next.js handles it.
 export const metadata = {
   title: 'Find a Car',
   description: 'Search and discover available cars for rent.',
 };
 
-// This would typically come from an API call based on filters
-async function getCars(filters: any) {
+// This function would ideally be in a separate services file or fetched via an API route.
+async function getCarsData(filters: { location: string; carType: string; priceRange: [number, number] }): Promise<Car[]> {
   // Simulate API call and filtering
   await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
   let cars = SAMPLE_CARS;
@@ -32,36 +38,58 @@ async function getCars(filters: any) {
     const [min, max] = filters.priceRange;
     cars = cars.filter(car => car.pricePerDay >= min && car.pricePerDay <= max);
   }
-  // Add more filters as needed (dates, etc.)
   return cars;
 }
 
-export default async function CarsPage({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) {
-  // TODO: Implement proper state management for filters (e.g., using URL search params and useState/useReducer for client-side updates)
-  const filters = {
-    location: searchParams?.location as string || '',
-    carType: searchParams?.carType as string || 'all',
-    priceRange: searchParams?.price ? (searchParams.price as string).split(',').map(Number) : [0, 300],
-    // Add date filters here
-  };
+export default function CarsPage() {
+  const searchParams = useSearchParams(); // Hook for accessing search params
 
-  const cars = await getCars(filters);
+  const [cars, setCars] = useState<Car[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentFilters, setCurrentFilters] = useState({
+    location: '',
+    carType: 'all',
+    priceRange: [0, 300] as [number, number], // Ensure type is [number, number]
+  });
+
+  // Update filters state when searchParams change from URL
+  useEffect(() => {
+    const location = searchParams.get('location') || '';
+    const carType = searchParams.get('carType') || 'all';
+    const priceParam = searchParams.get('price');
+    const priceRangeQuery = priceParam ? priceParam.split(',').map(Number) : [0, 300];
+    
+    const validPriceRange = (priceRangeQuery.length === 2 && !isNaN(priceRangeQuery[0]) && !isNaN(priceRangeQuery[1]))
+      ? [priceRangeQuery[0], priceRangeQuery[1]] as [number, number]
+      : [0, 300] as [number, number];
+
+    setCurrentFilters({
+      location,
+      carType,
+      priceRange: validPriceRange,
+    });
+  }, [searchParams]);
+
+
+  // Fetch cars when currentFilters state changes
+  useEffect(() => {
+    setIsLoading(true);
+    getCarsData(currentFilters).then(fetchedCars => {
+      setCars(fetchedCars);
+      setIsLoading(false);
+    });
+  }, [currentFilters]);
 
   const ITEMS_PER_PAGE = 9;
-  const currentPage = Number(searchParams?.page || 1);
+  const currentPage = Number(searchParams.get('page') || '1');
   const totalPages = Math.ceil(cars.length / ITEMS_PER_PAGE);
   const paginatedCars = cars.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  // Helper function to build query string for pagination links
   const buildPageQueryString = (pageNumber: number) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString()); // Use current searchParams
     params.set('page', pageNumber.toString());
-    if (filters.location) params.set('location', filters.location);
-    if (filters.carType !== 'all') params.set('carType', filters.carType);
-    if (filters.priceRange) params.set('price', filters.priceRange.join(','));
     return `?${params.toString()}`;
   }
-
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -70,17 +98,16 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
         <p className="mt-2 text-lg text-muted-foreground">Browse our extensive collection of vehicles from trusted agencies.</p>
       </header>
 
-      {/* Filter Section - This could be a separate component */}
       <div className="mb-8 p-6 bg-card rounded-lg shadow-md border">
-        <form method="GET" action="/cars"> {/* Form for server-side filtering */}
+        <form method="GET" action="/cars">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             <div>
               <Label htmlFor="location" className="mb-1 block text-sm font-medium">Location</Label>
-              <Input id="location" name="location" placeholder="City, State, or Zip Code" defaultValue={filters.location} />
+              <Input id="location" name="location" placeholder="City, State, or Zip Code" defaultValue={currentFilters.location} />
             </div>
             <div>
               <Label htmlFor="carType" className="mb-1 block text-sm font-medium">Car Type</Label>
-              <Select name="carType" defaultValue={filters.carType}>
+              <Select name="carType" defaultValue={currentFilters.carType}>
                 <SelectTrigger id="carType">
                   <SelectValue placeholder="Select car type" />
                 </SelectTrigger>
@@ -93,29 +120,27 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
               </Select>
             </div>
             <div className="lg:col-span-2">
-              <Label htmlFor="priceRange" className="mb-1 block text-sm font-medium">
-                Price Range: ${filters.priceRange[0]} - ${filters.priceRange[1] === 300 ? '300+' : filters.priceRange[1]}
+              <Label htmlFor="priceRangeSlider" className="mb-1 block text-sm font-medium">
+                Price Range: ${currentFilters.priceRange[0]} - ${currentFilters.priceRange[1] >= 300 ? '300+' : currentFilters.priceRange[1]}
               </Label>
-              {/* Hidden input for price range to submit with form */}
-              <input type="hidden" name="price" value={filters.priceRange.join(',')} />
+              <input type="hidden" name="price" value={currentFilters.priceRange.join(',')} />
               <Slider
-                id="priceRange"
-                // name="priceRange" // Slider doesn't submit value directly, use hidden input or JS
-                defaultValue={filters.priceRange}
+                id="priceRangeSlider"
+                defaultValue={currentFilters.priceRange} // Use defaultValue for uncontrolled form elements
                 max={300}
                 step={10}
                 minStepsBetweenThumbs={1}
                 className="mt-2"
-                // onValueChange={(value) => console.log(value)} // For client-side state update
+                 // To make this a controlled component, you'd typically use onValueChange to update
+                 // a state variable, and then pass that state to the hidden input.
+                 // For a GET form, defaultValue and letting the browser handle state before submission is simpler.
               />
             </div>
-            {/* Date pickers would go here */}
           </div>
           <div className="mt-6 flex flex-col sm:flex-row gap-2 justify-end">
             <Button type="submit" variant="default" size="lg">
               <Filter className="mr-2 h-4 w-4" /> Apply Filters
             </Button>
-            {/* Client-side reset, or link to /cars to clear params */}
             <Button type="button" variant="outline" size="lg" onClick={() => window.location.href = '/cars'}>
               <XCircle className="mr-2 h-4 w-4" /> Reset Filters
             </Button>
@@ -123,7 +148,12 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
         </form>
       </div>
 
-      {paginatedCars.length > 0 ? (
+      {isLoading ? (
+        <div className="text-center py-12">
+          <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4 animate-pulse" />
+          <p className="text-lg text-muted-foreground">Loading cars...</p>
+        </div>
+      ) : paginatedCars.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {paginatedCars.map((car) => (
@@ -138,11 +168,10 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
                 </PaginationItem>
                 {[...Array(totalPages)].map((_, i) => {
                   const pageNum = i + 1;
-                  // Basic pagination display, can be improved for many pages
                   if (totalPages <= 5 || pageNum === 1 || pageNum === totalPages || Math.abs(pageNum - currentPage) <= 1 || (currentPage <=3 && pageNum <=3) || (currentPage >= totalPages-2 && pageNum >= totalPages-2)) {
                     return (
                       <PaginationItem key={pageNum}>
-                        <PaginationLink 
+                        <PaginationLink
                           href={buildPageQueryString(pageNum)}
                           isActive={currentPage === pageNum}
                         >
@@ -150,7 +179,7 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
                         </PaginationLink>
                       </PaginationItem>
                     );
-                  } else if ((currentPage > 3 && pageNum === currentPage -2) || (currentPage < totalPages-2 && pageNum === currentPage + 2) ) {
+                  } else if ((currentPage > 3 && pageNum === currentPage - 2) || (currentPage < totalPages - 2 && pageNum === currentPage + 2) ) {
                      return <PaginationEllipsis key={`ellipsis-${pageNum}`} />;
                   }
                   return null;
@@ -175,3 +204,5 @@ export default async function CarsPage({ searchParams }: { searchParams?: { [key
     </div>
   );
 }
+
+    
