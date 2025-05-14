@@ -1,9 +1,9 @@
 
 "use client"; 
 
-import React, { useState, useEffect, useMemo } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { useSearchParams, useRouter } from 'next/navigation'; 
-import type { Car } from '@/types'; 
+import type { Car, CarType } from '@/types'; 
 import { CarCard } from '@/components/CarCard';
 import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
@@ -11,14 +11,25 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Search, Filter, XCircle } from 'lucide-react';
+import { Search, Filter, XCircle, CalendarIcon } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, parseISO, isBefore, isAfter, isEqual, addDays } from 'date-fns';
+import type { DateRange } from "react-day-picker";
+import { cn } from '@/lib/utils';
 
 
-// This function would ideally be in a separate services file or fetched via an API route.
-async function getCarsData(filters: { location: string; carType: string; priceRange: [number, number] }): Promise<Car[]> {
-  // Simulate API call and filtering
-  await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
+interface CarFilters {
+  location: string;
+  carType: string;
+  priceRange: [number, number];
+  makeModel: string;
+  dateRange?: DateRange;
+}
+
+async function getCarsData(filters: CarFilters): Promise<Car[]> {
+  await new Promise(resolve => setTimeout(resolve, 200));
   let cars = SAMPLE_CARS;
 
   if (filters.location) {
@@ -31,6 +42,35 @@ async function getCarsData(filters: { location: string; carType: string; priceRa
     const [min, max] = filters.priceRange;
     cars = cars.filter(car => car.pricePerDay >= min && car.pricePerDay <= max);
   }
+  if (filters.makeModel) {
+    const searchTerm = filters.makeModel.toLowerCase();
+    cars = cars.filter(car => 
+      car.make.toLowerCase().includes(searchTerm) || 
+      car.model.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  if (filters.dateRange?.from && filters.dateRange?.to) {
+    const rentalStart = new Date(new Date(filters.dateRange.from).setHours(0,0,0,0));
+    const rentalEnd = new Date(new Date(filters.dateRange.to).setHours(0,0,0,0)); 
+    // Note: For checking a full day, rentalEnd should ideally be end of day or logic should handle inclusive start/end.
+    // Using start of day for both for simplicity here, assuming bookings are also full-day.
+
+    cars = cars.filter(car => {
+      if (!car.bookedPeriods || car.bookedPeriods.length === 0) {
+        return true; // Available if no booked periods
+      }
+      // The car is NOT available if ANY of its booked periods overlap with the rental period
+      const isUnavailable = car.bookedPeriods.some(period => {
+        const bookedStart = new Date(parseISO(period.from).setHours(0,0,0,0));
+        const bookedEnd = new Date(parseISO(period.to).setHours(0,0,0,0));
+
+        // Overlap if: rentalStart is on or before bookedEnd AND rentalEnd is on or after bookedStart
+        return rentalStart <= bookedEnd && rentalEnd >= bookedStart;
+      });
+      return !isUnavailable; // Car is available if it's not unavailable
+    });
+  }
   return cars;
 }
 
@@ -41,68 +81,85 @@ export default function CarsPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // State for filter values actually used in data fetching (derived from URL)
-  const [currentFilters, setCurrentFilters] = useState({
+  const [currentFilters, setCurrentFilters] = useState<CarFilters>({
     location: '',
     carType: 'all',
     priceRange: [0, 300] as [number, number],
+    makeModel: '',
+    dateRange: undefined,
   });
 
   // Local state for form inputs
   const [locationInput, setLocationInput] = useState('');
+  const [makeModelInput, setMakeModelInput] = useState('');
   const [carTypeInput, setCarTypeInput] = useState('all');
   const [priceRangeInput, setPriceRangeInput] = useState<[number, number]>([0, 300]);
+  const [dateRangeInput, setDateRangeInput] = useState<DateRange | undefined>(undefined);
 
-  // Update currentFilters and local form input states when searchParams change
   useEffect(() => {
     const location = searchParams.get('location') || '';
     const carType = searchParams.get('carType') || 'all';
+    const makeModel = searchParams.get('makeModel') || '';
     const priceParam = searchParams.get('price');
     const priceRangeQuery = priceParam ? priceParam.split(',').map(Number) : [0, 300];
-    
     const validPriceRange = (priceRangeQuery.length === 2 && !isNaN(priceRangeQuery[0]) && !isNaN(priceRangeQuery[1]))
       ? [priceRangeQuery[0], priceRangeQuery[1]] as [number, number]
       : [0, 300] as [number, number];
 
-    setCurrentFilters({
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
+    let dateRangeQuery: DateRange | undefined = undefined;
+    if (startDateParam && endDateParam) {
+      const from = parseISO(startDateParam);
+      const to = parseISO(endDateParam);
+      if (!isNaN(from.valueOf()) && !isNaN(to.valueOf())) {
+        dateRangeQuery = { from, to };
+      }
+    }
+    
+    const newFilters: CarFilters = {
       location,
       carType,
       priceRange: validPriceRange,
-    });
+      makeModel,
+      dateRange: dateRangeQuery,
+    };
 
-    // Initialize/update local form state from URL
+    setCurrentFilters(newFilters);
     setLocationInput(location);
+    setMakeModelInput(makeModel);
     setCarTypeInput(carType);
     setPriceRangeInput(validPriceRange);
-    setIsLoading(true); // Set loading true before fetching new data based on new filters
+    setDateRangeInput(dateRangeQuery);
+    setIsLoading(true);
   }, [searchParams]);
 
-
-  // Fetch cars when currentFilters state changes
   useEffect(() => {
-    // Only fetch if not already loading to avoid multiple calls if setCurrentFilters is called rapidly
     if (isLoading) { 
       getCarsData(currentFilters).then(fetchedCars => {
         setCars(fetchedCars);
         setIsLoading(false);
       });
     }
-  }, [currentFilters, isLoading]); // Depend on currentFilters and isLoading
+  }, [currentFilters, isLoading]);
 
   const handleFilterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const params = new URLSearchParams();
     if (locationInput) params.set('location', locationInput);
+    if (makeModelInput) params.set('makeModel', makeModelInput);
     if (carTypeInput && carTypeInput !== 'all') params.set('carType', carTypeInput);
     params.set('price', priceRangeInput.join(','));
-    // Preserve page if it exists, otherwise default to 1
+    if (dateRangeInput?.from) params.set('startDate', format(dateRangeInput.from, 'yyyy-MM-dd'));
+    if (dateRangeInput?.to) params.set('endDate', format(dateRangeInput.to, 'yyyy-MM-dd'));
+    
     const currentPageFromUrl = searchParams.get('page') || '1';
     params.set('page', currentPageFromUrl); 
     router.push(`/cars?${params.toString()}`);
   };
 
   const handleResetFilters = () => {
-    router.push('/cars'); // Navigate to base /cars page, which will reset filters via useEffect
+    router.push('/cars');
   };
 
   const ITEMS_PER_PAGE = 9;
@@ -125,7 +182,17 @@ export default function CarsPage() {
 
       <div className="mb-8 p-6 bg-card rounded-lg shadow-md border">
         <form onSubmit={handleFilterSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+            <div>
+              <Label htmlFor="makeModel" className="mb-1 block text-sm font-medium">Make or Model</Label>
+              <Input 
+                id="makeModel" 
+                name="makeModel" 
+                placeholder="e.g. Toyota Camry, Tesla" 
+                value={makeModelInput}
+                onChange={(e) => setMakeModelInput(e.target.value)}
+              />
+            </div>
             <div>
               <Label htmlFor="location" className="mb-1 block text-sm font-medium">Location</Label>
               <Input 
@@ -135,6 +202,46 @@ export default function CarsPage() {
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
               />
+            </div>
+             <div>
+              <Label htmlFor="dates" className="mb-1 block text-sm font-medium">Rental Dates</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="dates"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-10", // Ensure consistent height
+                      !dateRangeInput && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateRangeInput?.from ? (
+                      dateRangeInput.to ? (
+                        <>
+                          {format(dateRangeInput.from, "LLL dd, y")} -{" "}
+                          {format(dateRangeInput.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRangeInput.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRangeInput?.from}
+                    selected={dateRangeInput}
+                    onSelect={setDateRangeInput}
+                    numberOfMonths={2}
+                    disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1))}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label htmlFor="carType" className="mb-1 block text-sm font-medium">Car Type</Label>
@@ -154,17 +261,15 @@ export default function CarsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2"> {/* Slider might span more columns if needed */}
               <Label htmlFor="priceRangeSlider" className="mb-1 block text-sm font-medium">
                 Price Range: ${priceRangeInput[0]} - ${priceRangeInput[1] >= 300 ? '300+' : priceRangeInput[1]}
               </Label>
-              {/* Hidden input is still useful for forms that might not use JS, but here JS handles submission */}
-              {/* <input type="hidden" name="price" value={priceRangeInput.join(',')} /> */}
               <Slider
                 id="priceRangeSlider"
                 value={priceRangeInput}
                 onValueChange={(value) => setPriceRangeInput(value as [number, number])}
-                max={300}
+                max={300} // This could be dynamic based on max car price
                 step={10}
                 minStepsBetweenThumbs={1}
                 className="mt-2"
@@ -238,5 +343,3 @@ export default function CarsPage() {
     </div>
   );
 }
-
-    

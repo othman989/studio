@@ -16,7 +16,8 @@ export interface Car {
   features?: string[];
   agencyId?: string; 
   agencyName?: string; 
-  availability?: { startDate: string; endDate:string }[]; // ISO date strings
+  availability?: { startDate: string; endDate:string }[]; // ISO date strings - Can be deprecated or used for agency blocks
+  bookedPeriods?: { from: string; to: string }[]; // ISO date strings for existing bookings
   fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
   transmission?: 'Automatic' | 'Manual';
   seats?: number;
@@ -62,7 +63,7 @@ export interface Booking {
 
 export interface BlockedPeriod {
   id: string;
-  carId: string;
+  carId: string; // Can be 'all' for agency-wide blocks
   startDate: string; // ISO date string
   endDate: string; // ISO date string
   reason?: string; // e.g., "Maintenance", "Owner Use"
@@ -73,6 +74,6 @@ export interface NavItem {
   href: string;
   label: string;
   icon?: React.ElementType;
-  requiresAuth?: boolean; // Added to control visibility based on auth state
+  requiresAuth?: boolean; 
 }
 

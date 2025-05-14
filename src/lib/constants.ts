@@ -1,6 +1,7 @@
 
 import type { Car, NavItem, CarType } from '@/types';
 import { CarIcon, SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon } from 'lucide-react';
+import { addDays, formatISO } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
 
@@ -45,6 +46,8 @@ export const CAR_TYPES: { value: CarType, label: string }[] = [
   { value: 'Minivan', label: 'Minivan' },
 ];
 
+const today = new Date();
+
 export const SAMPLE_CARS: Car[] = [
   {
     id: '1',
@@ -64,6 +67,10 @@ export const SAMPLE_CARS: Car[] = [
     agencyName: 'SF Green Rides',
     description: 'Experience the future of driving with the Tesla Model S. Smooth, silent, and incredibly fast.',
     isVisible: true,
+    bookedPeriods: [
+      { from: formatISO(addDays(today, 5), { representation: 'date' }), to: formatISO(addDays(today, 7), { representation: 'date' }) },
+      { from: formatISO(addDays(today, 15), { representation: 'date' }), to: formatISO(addDays(today, 16), { representation: 'date' }) },
+    ]
   },
   {
     id: '2',
@@ -83,6 +90,9 @@ export const SAMPLE_CARS: Car[] = [
     agencyName: 'LA EV Rentals',
     description: 'The Ford Mustang Mach-E combines iconic Mustang heritage with all-electric performance.',
     isVisible: true,
+    bookedPeriods: [
+      { from: formatISO(addDays(today, 2), { representation: 'date' }), to: formatISO(addDays(today, 4), { representation: 'date' }) },
+    ]
   },
   {
     id: '3',
@@ -101,7 +111,8 @@ export const SAMPLE_CARS: Car[] = [
     agencyId: 'agency2',
     agencyName: 'NY Luxury Fleet',
     description: 'The BMW X5 offers a blend of luxury, performance, and versatility for a premium driving experience.',
-    isVisible: false,
+    isVisible: false, // Initially not visible
+    bookedPeriods: []
   },
   {
     id: '4',
@@ -121,6 +132,9 @@ export const SAMPLE_CARS: Car[] = [
     agencyName: 'Chicago City Wheels',
     description: 'A dependable and comfortable sedan, perfect for city driving and longer trips.',
     isVisible: true,
+    bookedPeriods: [
+      { from: formatISO(addDays(today, 10), { representation: 'date' }), to: formatISO(addDays(today, 12), { representation: 'date' }) },
+    ]
   },
   {
     id: '5',
@@ -140,6 +154,7 @@ export const SAMPLE_CARS: Car[] = [
     agencyName: 'Rocky Mountain Rides',
     description: 'Explore the great outdoors with the iconic Jeep Wrangler. Ready for any adventure.',
     isVisible: true,
+    bookedPeriods: []
   },
   {
     id: '6',
@@ -159,5 +174,10 @@ export const SAMPLE_CARS: Car[] = [
     agencyName: 'Austin Car Co',
     description: 'The Honda Civic is a reliable and stylish compact car, great for zipping around the city.',
     isVisible: true,
+    bookedPeriods: [
+       { from: formatISO(addDays(today, 1), { representation: 'date' }), to: formatISO(addDays(today, 3), { representation: 'date' }) },
+       { from: formatISO(addDays(today, 20), { representation: 'date' }), to: formatISO(addDays(today, 22), { representation: 'date' }) },
+    ]
   }
 ];
+
