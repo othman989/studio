@@ -1,6 +1,6 @@
 
 import type { Car, NavItem } from '@/types';
-import { CarIcon, SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon } from 'lucide-react';
+import { CarIcon, SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon } from 'lucide-react';
 
 export const APP_NAME = "AutoPool";
 
@@ -17,12 +17,13 @@ export const NAV_LINKS_AUTH: NavItem[] = [
 ];
 
 export const NAV_LINKS_USER_MENU: NavItem[] = [
-    { href: '/account/dashboard', label: 'Dashboard' },
-    { href: '/account/bookings', label: 'My Bookings' }, // For renters primarily
-    { href: '/account/listings', label: 'My Listings' }, // For agencies
+    { href: '/account/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon },
+    { href: '/account/bookings', label: 'My Bookings', icon: BookMarkedIcon }, // For renters primarily
+    { href: '/account/listings', label: 'My Listings', icon: ListPlusIcon }, // For agencies
+    { href: '/account/listings/visibility', label: 'Fleet Visibility', icon: EyeIcon }, // For agencies
     { href: '/account/calendar', label: 'Agency Calendar', icon: CalendarRangeIcon }, // For agencies
     { href: '/account/chat', label: 'Messages', icon: MessageSquareIcon },
-    { href: '/account/profile', label: 'Profile' },
+    { href: '/account/profile', label: 'Profile Settings', icon: SettingsIcon },
 ];
 
 
@@ -34,7 +35,7 @@ export const SAMPLE_CARS: Car[] = [
     year: 2023,
     pricePerDay: 150,
     location: 'San Francisco, CA',
-    imageUrl: 'https://picsum.photos/seed/teslaS/600/400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
     averageRating: 4.8,
     features: ['Electric', 'Autopilot', 'Panoramic Roof'],
@@ -43,6 +44,7 @@ export const SAMPLE_CARS: Car[] = [
     transmission: 'Automatic',
     agencyId: 'agency1',
     agencyName: 'SF Green Rides',
+    isVisible: true,
   },
   {
     id: '2',
@@ -51,7 +53,7 @@ export const SAMPLE_CARS: Car[] = [
     year: 2023,
     pricePerDay: 120,
     location: 'Los Angeles, CA',
-    imageUrl: 'https://picsum.photos/seed/machE/600/400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.5,
     features: ['Electric', 'Large Touchscreen', 'Spacious'],
@@ -60,6 +62,7 @@ export const SAMPLE_CARS: Car[] = [
     transmission: 'Automatic',
     agencyId: 'agency1',
     agencyName: 'LA EV Rentals',
+    isVisible: true,
   },
   {
     id: '3',
@@ -68,7 +71,7 @@ export const SAMPLE_CARS: Car[] = [
     year: 2022,
     pricePerDay: 180,
     location: 'New York, NY',
-    imageUrl: 'https://picsum.photos/seed/bmwX5/600/400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.7,
     features: ['Luxury Interior', 'Powerful Engine', 'Sunroof'],
@@ -77,6 +80,7 @@ export const SAMPLE_CARS: Car[] = [
     transmission: 'Automatic',
     agencyId: 'agency2',
     agencyName: 'NY Luxury Fleet',
+    isVisible: false,
   },
   {
     id: '4',
@@ -85,7 +89,7 @@ export const SAMPLE_CARS: Car[] = [
     year: 2023,
     pricePerDay: 90,
     location: 'Chicago, IL',
-    imageUrl: 'https://picsum.photos/seed/rav4/600/400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.6,
     features: ['Fuel Efficient', 'Reliable', 'Apple CarPlay'],
@@ -94,6 +98,7 @@ export const SAMPLE_CARS: Car[] = [
     transmission: 'Automatic',
     agencyId: 'agency2',
     agencyName: 'Chicago EcoDrive',
+    isVisible: true,
   },
    {
     id: '5',
@@ -102,7 +107,7 @@ export const SAMPLE_CARS: Car[] = [
     year: 2023,
     pricePerDay: 160,
     location: 'Miami, FL',
-    imageUrl: 'https://picsum.photos/seed/cclass/600/400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
     averageRating: 4.9,
     features: ['Luxury', 'Comfort', 'Advanced Tech'],
@@ -111,6 +116,7 @@ export const SAMPLE_CARS: Car[] = [
     transmission: 'Automatic',
     agencyId: 'agency1',
     agencyName: 'Miami Premium Cars',
+    isVisible: true,
   },
   {
     id: '6',
@@ -119,7 +125,7 @@ export const SAMPLE_CARS: Car[] = [
     year: 2022,
     pricePerDay: 130,
     location: 'Denver, CO',
-    imageUrl: 'https://picsum.photos/seed/wrangler/600/400',
+    imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.4,
     features: ['Off-road Capable', 'Convertible Top', 'Rugged'],
@@ -128,6 +134,7 @@ export const SAMPLE_CARS: Car[] = [
     transmission: 'Automatic',
     agencyId: 'agency3',
     agencyName: 'Denver Adventure Rides',
+    isVisible: false,
   },
 ];
 

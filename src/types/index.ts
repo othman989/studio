@@ -20,6 +20,7 @@ export interface Car {
   fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
   transmission?: 'Automatic' | 'Manual';
   seats?: number;
+  isVisible?: boolean; // Added for fleet visibility management
 }
 
 export interface Agency {
