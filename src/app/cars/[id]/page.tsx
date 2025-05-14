@@ -154,7 +154,6 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
                 <span className="text-4xl font-bold">{car.pricePerDay}</span>
                 <span className="text-lg text-muted-foreground">/day</span>
               </div>
-              {/* TODO: Add date pickers for booking */}
               <Button size="lg" className="w-full mt-4" asChild>
                 <Link href={`/cars/${car.id}/book`}>
                   <CalendarDays className="mr-2 h-5 w-5" />
@@ -179,9 +178,10 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
                 </CardHeader>
                 <CardContent>
                     <p className="font-semibold text-lg mb-1">{car.agencyName || 'Trusted Partner Agency'}</p>
-                    {/* Add agency rating if available */}
-                    <Button variant="outline" size="sm" className="w-full mt-3">
-                        <MessageSquare className="mr-2 h-4 w-4" /> Contact Agency
+                    <Button variant="outline" size="sm" className="w-full mt-3" asChild>
+                        <Link href={`/account/chat?agency=${encodeURIComponent(car.agencyName)}`}>
+                           <MessageSquare className="mr-2 h-4 w-4" /> Contact Agency
+                        </Link>
                     </Button>
                 </CardContent>
             </Card>
@@ -200,7 +200,7 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
                 <CardContent className="p-2 sm:p-4">
                   <div className="flex items-start gap-4">
                     <Avatar>
-                      <AvatarImage src={review.avatarUrl || undefined} alt={review.userName} data-ai-hint="person avatar" />
+                      <AvatarImage src={review.avatarUrl || undefined} alt={review.userName} data-ai-hint="person avatar"/>
                       <AvatarFallback>{review.userName.substring(0,1)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
@@ -229,7 +229,9 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
           <p className="text-muted-foreground">No reviews yet for this car. Be the first to leave one!</p>
         )}
         <div className="mt-6 text-center">
-            <Button variant="outline">Leave a Review</Button> {/* TODO: Link to review submission */}
+            <Button variant="outline" asChild>
+              <Link href={`/cars/${params.id}/reviews/new`}>Leave a Review</Link>
+            </Button>
         </div>
       </div>
 
