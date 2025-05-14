@@ -1,9 +1,9 @@
 
-"use client"; // Added to enable client-side interactivity
+"use client"; 
 
-import React, { useState, useEffect } from 'react'; // Import React, useState, useEffect
-import { useSearchParams } from 'next/navigation'; // For accessing searchParams in Client Component
-import type { Car } from '@/types'; // Import Car type
+import React, { useState, useEffect } from 'react'; 
+import { useSearchParams } from 'next/navigation'; 
+import type { Car } from '@/types'; 
 import { CarCard } from '@/components/CarCard';
 import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
@@ -13,14 +13,8 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Search, Filter, XCircle } from 'lucide-react';
 // Separator was imported but not used, removing for cleanliness.
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination.tsx";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
-
-// Metadata can be exported from a Client Component file, Next.js handles it.
-export const metadata = {
-  title: 'Find a Car',
-  description: 'Search and discover available cars for rent.',
-};
 
 // This function would ideally be in a separate services file or fetched via an API route.
 async function getCarsData(filters: { location: string; carType: string; priceRange: [number, number] }): Promise<Car[]> {
@@ -204,5 +198,3 @@ export default function CarsPage() {
     </div>
   );
 }
-
-    
