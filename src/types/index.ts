@@ -60,6 +60,15 @@ export interface Booking {
   renterEmail?: string; 
 }
 
+export interface BlockedPeriod {
+  id: string;
+  carId: string;
+  startDate: string; // ISO date string
+  endDate: string; // ISO date string
+  reason?: string; // e.g., "Maintenance", "Owner Use"
+  createdAt: string; // ISO date string
+}
+
 export interface NavItem {
   href: string;
   label: string;

@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CarIcon, CalendarDaysIcon, InfoIcon, UsersIcon, DollarSignIcon, XCircleIcon, CheckCircleIcon } from 'lucide-react';
-import type { Car, Booking } from '@/types';
+import { CarIcon, CalendarDaysIcon, InfoIcon, UsersIcon, DollarSignIcon, XCircleIcon, CheckCircleIcon, BanIcon, WrenchIcon } from 'lucide-react';
+import type { Car, Booking, BlockedPeriod } from '@/types';
 import { SAMPLE_CARS } from '@/lib/constants'; // Assuming these are the agency's cars
 import { format, parseISO, isWithinInterval, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
 import Link from 'next/link';
@@ -23,30 +23,39 @@ const MOCK_BOOKINGS: Booking[] = [
   { id: 'booking4', userId: 'user4', carId: '3', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(), totalPrice: 720, status: 'completed', createdAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), renterName: "David Green", renterEmail:"david@example.com"},
 ];
 
+const MOCK_BLOCKED_PERIODS: BlockedPeriod[] = [
+    { id: 'block1', carId: '1', startDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 16)).toISOString(), reason: "Scheduled Maintenance", createdAt: new Date().toISOString() },
+    { id: 'block2', carId: '2', startDate: new Date(new Date().setDate(new Date().getDate() + 20)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 21)).toISOString(), reason: "Owner Use", createdAt: new Date().toISOString() },
+    { id: 'block3', carId: 'all', startDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), reason: "Agency Holiday", createdAt: new Date().toISOString() },
+];
+
 
 const AgencyCalendarPage: NextPage = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedCarId, setSelectedCarId] = useState<string | 'all'>('all');
   
-  const [agencyCars, setAgencyCars] = useState<Car[]>(SAMPLE_CARS); // Simulating agency's cars
-  const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS); // Simulating bookings
+  const [agencyCars] = useState<Car[]>(SAMPLE_CARS.filter(c => c.agencyId === 'agency1' || c.agencyId === 'agency2')); // Simulating agency's cars
+  const [bookings] = useState<Booking[]>(MOCK_BOOKINGS); 
+  const [blockedPeriods] = useState<BlockedPeriod[]>(MOCK_BLOCKED_PERIODS);
 
   const [selectedBookings, setSelectedBookings] = useState<Booking[]>([]);
+  const [selectedBlockedPeriods, setSelectedBlockedPeriods] = useState<BlockedPeriod[]>([]);
 
-  // In a real app, fetch agencyCars and bookings from an API
-  // useEffect(() => {
-  //   // fetchAgencyCars().then(setAgencyCars);
-  //   // fetchBookingsForAgency(currentMonth, selectedCarId).then(setBookings);
-  // }, [currentMonth, selectedCarId]);
 
   const displayedBookings = useMemo(() => {
     return bookings.filter(booking => 
-      selectedCarId === 'all' || booking.carId === selectedCarId
+      (selectedCarId === 'all' || booking.carId === selectedCarId) && (booking.status === 'confirmed' || booking.status === 'pending')
     );
   }, [bookings, selectedCarId]);
 
-  const bookedDays = useMemo(() => {
+  const displayedBlockedPeriods = useMemo(() => {
+    return blockedPeriods.filter(period => 
+      selectedCarId === 'all' || period.carId === selectedCarId || period.carId === 'all'
+    );
+  }, [blockedPeriods, selectedCarId]);
+
+  const renterBookedDays = useMemo(() => {
     const days: Date[] = [];
     displayedBookings.forEach(booking => {
       const start = parseISO(booking.startDate);
@@ -58,8 +67,21 @@ const AgencyCalendarPage: NextPage = () => {
     return days;
   }, [displayedBookings]);
 
+  const agencyBlockedDays = useMemo(() => {
+    const days: Date[] = [];
+    displayedBlockedPeriods.forEach(period => {
+      const start = parseISO(period.startDate);
+      const end = parseISO(period.endDate);
+      if (start && end) {
+        eachDayOfInterval({ start, end }).forEach(day => days.push(day));
+      }
+    });
+    return days;
+  }, [displayedBlockedPeriods]);
+
   const modifiers = {
-    booked: bookedDays,
+    booked: renterBookedDays,
+    agencyBlocked: agencyBlockedDays,
     selected: selectedDate,
     today: new Date(),
   };
@@ -67,8 +89,14 @@ const AgencyCalendarPage: NextPage = () => {
   const modifiersStyles = {
     booked: { 
       backgroundColor: 'hsl(var(--primary) / 0.2)', 
-      color: 'hsl(var(--primary))',
+      color: 'hsl(var(--primary-foreground))', // Changed to foreground for better contrast on light bg
       fontWeight: 'bold',
+    },
+    agencyBlocked: {
+      backgroundColor: 'hsl(var(--muted) / 0.7)',
+      color: 'hsl(var(--muted-foreground))',
+      // textDecoration: 'line-through',
+      border: '1px dashed hsl(var(--muted-foreground))'
     },
     selected: { 
       backgroundColor: 'hsl(var(--accent))', 
@@ -76,7 +104,6 @@ const AgencyCalendarPage: NextPage = () => {
     },
     today: {
         border: '2px solid hsl(var(--primary))',
-        borderRadius: '50%',
     }
   };
 
@@ -89,8 +116,17 @@ const AgencyCalendarPage: NextPage = () => {
         return isWithinInterval(date, { start: bookingStart, end: bookingEnd });
       });
       setSelectedBookings(bookingsOnDate);
+
+      const blockedOnDate = displayedBlockedPeriods.filter(period => {
+        const periodStart = parseISO(period.startDate);
+        const periodEnd = parseISO(period.endDate);
+        return isWithinInterval(date, { start: periodStart, end: periodEnd });
+      });
+      setSelectedBlockedPeriods(blockedOnDate);
+
     } else {
       setSelectedBookings([]);
+      setSelectedBlockedPeriods([]);
     }
   };
 
@@ -123,6 +159,7 @@ const AgencyCalendarPage: NextPage = () => {
                       setSelectedCarId(value);
                       setSelectedDate(undefined); // Reset selected date on filter change
                       setSelectedBookings([]);
+                      setSelectedBlockedPeriods([]);
                   }}>
                     <SelectTrigger id="car-filter">
                       <SelectValue placeholder="Filter by car..." />
@@ -150,7 +187,7 @@ const AgencyCalendarPage: NextPage = () => {
                 modifiersStyles={modifiersStyles}
                 className="p-0 rounded-md border shadow-sm"
                 numberOfMonths={1}
-                disabled={(date) => date < startOfMonth(new Date()) && !isSameDay(date, new Date()) && !isWithinInterval(date, {start: startOfMonth(new Date()), end: new Date()}) } // Allow selecting current month past days, disable previous months
+                disabled={(date) => date < startOfMonth(new Date()) && !isSameDay(date, new Date()) && !isWithinInterval(date, {start: startOfMonth(new Date()), end: new Date()}) } 
               />
             </CardContent>
           </Card>
@@ -165,12 +202,12 @@ const AgencyCalendarPage: NextPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {selectedDate && selectedBookings.length > 0 ? (
+              {selectedDate && (selectedBookings.length > 0 || selectedBlockedPeriods.length > 0) ? (
                 <div className="space-y-4">
                   {selectedBookings.map(booking => {
                     const car = getCarById(booking.carId);
                     return (
-                      <Alert key={booking.id} variant={booking.status === 'confirmed' ? 'default' : booking.status === 'pending' ? 'default' : 'destructive'} className={booking.status === 'confirmed' ? 'border-green-500' : booking.status === 'pending' ? 'border-yellow-500' : 'border-red-500'}>
+                      <Alert key={`booking-${booking.id}`} variant={booking.status === 'confirmed' ? 'default' : booking.status === 'pending' ? 'default' : 'destructive'} className={booking.status === 'confirmed' ? 'border-green-500' : booking.status === 'pending' ? 'border-yellow-500' : 'border-red-500'}>
                          {booking.status === 'confirmed' && <CheckCircleIcon className="h-4 w-4 text-green-600" />}
                          {booking.status === 'pending' && <InfoIcon className="h-4 w-4 text-yellow-600" />}
                          {booking.status === 'cancelled' && <XCircleIcon className="h-4 w-4 text-red-600" />}
@@ -194,16 +231,38 @@ const AgencyCalendarPage: NextPage = () => {
                       </Alert>
                     );
                   })}
+                  {selectedBlockedPeriods.map(period => {
+                    const car = getCarById(period.carId);
+                    return (
+                      <Alert key={`block-${period.id}`} variant="default" className="border-slate-400">
+                        <BanIcon className="h-4 w-4 text-slate-600" />
+                        <AlertTitle className="font-semibold">
+                          Agency Blocked: {period.reason || "Unavailable"}
+                        </AlertTitle>
+                        <AlertDescription className="space-y-1 text-sm">
+                          {car && period.carId !== 'all' && (
+                            <p className="flex items-center gap-1"><CarIcon className="h-4 w-4 text-muted-foreground" /> {car.make} {car.model}</p>
+                          )}
+                          {period.carId === 'all' && (
+                             <p className="flex items-center gap-1"><CarIcon className="h-4 w-4 text-muted-foreground" /> All Cars</p>
+                          )}
+                          <p className="flex items-center gap-1"><CalendarDaysIcon className="h-4 w-4 text-muted-foreground" /> 
+                            {format(parseISO(period.startDate), 'MMM d')} - {format(parseISO(period.endDate), 'MMM d, yyyy')}
+                          </p>
+                           {period.reason === "Scheduled Maintenance" && <p className="flex items-center gap-1"><WrenchIcon className="h-4 w-4 text-muted-foreground" /> {period.reason}</p>}
+                        </AlertDescription>
+                      </Alert>
+                    );
+                  })}
                 </div>
               ) : selectedDate ? (
-                <p className="text-muted-foreground">No bookings for this car on this date.</p>
+                <p className="text-muted-foreground">No bookings or blocks for this car on this date.</p>
               ) : (
                 <p className="text-muted-foreground">Select a date on the calendar to see booking details or car availability.</p>
               )}
             </CardContent>
           </Card>
           
-          {/* Placeholder for "Block Dates" functionality */}
           <Card className="shadow-md">
             <CardHeader>
                 <CardTitle className="text-lg">Manage Availability</CardTitle>
