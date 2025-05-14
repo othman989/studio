@@ -62,7 +62,7 @@ const AccountDashboardPage = () => {
               </CardContent>
             </Card>
           </Link>
-          <Link href="/account/listings" className="block hover:no-underline">
+          <Link href="/account/listings/visibility" className="block hover:no-underline">
             <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
