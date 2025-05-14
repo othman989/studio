@@ -31,23 +31,31 @@ export function Header() {
   }, [pathname, mounted]);
 
 
-  const NavLink = ({ href, label, className, onClick, icon: Icon }: NavItem & { className?: string; onClick?: () => void }) => (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={cn(
-        "text-sm font-medium transition-colors hover:text-primary", // Base styles for the <a> tag
-        mounted && pathname === href ? "text-primary" : "text-muted-foreground",
-        className
-      )}
-    >
-      <span className={Icon ? "flex items-center gap-x-2" : "flex items-center"}> {/* Inner span to group icon and label, conditional gap */}
-        {/* md:hidden on icon means it's primarily for mobile, hidden on desktop */}
-        {Icon && <Icon className="h-4 w-4 md:hidden" />} 
+  const NavLink = ({ href, label, className, onClick, icon: Icon }: NavItem & { className?: string; onClick?: () => void }) => {
+    const linkClasses = cn(
+      "text-sm font-medium transition-colors hover:text-primary",
+      mounted && pathname === href ? "text-primary" : "text-muted-foreground",
+      className
+    );
+
+    if (Icon) {
+      return (
+        <Link href={href} onClick={onClick} className={linkClasses}>
+          <span className="flex items-center gap-x-2">
+            <Icon className="h-4 w-4 md:hidden" />
+            {label}
+          </span>
+        </Link>
+      );
+    }
+
+    // No Icon: Render label directly as child of Link
+    return (
+      <Link href={href} onClick={onClick} className={linkClasses}>
         {label}
-      </span>
-    </Link>
-  );
+      </Link>
+    );
+  };
   
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -82,7 +90,7 @@ export function Header() {
             key={item.label} 
             className={cn(
                 buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', size: "sm"}), 
-                "opacity-50 cursor-not-allowed"
+                "opacity-50 cursor-not-allowed" // Ensure this is styled as a placeholder
             )}
         >
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -137,7 +145,7 @@ export function Header() {
             key={item.label} 
             className={cn(
                 buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', className: "w-full justify-start"}), 
-                "opacity-50 cursor-not-allowed"
+                "opacity-50 cursor-not-allowed" // Ensure this is styled as a placeholder
             )}
         >
            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -222,4 +230,3 @@ export function Header() {
     </header>
   );
 }
-
