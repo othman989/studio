@@ -3,9 +3,9 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogInIcon, UserPlusIcon, LayoutDashboardIcon, LogOutIcon } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { LogoIcon } from '@/components/icons/LogoIcon';
 import { NAV_LINKS_MAIN, NAV_LINKS_AUTH, APP_NAME, NAV_LINK_DASHBOARD, NAV_ACTION_LOGOUT } from '@/lib/constants';
 import type { NavItem } from '@/types';
@@ -38,14 +38,19 @@ export function Header() {
       className
     );
 
-    // Always wrap in a span for consistent structure, Icon conditional rendering happens inside
+    if (Icon) {
+      return (
+        <Link href={href} onClick={onClick} className={linkClasses}>
+          <span className="flex items-center gap-x-2">
+            <Icon className="h-4 w-4 lg:hidden" /> {/* lg:hidden means it's primarily for mobile */}
+            {label}
+          </span>
+        </Link>
+      );
+    }
     return (
       <Link href={href} onClick={onClick} className={linkClasses}>
-        <span className={cn("flex items-center", Icon ? "gap-x-2" : "")}>
-          {/* lg:hidden on icon means it's primarily for mobile, hidden on desktop */}
-          {Icon && <Icon className="h-4 w-4 lg:hidden" />} 
-          {label}
-        </span>
+        {label}
       </Link>
     );
   };
@@ -59,22 +64,21 @@ export function Header() {
     router.push('/');
   };
 
-  const mainLinksToDisplay = NAV_LINKS_MAIN.filter(link => {
-    if (link.requiresAuth) {
-      return mounted && isLoggedIn; 
-    }
-    if ((link.label === 'Fonctionnalités' || link.label === 'Tarifs')) {
-        return !isLoggedIn || !mounted; 
-    }
-    return true; 
-  });
-
-
   const renderDesktopNavLinks = () => {
-    let linksToRender = [...mainLinksToDisplay];
+    let linksToRender = NAV_LINKS_MAIN.filter(link => {
+      if (link.requiresAuth) {
+        return mounted && isLoggedIn;
+      }
+      if ((link.label === 'Fonctionnalités' || link.label === 'Tarifs')) {
+          return !isLoggedIn || !mounted; 
+      }
+      return true; 
+    });
+
     if (mounted && isLoggedIn) {
-      linksToRender.unshift(NAV_LINK_DASHBOARD); // Add Dashboard to the beginning
+      linksToRender.unshift(NAV_LINK_DASHBOARD);
     }
+    
     return (
       <>
         {linksToRender.map((item) => (
@@ -111,7 +115,7 @@ export function Header() {
         </Button>
       ));
     }
-    // If mounted AND isLoggedIn: Only show Logout button here, Dashboard is in main nav
+    // If mounted AND isLoggedIn: Only show Logout button here
     return (
       <>
         <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -123,10 +127,20 @@ export function Header() {
   };
 
   const renderMobileNavLinks = () => {
-    let linksToRender = [...mainLinksToDisplay];
+     let linksToRender = NAV_LINKS_MAIN.filter(link => {
+      if (link.requiresAuth) {
+        return mounted && isLoggedIn;
+      }
+       if ((link.label === 'Fonctionnalités' || link.label === 'Tarifs')) {
+          return !isLoggedIn || !mounted;
+      }
+      return true;
+    });
+
     if (mounted && isLoggedIn) {
-      linksToRender.unshift(NAV_LINK_DASHBOARD); // Add Dashboard to the beginning
+      linksToRender.unshift(NAV_LINK_DASHBOARD);
     }
+
     return (
       <>
         {linksToRender.map((item) => (
@@ -199,16 +213,17 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs p-6 flex flex-col">
-              <div className="flex justify-between items-center mb-6">
+              <SheetHeader className="flex flex-row justify-between items-center mb-6">
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} page d'accueil`}>
                   <LogoIcon />
                 </Link>
+                <SheetTitle className="sr-only">Menu Principal</SheetTitle> 
                 <SheetClose asChild>
                    <Button variant="ghost" size="icon" aria-label="Fermer le menu mobile">
                       <X className="h-6 w-6" />
                     </Button>
                 </SheetClose>
-              </div>
+              </SheetHeader>
               
               <nav className="flex flex-col space-y-4 flex-grow">
                 {renderMobileNavLinks()}
