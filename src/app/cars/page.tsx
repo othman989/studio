@@ -1,8 +1,8 @@
 
 "use client"; 
 
-import React, { useState, useEffect } from 'react'; 
-import { useSearchParams } from 'next/navigation'; 
+import React, { useState, useEffect, useMemo } from 'react'; 
+import { useSearchParams, useRouter } from 'next/navigation'; 
 import type { Car } from '@/types'; 
 import { CarCard } from '@/components/CarCard';
 import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Search, Filter, XCircle } from 'lucide-react';
-// Separator was imported but not used, removing for cleanliness.
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 
@@ -36,17 +35,25 @@ async function getCarsData(filters: { location: string; carType: string; priceRa
 }
 
 export default function CarsPage() {
-  const searchParams = useSearchParams(); // Hook for accessing search params
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // State for filter values actually used in data fetching (derived from URL)
   const [currentFilters, setCurrentFilters] = useState({
     location: '',
     carType: 'all',
-    priceRange: [0, 300] as [number, number], // Ensure type is [number, number]
+    priceRange: [0, 300] as [number, number],
   });
 
-  // Update filters state when searchParams change from URL
+  // Local state for form inputs
+  const [locationInput, setLocationInput] = useState('');
+  const [carTypeInput, setCarTypeInput] = useState('all');
+  const [priceRangeInput, setPriceRangeInput] = useState<[number, number]>([0, 300]);
+
+  // Update currentFilters and local form input states when searchParams change
   useEffect(() => {
     const location = searchParams.get('location') || '';
     const carType = searchParams.get('carType') || 'all';
@@ -62,17 +69,41 @@ export default function CarsPage() {
       carType,
       priceRange: validPriceRange,
     });
+
+    // Initialize/update local form state from URL
+    setLocationInput(location);
+    setCarTypeInput(carType);
+    setPriceRangeInput(validPriceRange);
+    setIsLoading(true); // Set loading true before fetching new data based on new filters
   }, [searchParams]);
 
 
   // Fetch cars when currentFilters state changes
   useEffect(() => {
-    setIsLoading(true);
-    getCarsData(currentFilters).then(fetchedCars => {
-      setCars(fetchedCars);
-      setIsLoading(false);
-    });
-  }, [currentFilters]);
+    // Only fetch if not already loading to avoid multiple calls if setCurrentFilters is called rapidly
+    if (isLoading) { 
+      getCarsData(currentFilters).then(fetchedCars => {
+        setCars(fetchedCars);
+        setIsLoading(false);
+      });
+    }
+  }, [currentFilters, isLoading]); // Depend on currentFilters and isLoading
+
+  const handleFilterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const params = new URLSearchParams();
+    if (locationInput) params.set('location', locationInput);
+    if (carTypeInput && carTypeInput !== 'all') params.set('carType', carTypeInput);
+    params.set('price', priceRangeInput.join(','));
+    // Preserve page if it exists, otherwise default to 1
+    const currentPageFromUrl = searchParams.get('page') || '1';
+    params.set('page', currentPageFromUrl); 
+    router.push(`/cars?${params.toString()}`);
+  };
+
+  const handleResetFilters = () => {
+    router.push('/cars'); // Navigate to base /cars page, which will reset filters via useEffect
+  };
 
   const ITEMS_PER_PAGE = 9;
   const currentPage = Number(searchParams.get('page') || '1');
@@ -80,7 +111,7 @@ export default function CarsPage() {
   const paginatedCars = cars.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const buildPageQueryString = (pageNumber: number) => {
-    const params = new URLSearchParams(searchParams.toString()); // Use current searchParams
+    const params = new URLSearchParams(searchParams.toString());
     params.set('page', pageNumber.toString());
     return `?${params.toString()}`;
   }
@@ -93,15 +124,25 @@ export default function CarsPage() {
       </header>
 
       <div className="mb-8 p-6 bg-card rounded-lg shadow-md border">
-        <form method="GET" action="/cars">
+        <form onSubmit={handleFilterSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             <div>
               <Label htmlFor="location" className="mb-1 block text-sm font-medium">Location</Label>
-              <Input id="location" name="location" placeholder="City, State, or Zip Code" defaultValue={currentFilters.location} />
+              <Input 
+                id="location" 
+                name="location" 
+                placeholder="City, State, or Zip Code" 
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="carType" className="mb-1 block text-sm font-medium">Car Type</Label>
-              <Select name="carType" defaultValue={currentFilters.carType}>
+              <Select 
+                name="carType" 
+                value={carTypeInput}
+                onValueChange={(value) => setCarTypeInput(value)}
+              >
                 <SelectTrigger id="carType">
                   <SelectValue placeholder="Select car type" />
                 </SelectTrigger>
@@ -115,19 +156,18 @@ export default function CarsPage() {
             </div>
             <div className="lg:col-span-2">
               <Label htmlFor="priceRangeSlider" className="mb-1 block text-sm font-medium">
-                Price Range: ${currentFilters.priceRange[0]} - ${currentFilters.priceRange[1] >= 300 ? '300+' : currentFilters.priceRange[1]}
+                Price Range: ${priceRangeInput[0]} - ${priceRangeInput[1] >= 300 ? '300+' : priceRangeInput[1]}
               </Label>
-              <input type="hidden" name="price" value={currentFilters.priceRange.join(',')} />
+              {/* Hidden input is still useful for forms that might not use JS, but here JS handles submission */}
+              {/* <input type="hidden" name="price" value={priceRangeInput.join(',')} /> */}
               <Slider
                 id="priceRangeSlider"
-                defaultValue={currentFilters.priceRange} // Use defaultValue for uncontrolled form elements
+                value={priceRangeInput}
+                onValueChange={(value) => setPriceRangeInput(value as [number, number])}
                 max={300}
                 step={10}
                 minStepsBetweenThumbs={1}
                 className="mt-2"
-                 // To make this a controlled component, you'd typically use onValueChange to update
-                 // a state variable, and then pass that state to the hidden input.
-                 // For a GET form, defaultValue and letting the browser handle state before submission is simpler.
               />
             </div>
           </div>
@@ -135,7 +175,7 @@ export default function CarsPage() {
             <Button type="submit" variant="default" size="lg">
               <Filter className="mr-2 h-4 w-4" /> Apply Filters
             </Button>
-            <Button type="button" variant="outline" size="lg" onClick={() => window.location.href = '/cars'}>
+            <Button type="button" variant="outline" size="lg" onClick={handleResetFilters}>
               <XCircle className="mr-2 h-4 w-4" /> Reset Filters
             </Button>
           </div>
@@ -198,3 +238,5 @@ export default function CarsPage() {
     </div>
   );
 }
+
+    
