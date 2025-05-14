@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { LogoIcon } from '@/components/icons/LogoIcon';
 import { NAV_LINKS_MAIN, NAV_LINKS_AUTH, APP_NAME, NAV_LINK_DASHBOARD, NAV_ACTION_LOGOUT } from '@/lib/constants';
@@ -36,14 +36,16 @@ export function Header() {
       href={href}
       onClick={onClick}
       className={cn(
-        "text-sm font-medium transition-colors hover:text-primary flex items-center gap-2",
-        // Active class logic is correctly gated by mounted state
+        "text-sm font-medium transition-colors hover:text-primary", // Base styles for the <a> tag
         mounted && pathname === href ? "text-primary" : "text-muted-foreground",
         className
       )}
     >
-      {Icon && <Icon className="h-4 w-4 md:hidden" />}
-      {label}
+      <span className={Icon ? "flex items-center gap-x-2" : "flex items-center"}> {/* Inner span to group icon and label, conditional gap */}
+        {/* md:hidden on icon means it's primarily for mobile, hidden on desktop */}
+        {Icon && <Icon className="h-4 w-4 md:hidden" />} 
+        {label}
+      </span>
     </Link>
   );
   
@@ -60,9 +62,6 @@ export function Header() {
   const authRequiredMainLinks = NAV_LINKS_MAIN.filter(link => link.requiresAuth);
 
   const renderDesktopNavLinks = () => {
-    // Always render NavLink for alwaysVisibleMainLinks.
-    // The NavLink component itself handles `mounted` for its active class.
-    // Auth-required links are gated by `mounted && isLoggedIn`.
     return (
       <>
         {alwaysVisibleMainLinks.map((item) => (
@@ -79,10 +78,16 @@ export function Header() {
     if (!mounted) {
       // Fallback for initial render to match server (logged-out state)
       return NAV_LINKS_AUTH.map((item) => (
-        <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} size="sm" disabled>
+        <span 
+            key={item.label} 
+            className={cn(
+                buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', size: "sm"}), 
+                "opacity-50 cursor-not-allowed"
+            )}
+        >
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
             {item.label}
-        </Button>
+        </span>
       ));
     }
 
@@ -113,7 +118,6 @@ export function Header() {
   };
 
   const renderMobileNavLinks = () => {
-     // Always render NavLink for alwaysVisibleMainLinks for mobile as well.
     return (
       <>
         {alwaysVisibleMainLinks.map((item) => (
@@ -129,15 +133,21 @@ export function Header() {
   const renderMobileAuthSection = () => {
     if (!mounted) {
       return NAV_LINKS_AUTH.map((item) => (
-        <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} className="w-full" disabled>
-            {item.icon && <item.icon className="mr-2 h-4 w-4" />}
-            {item.label}
-        </Button>
+        <span 
+            key={item.label} 
+            className={cn(
+                buttonVariants({variant: item.label === 'Sign Up' ? 'default' : 'outline', className: "w-full justify-start"}), 
+                "opacity-50 cursor-not-allowed"
+            )}
+        >
+           {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+           {item.label}
+        </span>
       ));
     }
     if (!isLoggedIn) {
       return NAV_LINKS_AUTH.map((item) => (
-        <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} className="w-full" asChild>
+        <Button key={item.label} variant={item.label === 'Sign Up' ? 'default' : 'outline'} className="w-full justify-start" asChild>
            <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
             {item.label}
@@ -153,7 +163,7 @@ export function Header() {
             {NAV_LINK_DASHBOARD.label}
           </Link>
         </Button>
-        <Button variant="outline" className="w-full" onClick={handleLogout}>
+        <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
           {NAV_ACTION_LOGOUT.icon && <NAV_ACTION_LOGOUT.icon className="mr-2 h-4 w-4" />}
           {NAV_ACTION_LOGOUT.label}
         </Button>
@@ -188,7 +198,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs p-6 flex flex-col">
               <div className="flex justify-between items-center mb-6">
-                <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} homepage`}>
                   <LogoIcon />
                 </Link>
                 <SheetClose asChild>
@@ -212,3 +222,4 @@ export function Header() {
     </header>
   );
 }
+
