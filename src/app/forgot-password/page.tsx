@@ -22,19 +22,16 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    // Simulate API call to request password reset
-    console.log('Password reset requested for:', email);
+    console.log('Demande de réinitialisation de mot de passe pour :', email);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     toast({
-      title: "Password Reset Requested",
-      description: `If an account exists for ${email}, a password reset link has been sent. Please check your inbox (and spam folder).`,
+      title: "Demande de Réinitialisation de Mot de Passe Envoyée",
+      description: `Si un compte existe pour ${email}, un lien de réinitialisation de mot de passe a été envoyé. Veuillez vérifier votre boîte de réception (et dossier spam).`,
       duration: 7000,
     });
     
-    // Optionally, clear form or redirect, though often it's best to leave the user on the page
-    // router.push('/login'); 
-    setEmail(''); // Clear the email field
+    setEmail('');
     setSubmitting(false);
   };
 
@@ -45,19 +42,19 @@ export default function ForgotPasswordPage() {
           <div className="flex justify-center items-center mb-4">
             <MailLock className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold">Forgot Your Password?</CardTitle>
+          <CardTitle className="text-3xl font-bold">Mot de Passe Oublié ?</CardTitle>
           <CardDescription>
-            No worries! Enter your email address below and we&apos;ll send you a link to reset your password.
+            Pas de soucis ! Entrez votre adresse e-mail ci-dessous et nous vous enverrons un lien pour réinitialiser votre mot de passe.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="email" className="flex items-center gap-1 mb-1">Email Address</Label>
+              <Label htmlFor="email" className="flex items-center gap-1 mb-1">Adresse E-mail</Label>
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="you@example.com" 
+                placeholder="vous@example.com" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
@@ -65,14 +62,14 @@ export default function ForgotPasswordPage() {
               />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? 'Sending Link...' : 'Send Reset Link'}
+              {submitting ? 'Envoi du lien...' : 'Envoyer le Lien de Réinitialisation'}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <Button variant="outline" asChild size="sm">
             <Link href="/login">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
+              <ArrowLeft className="mr-2 h-4 w-4" /> Retour à la Connexion
             </Link>
           </Button>
         </CardFooter>

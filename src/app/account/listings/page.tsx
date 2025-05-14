@@ -10,24 +10,24 @@ export default function AgencyListingsPage() {
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <ListChecksIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">My Car Listings</h1>
+          <h1 className="text-3xl font-bold">Mes Annonces de Voitures</h1>
         </div>
-        <CardDescription>View, edit, and manage your car listings. Add new cars to expand your fleet.</CardDescription>
+        <CardDescription>Visualisez, modifiez et gérez vos annonces de voitures. Ajoutez de nouvelles voitures pour agrandir votre flotte.</CardDescription>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Manage Your Fleet</CardTitle>
+          <CardTitle>Gérez Votre Flotte</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground mb-6">
-            This section is under construction. Here you will be able to see all your listed cars, edit their details,
-            and manage their status.
+            Cette section est en construction. Ici, vous pourrez voir toutes vos voitures listées, modifier leurs détails,
+            et gérer leur statut.
           </p>
           <Button asChild>
             <Link href="/account/listings/new">
               <PlusCircle className="mr-2 h-5 w-5" />
-              Add New Car Listing
+              Ajouter une Nouvelle Annonce de Voiture
             </Link>
           </Button>
         </CardContent>

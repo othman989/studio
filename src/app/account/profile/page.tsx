@@ -8,17 +8,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
-import { UserCircle, Lock, ShieldAlert, Mail, Phone, Building } from 'lucide-react';
+import { UserCircle, Lock, ShieldAlert, Mail, Phone, Building, MapPin } from 'lucide-react'; // Added MapPin
 import { Separator } from '@/components/ui/separator';
 
 // Mock user data (replace with actual data fetching for logged-in user)
 const MOCK_USER_DATA = {
-  fullName: "John Doe (Agency Owner)",
-  email: "john.doe.agency@example.com",
-  phone: "(555) 123-4567",
-  agencyName: "Doe's Drive Rentals",
-  agencyAddress: "456 Business Rd, Commerce City, USA",
-  profileBio: "Passionate about providing great cars and service."
+  fullName: "Jean Dupont (Propriétaire Agence)",
+  email: "jean.dupont.agence@example.com",
+  phone: "01 23 45 67 89",
+  agencyName: "Les Locations Dupont",
+  agencyAddress: "456 Rue du Commerce, Ville Commerciale, France",
+  profileBio: "Passionné par la fourniture de superbes voitures et services."
 };
 
 export default function ProfilePage() {
@@ -44,10 +44,9 @@ export default function ProfilePage() {
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmittingProfile(true);
-    // Simulate API call
-    console.log('Updating profile:', { fullName, email, phone, profileBio, agencyName, agencyAddress });
+    console.log('Mise à jour du profil :', { fullName, email, phone, profileBio, agencyName, agencyAddress });
     await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({ title: "Profile Updated", description: "Your profile information has been saved." });
+    toast({ title: "Profil Mis à Jour", description: "Vos informations de profil ont été enregistrées." });
     setSubmittingProfile(false);
     setIsEditingProfile(false); 
   };
@@ -55,18 +54,17 @@ export default function ProfilePage() {
   const handlePasswordChangeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      toast({ title: "Passwords Don't Match", description: "New password and confirmation must match.", variant: "destructive" });
+      toast({ title: "Les Mots de Passe ne Correspondent Pas", description: "Le nouveau mot de passe et sa confirmation doivent correspondre.", variant: "destructive" });
       return;
     }
     if (newPassword.length < 6) {
-      toast({ title: "Password Too Short", description: "New password must be at least 6 characters.", variant: "destructive" });
+      toast({ title: "Mot de Passe Trop Court", description: "Le nouveau mot de passe doit comporter au moins 6 caractères.", variant: "destructive" });
       return;
     }
     setSubmittingPassword(true);
-    // Simulate API call
-    console.log('Changing password with current:', currentPassword, 'to new:', newPassword);
+    console.log('Changement de mot de passe avec actuel :', currentPassword, 'vers nouveau :', newPassword);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({ title: "Password Changed", description: "Your password has been updated successfully." });
+    toast({ title: "Mot de Passe Changé", description: "Votre mot de passe a été mis à jour avec succès." });
     setCurrentPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
@@ -78,9 +76,9 @@ export default function ProfilePage() {
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <UserCircle className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Account Profile</h1>
+          <h1 className="text-3xl font-bold">Profil du Compte</h1>
         </div>
-        <p className="text-muted-foreground">Manage your personal and agency information, and update your password.</p>
+        <p className="text-muted-foreground">Gérez vos informations personnelles et d'agence, et mettez à jour votre mot de passe.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -88,51 +86,51 @@ export default function ProfilePage() {
         <Card className="lg:col-span-2 shadow-lg">
           <CardHeader className="flex flex-row justify-between items-center">
             <div>
-                <CardTitle className="text-2xl">Profile Information</CardTitle>
-                <CardDescription>View and update your personal and agency details.</CardDescription>
+                <CardTitle className="text-2xl">Informations du Profil</CardTitle>
+                <CardDescription>Visualisez et mettez à jour vos détails personnels et d'agence.</CardDescription>
             </div>
             <Button onClick={() => setIsEditingProfile(!isEditingProfile)} variant={isEditingProfile ? "destructive" : "outline"}>
-                {isEditingProfile ? "Cancel Edit" : "Edit Profile"}
+                {isEditingProfile ? "Annuler la Modification" : "Modifier le Profil"}
             </Button>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleProfileSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><UserCircle className="h-4 w-4 text-muted-foreground"/>Full Name</Label>
+                  <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><UserCircle className="h-4 w-4 text-muted-foreground"/>Nom Complet</Label>
                   <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={!isEditingProfile} />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email Address</Label>
+                  <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Adresse E-mail</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={!isEditingProfile} />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Phone Number</Label>
+                  <Label htmlFor="phone" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Numéro de Téléphone</Label>
                   <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={!isEditingProfile} />
                 </div>
               </div>
               
               <Separator className="my-6"/>
-              <h3 className="text-lg font-semibold text-muted-foreground">Agency Details (if applicable)</h3>
+              <h3 className="text-lg font-semibold text-muted-foreground">Détails de l'Agence (si applicable)</h3>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div>
-                    <Label htmlFor="agencyName" className="flex items-center gap-1 mb-1"><Building className="h-4 w-4 text-muted-foreground"/>Agency Name</Label>
+                    <Label htmlFor="agencyName" className="flex items-center gap-1 mb-1"><Building className="h-4 w-4 text-muted-foreground"/>Nom de l'Agence</Label>
                     <Input id="agencyName" value={agencyName} onChange={(e) => setAgencyName(e.target.value)} disabled={!isEditingProfile} />
                   </div>
                   <div>
-                    <Label htmlFor="agencyAddress" className="flex items-center gap-1 mb-1"><MapPin className="h-4 w-4 text-muted-foreground"/>Agency Address</Label>
+                    <Label htmlFor="agencyAddress" className="flex items-center gap-1 mb-1"><MapPin className="h-4 w-4 text-muted-foreground"/>Adresse de l'Agence</Label>
                     <Input id="agencyAddress" value={agencyAddress} onChange={(e) => setAgencyAddress(e.target.value)} disabled={!isEditingProfile} />
                   </div>
                </div>
 
 
               <div>
-                <Label htmlFor="profileBio" className="flex items-center gap-1 mb-1">Profile Bio / About Agency</Label>
-                <Textarea id="profileBio" value={profileBio} onChange={(e) => setProfileBio(e.target.value)} rows={4} disabled={!isEditingProfile} placeholder="Tell us a bit about yourself or your agency."/>
+                <Label htmlFor="profileBio" className="flex items-center gap-1 mb-1">Bio du Profil / À Propos de l'Agence</Label>
+                <Textarea id="profileBio" value={profileBio} onChange={(e) => setProfileBio(e.target.value)} rows={4} disabled={!isEditingProfile} placeholder="Parlez-nous un peu de vous ou de votre agence."/>
               </div>
               {isEditingProfile && (
                 <Button type="submit" className="w-full sm:w-auto" disabled={submittingProfile}>
-                  {submittingProfile ? 'Saving Changes...' : 'Save Profile Changes'}
+                  {submittingProfile ? 'Sauvegarde en cours...' : 'Sauvegarder les Modifications'}
                 </Button>
               )}
             </form>
@@ -143,25 +141,25 @@ export default function ProfilePage() {
         <div className="space-y-6">
             <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-2"><Lock className="h-6 w-6 text-primary"/>Change Password</CardTitle>
-                <CardDescription>Update your account password for security.</CardDescription>
+                <CardTitle className="text-2xl flex items-center gap-2"><Lock className="h-6 w-6 text-primary"/>Changer le Mot de Passe</CardTitle>
+                <CardDescription>Mettez à jour le mot de passe de votre compte pour plus de sécurité.</CardDescription>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handlePasswordChangeSubmit} className="space-y-4">
                 <div>
-                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Label htmlFor="currentPassword">Mot de Passe Actuel</Label>
                     <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
                 </div>
                 <div>
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6} placeholder="Min. 6 characters"/>
+                    <Label htmlFor="newPassword">Nouveau Mot de Passe</Label>
+                    <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6} placeholder="Min. 6 caractères"/>
                 </div>
                 <div>
-                    <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmNewPassword">Confirmer le Nouveau Mot de Passe</Label>
                     <Input id="confirmNewPassword" type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required />
                 </div>
                 <Button type="submit" className="w-full" disabled={submittingPassword}>
-                    {submittingPassword ? 'Updating Password...' : 'Update Password'}
+                    {submittingPassword ? 'Mise à jour en cours...' : 'Mettre à Jour le Mot de Passe'}
                 </Button>
                 </form>
             </CardContent>
@@ -169,13 +167,13 @@ export default function ProfilePage() {
             
             <Card className="shadow-md border-destructive/50">
                 <CardHeader>
-                    <CardTitle className="text-xl flex items-center gap-2 text-destructive"><ShieldAlert className="h-5 w-5"/>Account Security</CardTitle>
+                    <CardTitle className="text-xl flex items-center gap-2 text-destructive"><ShieldAlert className="h-5 w-5"/>Sécurité du Compte</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground mb-3">
-                        Ensure your account is secure by using a strong, unique password and enabling two-factor authentication if available.
+                        Assurez la sécurité de votre compte en utilisant un mot de passe fort et unique, et activez l'authentification à deux facteurs si disponible.
                     </p>
-                    <Button variant="destructive" className="w-full" disabled>Manage Account Deletion (Coming Soon)</Button>
+                    <Button variant="destructive" className="w-full" disabled>Gérer la Suppression du Compte (Bientôt disponible)</Button>
                 </CardContent>
             </Card>
         </div>

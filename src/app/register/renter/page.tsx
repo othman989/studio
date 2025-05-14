@@ -27,7 +27,7 @@ export default function RenterSignUpPage() {
     setSubmitting(true);
 
     if (!fullName || !email) {
-      toast({ title: "Missing Required Fields", description: "Please fill in Full Name and Email Address.", variant: "destructive" });
+      toast({ title: "Champs Obligatoires Manquants", description: "Veuillez remplir le Nom Complet et l'Adresse E-mail.", variant: "destructive" });
       setSubmitting(false);
       return;
     }
@@ -41,13 +41,12 @@ export default function RenterSignUpPage() {
       submittedAt: new Date().toISOString(),
     };
 
-    // Simulate API call for renter application submission
-    console.log('Renter Application Submitted:', renterApplicationData);
+    console.log('Candidature Locataire Soumise :', renterApplicationData);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     toast({
-      title: "Application Submitted!",
-      description: `Thank you for applying to rent with ${APP_NAME}, ${fullName}! We will review your information and contact you via email with your account details if approved.`,
+      title: "Candidature Soumise !",
+      description: `Merci d'avoir postulé pour louer avec ${APP_NAME}, ${fullName} ! Nous examinerons vos informations et vous contacterons par e-mail avec les détails de votre compte si approuvé.`,
       duration: 7000,
     });
     router.push('/login'); 
@@ -59,7 +58,7 @@ export default function RenterSignUpPage() {
        <div className="w-full max-w-md mb-6">
          <Button variant="outline" size="sm" asChild>
             <Link href="/register">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Registration Options
+            <ArrowLeft className="mr-2 h-4 w-4" /> Retour aux Options d'Inscription
             </Link>
          </Button>
        </div>
@@ -68,17 +67,17 @@ export default function RenterSignUpPage() {
           <div className="flex justify-center items-center mb-4">
             <UserPlus className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold">Apply to Rent with {APP_NAME}</CardTitle>
-          <CardDescription>Submit your application to start finding and booking great cars.</CardDescription>
+          <CardTitle className="text-3xl font-bold">Postuler pour Louer avec {APP_NAME}</CardTitle>
+          <CardDescription>Soumettez votre candidature pour commencer à trouver et réserver de superbes voitures.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><UserPlus className="h-4 w-4 text-muted-foreground"/>Full Name *</Label>
+              <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><UserPlus className="h-4 w-4 text-muted-foreground"/>Nom Complet *</Label>
               <Input 
                 id="fullName" 
                 type="text" 
-                placeholder="e.g. John Doe" 
+                placeholder="ex. Jean Dupont" 
                 value={fullName} 
                 onChange={(e) => setFullName(e.target.value)} 
                 required 
@@ -86,11 +85,11 @@ export default function RenterSignUpPage() {
               />
             </div>
             <div>
-              <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email Address *</Label>
+              <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Adresse E-mail *</Label>
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="you@example.com" 
+                placeholder="vous@example.com" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
@@ -98,51 +97,51 @@ export default function RenterSignUpPage() {
               />
             </div>
             <div>
-              <Label htmlFor="phoneNumber" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Phone Number (Optional)</Label>
+              <Label htmlFor="phoneNumber" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Numéro de Téléphone (Optionnel)</Label>
               <Input 
                 id="phoneNumber" 
                 type="tel" 
-                placeholder="(555) 123-4567" 
+                placeholder="01 23 45 67 89" 
                 value={phoneNumber} 
                 onChange={(e) => setPhoneNumber(e.target.value)} 
                 className="h-11"
               />
             </div>
             <div>
-              <Label htmlFor="jobTitle" className="flex items-center gap-1 mb-1"><Briefcase className="h-4 w-4 text-muted-foreground"/>Job Title (Optional)</Label>
+              <Label htmlFor="jobTitle" className="flex items-center gap-1 mb-1"><Briefcase className="h-4 w-4 text-muted-foreground"/>Poste (Optionnel)</Label>
               <Input 
                 id="jobTitle" 
                 type="text" 
-                placeholder="e.g. Software Engineer" 
+                placeholder="ex. Ingénieur Logiciel" 
                 value={jobTitle} 
                 onChange={(e) => setJobTitle(e.target.value)} 
                 className="h-11"
               />
             </div>
             <div>
-              <Label htmlFor="organization" className="flex items-center gap-1 mb-1"><Building className="h-4 w-4 text-muted-foreground"/>Organization (Optional)</Label>
+              <Label htmlFor="organization" className="flex items-center gap-1 mb-1"><Building className="h-4 w-4 text-muted-foreground"/>Organisation (Optionnel)</Label>
               <Input 
                 id="organization" 
                 type="text" 
-                placeholder="e.g. Tech Solutions Inc." 
+                placeholder="ex. Solutions Tech Inc." 
                 value={organization} 
                 onChange={(e) => setOrganization(e.target.value)} 
                 className="h-11"
               />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? 'Submitting Application...' : 'Submit Application'}
+              {submitting ? 'Soumission en cours...' : 'Soumettre la Candidature'}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col items-center space-y-2">
             <p className="text-xs text-muted-foreground text-center">
-                An admin will review your submission. If approved, you will receive your account credentials via email.
+                Un administrateur examinera votre soumission. Si approuvée, vous recevrez vos identifiants de compte par e-mail.
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-                Already have an account?{' '}
+                Vous avez déjà un compte ?{' '}
                 <Button variant="link" asChild className="p-0 h-auto font-medium">
-                <Link href="/login">Sign In</Link>
+                <Link href="/login">Se Connecter</Link>
                 </Button>
             </p>
         </CardFooter>
@@ -150,4 +149,3 @@ export default function RenterSignUpPage() {
     </div>
   );
 }
-

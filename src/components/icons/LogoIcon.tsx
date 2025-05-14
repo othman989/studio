@@ -1,3 +1,4 @@
+
 import type { SVGProps } from 'react';
 import { APP_NAME } from '@/lib/constants';
 
@@ -8,7 +9,7 @@ export function LogoIcon(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 200 50"
       width="120"
       height="30"
-      aria-label={APP_NAME}
+      aria-label={`${APP_NAME} - Page d'accueil`}
       {...props}
     >
       <rect width="200" height="50" rx="5" fill="hsl(var(--primary))" />

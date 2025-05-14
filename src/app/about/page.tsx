@@ -10,37 +10,37 @@ export default function AboutPage() {
         <div className="flex justify-center items-center gap-3 mb-4">
             <InfoIcon className="h-10 w-10 text-primary" />
             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            About {APP_NAME}
+            À Propos de {APP_NAME}
             </h1>
         </div>
         <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Learn more about our mission, vision, and the team behind {APP_NAME}.
+          Apprenez-en plus sur notre mission, notre vision et l'équipe derrière {APP_NAME}.
         </p>
       </header>
 
       <Card className="max-w-3xl mx-auto shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Our Story</CardTitle>
+          <CardTitle className="text-2xl">Notre Histoire</CardTitle>
           <CardDescription>
-            Connecting car renters with trusted local agencies.
+            Connecter les locataires de voitures avec des agences locales de confiance.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            Welcome to {APP_NAME}, your premier destination for hassle-free car rentals and a seamless car-sharing experience. 
-            Our platform was born from a desire to simplify the car rental process, making it easier for renters to find the perfect vehicle 
-            and for rental agencies to reach a wider audience.
+            Bienvenue chez {APP_NAME}, votre destination de choix pour des locations de voitures sans tracas et une expérience de covoiturage transparente.
+            Notre plateforme est née d'un désir de simplifier le processus de location de voitures, facilitant la recherche du véhicule parfait pour les locataires
+            et permettant aux agences de location d'atteindre un public plus large.
           </p>
           <p className="text-muted-foreground">
-            <strong>Our Mission:</strong> To revolutionize the car rental industry by providing a transparent, efficient, and user-friendly marketplace 
-            that benefits both renters and rental agencies. We aim to empower local businesses and provide unparalleled choice and convenience to travelers.
+            <strong>Notre Mission :</strong> Révolutionner l'industrie de la location de voitures en fournissant un marché transparent, efficace et convivial
+            qui profite à la fois aux locataires et aux agences de location. Nous visons à autonomiser les entreprises locales et à offrir un choix et une commodité inégalés aux voyageurs.
           </p>
            <p className="text-muted-foreground">
-            <strong>Our Vision:</strong> To be the leading global platform for car sharing and rentals, fostering a community built on trust, reliability, and innovation. 
-            We envision a future where renting a car is as easy as a few clicks, anywhere in the world.
+            <strong>Notre Vision :</strong> Être la principale plateforme mondiale de covoiturage et de location, favorisant une communauté bâtie sur la confiance, la fiabilité et l'innovation.
+            Nous envisageons un avenir où la location d'une voiture sera aussi simple que quelques clics, partout dans le monde.
           </p>
           <p className="text-muted-foreground">
-            Content for this page is currently under development. More details about our team, values, and journey will be added soon!
+            Le contenu de cette page est actuellement en cours de développement. Plus de détails sur notre équipe, nos valeurs et notre parcours seront bientôt ajoutés !
           </p>
         </CardContent>
       </Card>

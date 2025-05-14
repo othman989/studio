@@ -1,50 +1,51 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, DollarSign } from 'lucide-react'; // Added DollarSign
+import { APP_NAME } from '@/lib/constants';
 
 const pricingTiers = [
   {
-    name: 'Renter Basic',
-    price: 'Free',
-    description: 'Perfect for occasional renters.',
+    name: 'Locataire Basique',
+    price: 'Gratuit',
+    description: 'Parfait pour les locataires occasionnels.',
     features: [
-      'Access to all listings',
-      'Standard booking process',
-      'Email support',
+      'Accès à toutes les annonces',
+      'Processus de réservation standard',
+      'Support par e-mail',
     ],
-    cta: 'Sign Up to Rent',
+    cta: 'S\'inscrire pour Louer',
     href: '/register/renter',
     popular: false,
   },
   {
-    name: 'Agency Starter',
-    price: '$49',
-    priceSuffix: '/month',
-    description: 'For new agencies getting started.',
+    name: 'Agence Débutant',
+    price: '49€',
+    priceSuffix: '/mois',
+    description: 'Pour les nouvelles agences qui débutent.',
     features: [
-      'List up to 10 cars',
-      'Basic analytics dashboard',
-      'Standard messaging tools',
-      'Email & Chat support',
+      'Lister jusqu\'à 10 voitures',
+      'Tableau de bord analytique de base',
+      'Outils de messagerie standard',
+      'Support par e-mail & chat',
     ],
-    cta: 'Choose Starter',
+    cta: 'Choisir Débutant',
     href: '/register/agency?plan=starter',
     popular: true,
   },
   {
-    name: 'Agency Pro',
-    price: '$99',
-    priceSuffix: '/month',
-    description: 'For growing agencies needing more.',
+    name: 'Agence Pro',
+    price: '99€',
+    priceSuffix: '/mois',
+    description: 'Pour les agences en croissance ayant besoin de plus.',
     features: [
-      'List up to 50 cars',
-      'Advanced analytics',
-      'Priority messaging tools',
-      'Featured listing options',
-      'Phone, Email & Chat support',
+      'Lister jusqu\'à 50 voitures',
+      'Analyses avancées',
+      'Outils de messagerie prioritaires',
+      'Options d\'annonces en vedette',
+      'Support par téléphone, e-mail & chat',
     ],
-    cta: 'Choose Pro',
+    cta: 'Choisir Pro',
     href: '/register/agency?plan=pro',
     popular: false,
   },
@@ -54,11 +55,14 @@ export default function PricingPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
       <header className="text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">
-          Our Pricing Plans
-        </h1>
+        <div className="flex justify-center items-center gap-3 mb-4">
+            <DollarSign className="h-10 w-10 text-primary" />
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            Nos Plans Tarifaires
+            </h1>
+        </div>
         <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Choose the plan that's right for you. Whether you're a renter or an agency, AutoPool offers flexible options to meet your needs.
+          Choisissez le plan qui vous convient. Que vous soyez locataire ou agence, {APP_NAME} offre des options flexibles pour répondre à vos besoins.
         </p>
       </header>
 
@@ -68,7 +72,7 @@ export default function PricingPage() {
             {tier.popular && (
               <div className="absolute top-0 right-0 -mt-3 mr-3">
                 <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-semibold bg-primary text-primary-foreground">
-                  Most Popular
+                  Le Plus Populaire
                 </span>
               </div>
             )}
@@ -100,12 +104,12 @@ export default function PricingPage() {
       </div>
 
       <div className="mt-16 text-center">
-        <h3 className="text-2xl font-semibold mb-4">Questions?</h3>
+        <h3 className="text-2xl font-semibold mb-4">Des Questions ?</h3>
         <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-          If you have any questions about our pricing or need a custom plan for a larger agency, please don't hesitate to contact us.
+          Si vous avez des questions sur nos tarifs ou si vous avez besoin d'un plan personnalisé pour une agence plus grande, n'hésitez pas à nous contacter.
         </p>
-        <Button size="lg" variant="default">
-          <a href="/contact">Contact Sales</a>
+        <Button size="lg" variant="default" asChild>
+          <a href="/contact">Contacter le Service Commercial</a>
         </Button>
       </div>
     </div>

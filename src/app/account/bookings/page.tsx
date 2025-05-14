@@ -8,19 +8,19 @@ export default function AgencyBookingsPage() {
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-2">
             <BookMarkedIcon className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Booking Requests</h1>
+            <h1 className="text-3xl font-bold">Demandes de Réservation</h1>
         </div>
-        <CardDescription>Review and manage incoming booking requests for your vehicles.</CardDescription>
+        <CardDescription>Examinez et gérez les demandes de réservation entrantes pour vos véhicules.</CardDescription>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Manage Bookings</CardTitle>
+          <CardTitle>Gérer les Réservations</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground">
-            This page will display all booking requests (pending, confirmed, completed, cancelled).
-            Content and functionality coming soon.
+            Cette page affichera toutes les demandes de réservation (en attente, confirmées, terminées, annulées).
+            Contenu et fonctionnalités à venir.
           </p>
         </CardContent>
       </Card>

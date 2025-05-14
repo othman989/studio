@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { APP_NAME } from '@/lib/constants';
 import { CarFront, Facebook, Twitter, Instagram } from 'lucide-react';
@@ -12,10 +13,10 @@ export function Footer() {
   ];
 
   const footerLinks = [
-    { name: 'About Us', href: '/about' },
+    { name: 'À Propos', href: '/about' },
     { name: 'Contact', href: '/contact' },
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Conditions d\'Utilisation', href: '/terms' },
+    { name: 'Politique de Confidentialité', href: '/privacy' },
   ];
 
   return (
@@ -28,12 +29,12 @@ export function Footer() {
               <span className="text-2xl font-bold">{APP_NAME}</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Your trusted marketplace for car rentals.
+              Votre marché de confiance pour la location de voitures.
             </p>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4">Liens Rapides</h3>
             <ul className="space-y-2">
               {footerLinks.map((link) => (
                 <li key={link.name}>
@@ -46,7 +47,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
+            <h3 className="text-lg font-semibold mb-4">Restez Connectés</h3>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <Link key={social.name} href={social.href} aria-label={social.name} className="text-muted-foreground hover:text-primary transition-colors">
@@ -58,7 +59,7 @@ export function Footer() {
         </div>
         <div className="mt-12 border-t pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} {APP_NAME}. All rights reserved.
+            &copy; {currentYear} {APP_NAME}. Tous droits réservés.
           </p>
         </div>
       </div>

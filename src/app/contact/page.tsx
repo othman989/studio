@@ -9,30 +9,30 @@ export default function ContactPage() {
          <div className="flex justify-center items-center gap-3 mb-4">
             <MailIcon className="h-10 w-10 text-primary" />
             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            Contact Us
+            Nous Contacter
             </h1>
         </div>
         <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-          We&apos;d love to hear from you! Whether you have a question about features, trials, pricing, or anything else, our team is ready to answer all your questions.
+          Nous serions ravis de vous entendre ! Que vous ayez une question sur les fonctionnalités, les essais, les tarifs ou toute autre chose, notre équipe est prête à répondre à toutes vos questions.
         </p>
       </header>
 
       <Card className="max-w-2xl mx-auto shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Get in Touch</CardTitle>
+          <CardTitle className="text-2xl">Prendre Contact</CardTitle>
           <CardDescription>
-            Contact form and details will be available here soon.
+            Le formulaire de contact et les détails seront bientôt disponibles ici.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            In the meantime, you can imagine a beautiful contact form here, or direct contact information like an email address or phone number.
+            En attendant, vous pouvez imaginer un magnifique formulaire de contact ici, ou des informations de contact directes comme une adresse e-mail ou un numéro de téléphone.
           </p>
           <p className="text-muted-foreground mt-4">
-            For support, please email <a href="mailto:support@autopool.example.com" className="text-primary hover:underline">support@autopool.example.com</a>.
+            Pour le support, veuillez envoyer un e-mail à <a href="mailto:support@autopool.example.com" className="text-primary hover:underline">support@autopool.example.com</a>.
           </p>
            <p className="text-muted-foreground mt-2">
-            For sales inquiries, please email <a href="mailto:sales@autopool.example.com" className="text-primary hover:underline">sales@autopool.example.com</a>.
+            Pour les demandes commerciales, veuillez envoyer un e-mail à <a href="mailto:sales@autopool.example.com" className="text-primary hover:underline">ventes@autopool.example.com</a>.
           </p>
         </CardContent>
       </Card>

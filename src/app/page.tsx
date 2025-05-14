@@ -8,74 +8,73 @@ import { APP_NAME } from '@/lib/constants';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} | List Your Car Rental Agency & Grow Your Business`,
-  description: `Join ${APP_NAME} today to list your car rental fleet, reach more customers, and grow your business. Easy setup and free account creation for agencies. The leading car sharing marketplace.`,
+  title: `${APP_NAME} | Inscrivez Votre Agence de Location et Développez Votre Activité`,
+  description: `Rejoignez ${APP_NAME} aujourd'hui pour lister votre flotte de voitures de location, atteindre plus de clients et développer votre activité. Configuration facile et création de compte gratuite pour les agences. Le leader du marché du covoiturage.`,
 };
 
 const benefits = [
   {
     icon: <Users className="h-10 w-10 text-primary mb-4" />,
-    title: 'Reach More Customers',
-    description: `Showcase your fleet to thousands of potential renters on the ${APP_NAME} platform.`,
+    title: 'Atteignez Plus de Clients',
+    description: `Présentez votre flotte à des milliers de locataires potentiels sur la plateforme ${APP_NAME}.`,
   },
   {
     icon: <DollarSign className="h-10 w-10 text-primary mb-4" />,
-    title: 'Increase Bookings & Revenue',
-    description: 'Boost your occupancy rates and grow your income with our targeted marketing and user base.',
+    title: 'Augmentez Réservations & Revenus',
+    description: 'Boostez vos taux d\'occupation et augmentez vos revenus grâce à notre marketing ciblé et notre base d\'utilisateurs.',
   },
   {
     icon: <ListChecks className="h-10 w-10 text-primary mb-4" />,
-    title: 'Effortless Fleet Management',
-    description: 'Easily list cars, manage availability with our calendar, and control your listings\' visibility.',
+    title: 'Gestion de Flotte Sans Effort',
+    description: 'Listez facilement les voitures, gérez la disponibilité avec notre calendrier et contrôlez la visibilité de vos annonces.',
   },
   {
     icon: <Zap className="h-10 w-10 text-primary mb-4" />,
-    title: 'Quick & Easy Setup',
-    description: 'Our simple application process gets your agency listed and ready for bookings in no time.',
+    title: 'Configuration Rapide & Facile',
+    description: 'Notre processus de candidature simple permet à votre agence d\'être listée et prête pour les réservations en un rien de temps.',
   },
 ];
 
 const howItWorksSteps = [
   {
     number: '1',
-    title: 'Apply to Join',
-    description: 'Submit our quick online application form with your agency details.',
+    title: 'Postulez pour Rejoindre',
+    description: 'Soumettez notre formulaire de candidature en ligne rapide avec les détails de votre agence.',
   },
   {
     number: '2',
-    title: 'Get Approved',
-    description: `Our team will review your application and get back to you promptly.`,
+    title: 'Soyez Approuvé',
+    description: `Notre équipe examinera votre candidature et vous répondra rapidement.`,
   },
   {
     number: '3',
-    title: 'List Your Cars',
-    description: 'Add your vehicles with detailed descriptions, photos, and pricing.',
+    title: 'Listez Vos Voitures',
+    description: 'Ajoutez vos véhicules avec des descriptions détaillées, des photos et des tarifs.',
   },
   {
     number: '4',
-    title: 'Start Earning',
-    description: 'Receive booking requests, manage them easily, and grow your business!',
+    title: 'Commencez à Gagner',
+    description: 'Recevez des demandes de réservation, gérez-les facilement et développez votre activité !',
   },
 ];
 
 const platformFeatures = [
-    { icon: <ListChecks className="h-5 w-5 text-accent" />, name: "Easy Car Listings" },
-    { icon: <CalendarDaysIcon className="h-5 w-5 text-accent" />, name: "Booking Calendar" },
-    { icon: <MessageCircle className="h-5 w-5 text-accent" />, name: "Direct Renter Chat" },
-    { icon: <BarChart3 className="h-5 w-5 text-accent" />, name: "Performance Analytics (Coming Soon)" },
-    { icon: <Users className="h-5 w-5 text-accent" />, name: "Visibility Control" },
-    { icon: <DollarSign className="h-5 w-5 text-accent" />, name: "Secure Payouts (Coming Soon)" },
+    { icon: <ListChecks className="h-5 w-5 text-accent" />, name: "Annonces de Voitures Faciles" },
+    { icon: <CalendarDaysIcon className="h-5 w-5 text-accent" />, name: "Calendrier de Réservation" },
+    { icon: <MessageCircle className="h-5 w-5 text-accent" />, name: "Chat Direct avec Locataires" },
+    { icon: <BarChart3 className="h-5 w-5 text-accent" />, name: "Analyses de Performance (Bientôt)" },
+    { icon: <Users className="h-5 w-5 text-accent" />, name: "Contrôle de Visibilité" },
+    { icon: <DollarSign className="h-5 w-5 text-accent" />, name: "Paiements Sécurisés (Bientôt)" },
 ];
 
 export default function AgencySignUpLandingPage() {
   return (
     <>
-      {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-to-br from-secondary to-background">
         <div className="absolute inset-0 opacity-10">
             <Image
-            src="https://placehold.co/1920x1080.png?text=Modern+Car+Fleet"
-            alt="Abstract background for agency sign up"
+            src="https://placehold.co/1920x1080.png?text=Flotte+Moderne+Voitures"
+            alt="Arrière-plan abstrait pour l'inscription d'agence"
             layout="fill"
             objectFit="cover"
             priority
@@ -84,28 +83,27 @@ export default function AgencySignUpLandingPage() {
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground mb-6">
-            Grow Your Rental Business with <span className="text-primary">{APP_NAME}</span>
+            Développez Votre Entreprise de Location avec <span className="text-primary">{APP_NAME}</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-            Partner with us to expand your reach, streamline bookings, and increase your revenue. It's free to join and list your cars!
+            Devenez notre partenaire pour étendre votre portée, simplifier les réservations et augmenter vos revenus. L'inscription et la publication de vos voitures sont gratuites !
           </p>
           <Button size="lg" asChild className="shadow-lg hover:shadow-xl transition-shadow">
             <Link href="/register/agency">
-              Create Your Free Agency Account <ArrowRight className="ml-2 h-5 w-5" />
+              Créez Votre Compte Agence Gratuit <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-              Why Partner with {APP_NAME}?
+              Pourquoi Devenir Partenaire {APP_NAME} ?
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              We provide the tools and platform to help your car rental agency thrive.
+              Nous fournissons les outils et la plateforme pour aider votre agence de location de voitures à prospérer.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -124,15 +122,14 @@ export default function AgencySignUpLandingPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <section className="py-16 sm:py-24 bg-secondary/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-              Simple Steps to Get Started
+              Étapes Simples pour Commencer
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Joining {APP_NAME} as an agency partner is straightforward.
+              Rejoindre {APP_NAME} en tant que partenaire agence est simple.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -155,15 +152,14 @@ export default function AgencySignUpLandingPage() {
         </div>
       </section>
       
-      {/* Features Snapshot Section */}
       <section className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-              Powerful Platform Features
+              Fonctionnalités Puissantes de la Plateforme
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Tools designed for agency success.
+              Des outils conçus pour le succès des agences.
             </p>
           </div>
           <div className="max-w-3xl mx-auto">
@@ -179,18 +175,17 @@ export default function AgencySignUpLandingPage() {
         </div>
       </section>
 
-      {/* Final CTA Section */}
       <section className="py-16 sm:py-24 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6">
-            Ready to Supercharge Your Agency?
+            Prêt à Booster Votre Agence ?
           </h2>
           <p className="text-lg sm:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-10">
-            Join hundreds of successful agencies on {APP_NAME}. Create your free account and start listing your cars today!
+            Rejoignez des centaines d'agences prospères sur {APP_NAME}. Créez votre compte gratuit et commencez à lister vos voitures dès aujourd'hui !
           </p>
           <Button asChild size="lg" variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover:shadow-xl transition-shadow">
             <Link href="/register/agency">
-              Get Started for Free <ArrowRight className="ml-2 h-5 w-5" />
+              Commencez Gratuitement <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>

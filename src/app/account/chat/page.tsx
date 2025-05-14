@@ -1,3 +1,4 @@
+
 // src/app/account/chat/page.tsx
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -5,33 +6,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, Send, Search, ArrowLeft } from 'lucide-react';
-import { Badge } from "@/components/ui/badge"; // Added import
+import { Badge } from "@/components/ui/badge";
 
 // Mock data - replace with actual data fetching
 const mockConversations = [
-  { id: 'conv1', userName: 'Alice Smith (Toyota Camry)', lastMessage: 'Is the car available next weekend?', unreadCount: 2, avatarUrl: 'https://picsum.photos/seed/alice_chat/50/50', lastMessageTime: '10:30 AM' },
-  { id: 'conv2', userName: 'Bob Johnson (BMW X5 Agency)', lastMessage: 'Yes, it is. Would you like to proceed?', unreadCount: 0, avatarUrl: 'https://picsum.photos/seed/bob_chat/50/50', lastMessageTime: 'Yesterday' },
-  { id: 'conv3', userName: 'Charlie Brown (Ford Mustang Renter)', lastMessage: 'Perfect, thanks!', unreadCount: 0, avatarUrl: 'https://picsum.photos/seed/charlie_chat/50/50', lastMessageTime: 'Mon' },
+  { id: 'conv1', userName: 'Alice Dupont (Toyota Camry)', lastMessage: 'La voiture est-elle disponible le week-end prochain ?', unreadCount: 2, avatarUrl: 'https://picsum.photos/seed/alice_chat/50/50', lastMessageTime: '10:30' },
+  { id: 'conv2', userName: 'Bob Martin (Agence BMW X5)', lastMessage: 'Oui, elle l\'est. Voulez-vous continuer ?', unreadCount: 0, avatarUrl: 'https://picsum.photos/seed/bob_chat/50/50', lastMessageTime: 'Hier' },
+  { id: 'conv3', userName: 'Charlie Brun (Locataire Ford Mustang)', lastMessage: 'Parfait, merci !', unreadCount: 0, avatarUrl: 'https://picsum.photos/seed/charlie_chat/50/50', lastMessageTime: 'Lun' },
 ];
 
 const mockMessages = {
   conv1: [
-    { id: 'msg1', sender: 'Alice Smith', text: 'Hi, is the Toyota Camry available next weekend, from Sat to Sun?', time: '10:25 AM', isMe: false },
-    { id: 'msg2', sender: 'You (Agency)', text: 'Hi Alice, let me check the availability for you.', time: '10:27 AM', isMe: true },
-    { id: 'msg3', sender: 'Alice Smith', text: 'Okay, thank you!', time: '10:28 AM', isMe: false },
-    { id: 'msg4', sender: 'Alice Smith', text: 'Is the car available next weekend?', time: '10:30 AM', isMe: false },
+    { id: 'msg1', sender: 'Alice Dupont', text: 'Bonjour, la Toyota Camry est-elle disponible le week-end prochain, du Sam au Dim ?', time: '10:25', isMe: false },
+    { id: 'msg2', sender: 'Vous (Agence)', text: 'Bonjour Alice, laissez-moi vérifier la disponibilité pour vous.', time: '10:27', isMe: true },
+    { id: 'msg3', sender: 'Alice Dupont', text: 'D\'accord, merci !', time: '10:28', isMe: false },
+    { id: 'msg4', sender: 'Alice Dupont', text: 'La voiture est-elle disponible le week-end prochain ?', time: '10:30', isMe: false },
 
   ],
   conv2: [
-    { id: 'msg5', sender: 'You (Renter)', text: 'Hello, I am interested in the BMW X5. Is it available for a 3-day rental starting next Friday?', time: 'Yesterday', isMe: true },
-    { id: 'msg6', sender: 'Bob Johnson (BMW X5 Agency)', text: 'Yes, it is. Would you like to proceed?', time: 'Yesterday', isMe: false },
+    { id: 'msg5', sender: 'Vous (Locataire)', text: 'Bonjour, je suis intéressé par la BMW X5. Est-elle disponible pour une location de 3 jours à partir de vendredi prochain ?', time: 'Hier', isMe: true },
+    { id: 'msg6', sender: 'Bob Martin (Agence BMW X5)', text: 'Oui, elle l\'est. Voulez-vous continuer ?', time: 'Hier', isMe: false },
   ],
 };
 
-// For now, this is a placeholder. Actual implementation would use useState for selected conversation, messages, etc.
-// and fetch data dynamically.
 export default function ChatPage() {
-  const selectedConversationId = mockConversations[0].id; // Default to first conversation for demo
+  const selectedConversationId = mockConversations[0].id; 
   const currentMessages = (mockMessages as any)[selectedConversationId] || [];
 
   return (
@@ -50,7 +49,7 @@ export default function ChatPage() {
           <div className="p-4 border-b">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search conversations..." className="pl-10" />
+              <Input placeholder="Rechercher conversations..." className="pl-10" />
             </div>
           </div>
           <div className="flex-grow overflow-y-auto">
@@ -90,7 +89,7 @@ export default function ChatPage() {
                 </Avatar>
                 <div>
                     <h2 className="font-semibold text-lg">{mockConversations.find(c => c.id === selectedConversationId)?.userName}</h2>
-                    <p className="text-xs text-green-600">Online</p> {/* Placeholder status */}
+                    <p className="text-xs text-green-600">En ligne</p> {/* Placeholder status */}
                 </div>
               </div>
               <div className="flex-grow overflow-y-auto p-4 space-y-4">
@@ -105,7 +104,7 @@ export default function ChatPage() {
               </div>
               <div className="p-4 border-t bg-muted/50">
                 <form className="flex items-center gap-2">
-                  <Input placeholder="Type your message..." className="flex-grow bg-background" />
+                  <Input placeholder="Écrivez votre message..." className="flex-grow bg-background" />
                   <Button type="submit" size="icon">
                     <Send className="h-5 w-5" />
                   </Button>
@@ -115,8 +114,8 @@ export default function ChatPage() {
           ) : (
             <div className="flex-grow flex flex-col items-center justify-center text-center p-4">
               <MessageSquare className="h-16 w-16 text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold text-foreground">Select a conversation</h2>
-              <p className="text-muted-foreground">Choose a conversation from the list to start chatting.</p>
+              <h2 className="text-xl font-semibold text-foreground">Sélectionnez une conversation</h2>
+              <p className="text-muted-foreground">Choisissez une conversation dans la liste pour commencer à discuter.</p>
             </div>
           )}
         </div>

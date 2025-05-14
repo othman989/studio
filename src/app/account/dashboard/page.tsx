@@ -27,12 +27,12 @@ const dashboardStats = {
 };
 
 const quickLinks = [
-  { href: '/account/listings', label: 'Manage My Listings', icon: ListIcon, description: "View, edit, or remove your car listings." },
-  { href: '/account/listings/new', label: 'Add New Car', icon: PlusCircleIcon, description: "List a new vehicle in your fleet." },
-  { href: '/account/calendar', label: 'Agency Calendar', icon: CalendarDaysIcon, description: "View bookings and manage car availability." },
-  { href: '/account/listings/visibility', label: 'Fleet Visibility', icon: EyeIcon, description: "Control which cars are publicly visible." },
-  { href: '/account/bookings', label: 'Booking Requests', icon: BookMarkedIcon, description: "Review and manage incoming booking requests." },
-  { href: '/account/chat', label: 'Messages', icon: MessageSquareIcon, description: "Communicate with renters and platform users." },
+  { href: '/account/listings', label: 'Gérer Mes Annonces', icon: ListIcon, description: "Voir, modifier ou supprimer vos annonces de voitures." },
+  { href: '/account/listings/new', label: 'Ajouter Nouvelle Voiture', icon: PlusCircleIcon, description: "Inscrire un nouveau véhicule dans votre flotte." },
+  { href: '/account/calendar', label: 'Calendrier Agence', icon: CalendarDaysIcon, description: "Voir les réservations et gérer la disponibilité des voitures." },
+  { href: '/account/listings/visibility', label: 'Visibilité Flotte', icon: EyeIcon, description: "Contrôler quelles voitures sont visibles publiquement." },
+  { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon, description: "Examiner et gérer les demandes de réservation entrantes." },
+  { href: '/account/chat', label: 'Messages', icon: MessageSquareIcon, description: "Communiquer avec les locataires et utilisateurs de la plateforme." },
 ];
 
 const AccountDashboardPage = () => {
@@ -41,60 +41,60 @@ const AccountDashboardPage = () => {
       <header className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <LayoutDashboardIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">Agency Dashboard</h1>
+          <h1 className="text-4xl font-bold">Tableau de Bord Agence</h1>
         </div>
-        <p className="text-lg text-muted-foreground">Welcome back! Here's an overview of your {APP_NAME} agency account.</p>
+        <p className="text-lg text-muted-foreground">Bon retour ! Voici un aperçu de votre compte agence {APP_NAME}.</p>
       </header>
 
       {/* Stats Section */}
       <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4 text-foreground">At a Glance</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">En Bref</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <Link href="/account/listings" className="block hover:no-underline">
             <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Annonces</CardTitle>
                 <CarIcon className="h-5 w-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{dashboardStats.totalListings}</div>
-                <p className="text-xs text-muted-foreground">cars in your fleet</p>
+                <p className="text-xs text-muted-foreground">voitures dans votre flotte</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/account/listings/visibility" className="block hover:no-underline">
             <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
+                <CardTitle className="text-sm font-medium">Annonces Actives</CardTitle>
                 <CheckCircle2Icon className="h-5 w-5 text-green-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{dashboardStats.activeListings}</div>
-                <p className="text-xs text-muted-foreground">currently visible to renters</p>
+                <p className="text-xs text-muted-foreground">actuellement visibles aux locataires</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/account/bookings" className="block hover:no-underline">
             <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
+                <CardTitle className="text-sm font-medium">Réservations en Attente</CardTitle>
                 <ClockIcon className="h-5 w-5 text-yellow-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{dashboardStats.pendingBookings}</div>
-                <p className="text-xs text-muted-foreground">requests awaiting review</p>
+                <p className="text-xs text-muted-foreground">demandes en attente d'examen</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/account/chat" className="block hover:no-underline">
             <Card className="shadow-md hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
+                <CardTitle className="text-sm font-medium">Messages Non Lus</CardTitle>
                 <MessageSquareIcon className="h-5 w-5 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{dashboardStats.unreadMessages}</div>
-                <p className="text-xs text-muted-foreground">new inquiries and replies</p>
+                <p className="text-xs text-muted-foreground">nouvelles demandes et réponses</p>
               </CardContent>
             </Card>
           </Link>
@@ -103,7 +103,7 @@ const AccountDashboardPage = () => {
 
       {/* Quick Actions Section */}
       <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-6 text-foreground">Manage Your Agency</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-foreground">Gérez Votre Agence</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quickLinks.map((link) => (
             <Card key={link.href} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col group">
@@ -121,7 +121,7 @@ const AccountDashboardPage = () => {
               <CardContent className="flex-grow flex items-end pt-2">
                 <Button asChild className="w-full mt-auto" variant="outline">
                   <Link href={link.href}>
-                    Go to {link.label.replace("Manage ", "").replace("Agency ", "")}
+                    Aller à {link.label.replace("Gérer ", "").replace("Agence ", "").replace("Mes ", "")}
                   </Link>
                 </Button>
               </CardContent>
@@ -132,25 +132,25 @@ const AccountDashboardPage = () => {
 
       {/* Additional Sections (Placeholders) */}
       <section>
-        <h2 className="text-2xl font-semibold mb-4 text-foreground">More Tools</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">Plus d'Outils</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><BarChart3Icon className="h-6 w-6 text-primary"/>Performance Analytics</CardTitle>
-              <CardDescription>Gain insights into your listings and bookings. (Coming Soon)</CardDescription>
+              <CardTitle className="flex items-center gap-2"><BarChart3Icon className="h-6 w-6 text-primary"/>Analyses de Performance</CardTitle>
+              <CardDescription>Obtenez des informations sur vos annonces et réservations. (Bientôt disponible)</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button disabled variant="outline">View Analytics</Button>
+              <Button disabled variant="outline">Voir les Analyses</Button>
             </CardContent>
           </Card>
           <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><SettingsIcon className="h-6 w-6 text-primary"/>Account Settings</CardTitle>
-              <CardDescription>Manage your profile, payment methods, and notification preferences.</CardDescription>
+              <CardTitle className="flex items-center gap-2"><SettingsIcon className="h-6 w-6 text-primary"/>Paramètres du Compte</CardTitle>
+              <CardDescription>Gérez votre profil, méthodes de paiement et préférences de notification.</CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline">
-                <Link href="/account/profile">Go to Profile</Link>
+                <Link href="/account/profile">Aller au Profil</Link>
               </Button>
             </CardContent>
           </Card>

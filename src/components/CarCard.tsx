@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Car } from '@/types';
@@ -5,16 +6,21 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Star, DollarSign, CalendarDays, Fuel, Settings, Users } from 'lucide-react';
+import { CAR_TYPES } from '@/lib/constants';
 
 interface CarCardProps {
   car: Car;
 }
 
 export function CarCard({ car }: CarCardProps) {
+  const carTypeLabel = CAR_TYPES.find(ct => ct.value === car.type)?.label || car.type;
+  const fuelTypeLabel = car.fuelType === 'Gasoline' ? 'Essence' : car.fuelType === 'Diesel' ? 'Diesel' : car.fuelType === 'Electric' ? 'Électrique' : car.fuelType === 'Hybrid' ? 'Hybride' : car.fuelType;
+  const transmissionLabel = car.transmission === 'Automatic' ? 'Automatique' : car.transmission === 'Manual' ? 'Manuelle' : car.transmission;
+
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
       <CardHeader className="p-0 relative">
-        <Link href={`/cars/${car.id}`} aria-label={`View details for ${car.make} ${car.model}`}>
+        <Link href={`/cars/${car.id}`} aria-label={`Voir détails pour ${car.make} ${car.model}`}>
           <Image
             src={car.imageUrl}
             alt={`${car.make} ${car.model}`}
@@ -22,7 +28,7 @@ export function CarCard({ car }: CarCardProps) {
             height={400}
             className="object-cover w-full h-48 sm:h-56 md:h-64 transition-transform duration-300 hover:scale-105"
             data-ai-hint={`${car.type} ${car.make}`}
-            priority={car.id === '1' || car.id === '2'} // Prioritize LCP images
+            priority={car.id === '1' || car.id === '2'} 
           />
         </Link>
         {car.averageRating && (
@@ -38,29 +44,29 @@ export function CarCard({ car }: CarCardProps) {
             {car.make} {car.model}
           </CardTitle>
         </Link>
-        <p className="text-sm text-muted-foreground mb-2">{car.year} &bull; <Badge variant="outline">{car.type}</Badge></p>
+        <p className="text-sm text-muted-foreground mb-2">{car.year} &bull; <Badge variant="outline">{carTypeLabel}</Badge></p>
         
         <div className="space-y-1.5 text-sm text-muted-foreground mb-3">
           <div className="flex items-center gap-1.5">
             <MapPin className="h-4 w-4 text-primary" />
             <span className="truncate" title={car.location}>{car.location}</span>
           </div>
-           {car.fuelType && (
+           {fuelTypeLabel && (
             <div className="flex items-center gap-1.5">
               <Fuel className="h-4 w-4 text-primary" />
-              <span>{car.fuelType}</span>
+              <span>{fuelTypeLabel}</span>
             </div>
           )}
-          {car.transmission && (
+          {transmissionLabel && (
             <div className="flex items-center gap-1.5">
               <Settings className="h-4 w-4 text-primary" />
-              <span>{car.transmission}</span>
+              <span>{transmissionLabel}</span>
             </div>
           )}
           {car.seats && (
              <div className="flex items-center gap-1.5">
               <Users className="h-4 w-4 text-primary" />
-              <span>{car.seats} Seats</span>
+              <span>{car.seats} Sièges</span>
             </div>
           )}
         </div>
@@ -68,14 +74,13 @@ export function CarCard({ car }: CarCardProps) {
       </CardContent>
       <CardFooter className="p-4 border-t flex items-center justify-between">
         <div className="flex items-baseline">
-          <DollarSign className="h-5 w-5 text-accent" />
           <span className="text-xl font-bold text-accent">{car.pricePerDay}</span>
-          <span className="text-sm text-muted-foreground">/day</span>
+          <span className="text-sm text-muted-foreground">€/jour</span>
         </div>
         <Button asChild size="sm">
           <Link href={`/cars/${car.id}/book`}>
             <CalendarDays className="mr-2 h-4 w-4" />
-            Book Now
+            Réserver
           </Link>
         </Button>
       </CardFooter>

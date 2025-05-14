@@ -1,4 +1,5 @@
-"use client"; // This page will involve client-side form handling
+
+"use client";
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -14,13 +15,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, DollarSign, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator'; // Added Separator
 import { format, differenceInDays, addDays } from 'date-fns';
+import { fr } from 'date-fns/locale'; // Import French locale
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker"
 
 
 async function getCarDetails(id: string): Promise<Car | undefined> {
-  // Simulate API call
   await new Promise(resolve => setTimeout(resolve, 50));
   return ALL_CARS.find(car => car.id === id);
 }
@@ -74,49 +76,46 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!car || !dateRange?.from || !dateRange?.to) {
-        toast({ title: "Error", description: "Please select valid dates and ensure car details are loaded.", variant: "destructive" });
+        toast({ title: "Erreur", description: "Veuillez sélectionner des dates valides et vous assurer que les détails de la voiture sont chargés.", variant: "destructive" });
         return;
     }
     
     setSubmitting(true);
 
-    // Simulate API call for booking
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     const bookingData: Partial<Booking> = {
-      userId: 'current_user_id', // Replace with actual user ID
+      userId: 'current_user_id', 
       carId: car.id,
-      agencyId: car.agencyId || 'default_agency_id', // Replace with actual agency ID
+      agencyId: car.agencyId || 'default_agency_id',
       startDate: dateRange.from.toISOString(),
       endDate: dateRange.to.toISOString(),
       totalPrice,
-      status: 'pending', // Initial status
+      status: 'pending', 
     };
     
-    console.log('Booking Submitted:', bookingData);
-    // In a real app, you would send this data to your backend.
+    console.log('Réservation Soumise :', bookingData);
 
     setSubmitting(false);
     toast({
-      title: "Booking Request Sent!",
-      description: `Your request for the ${car.make} ${car.model} has been submitted. The agency will contact you shortly.`,
+      title: "Demande de Réservation Envoyée !",
+      description: `Votre demande pour la ${car.make} ${car.model} a été soumise. L'agence vous contactera sous peu.`,
       action: <CheckCircle className="text-green-500" />,
     });
-    // Potentially redirect to a confirmation page or user's bookings page
     router.push(`/cars/${car.id}?booking=success`); 
   };
   
   if (loading) {
-    return <div className="container mx-auto px-4 py-12 text-center">Loading car details...</div>;
+    return <div className="container mx-auto px-4 py-12 text-center">Chargement des détails de la voiture...</div>;
   }
 
   if (!car) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="text-3xl font-bold mb-4">Car Not Found</h1>
-        <p className="text-muted-foreground mb-6">The car you are trying to book is not available.</p>
+        <h1 className="text-3xl font-bold mb-4">Voiture Non Trouvée</h1>
+        <p className="text-muted-foreground mb-6">La voiture que vous essayez de réserver n'est pas disponible.</p>
         <Button asChild>
-          <Link href="/cars">Back to Listings</Link>
+          <Link href="/cars">Retour aux Annonces</Link>
         </Button>
       </div>
     );
@@ -126,15 +125,14 @@ export default function BookingPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <Button variant="outline" size="sm" asChild className="mb-6">
         <Link href={`/cars/${car.id}`}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Car Details
+          <ArrowLeft className="mr-2 h-4 w-4" /> Retour aux Détails de la Voiture
         </Link>
       </Button>
 
-      <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Book Your Ride</h1>
-      <p className="text-lg text-muted-foreground mb-8">Complete the form below to request a booking for the {car.make} {car.model}.</p>
+      <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Réservez Votre Voiture</h1>
+      <p className="text-lg text-muted-foreground mb-8">Complétez le formulaire ci-dessous pour demander une réservation pour la {car.make} {car.model}.</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-        {/* Car Summary and Price Details */}
         <div className="lg:col-span-1 order-last lg:order-first">
           <Card className="shadow-lg sticky top-24">
             <CardHeader className="p-0">
@@ -155,18 +153,18 @@ export default function BookingPage() {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Price per day:</span>
-                  <span className="font-medium">${car.pricePerDay.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Prix par jour :</span>
+                  <span className="font-medium">{car.pricePerDay.toFixed(2)}€</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Selected dates:</span>
+                  <span className="text-muted-foreground">Dates sélectionnées :</span>
                   <span className="font-medium text-right">
-                    {dateRange?.from ? format(dateRange.from, "LLL dd, y") : "Pick a start date"} - <br/>
-                    {dateRange?.to ? format(dateRange.to, "LLL dd, y") : "Pick an end date"}
+                    {dateRange?.from ? format(dateRange.from, "dd LLL, y", { locale: fr }) : "Choisissez une date de début"} - <br/>
+                    {dateRange?.to ? format(dateRange.to, "dd LLL, y", { locale: fr }) : "Choisissez une date de fin"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Number of days:</span>
+                  <span className="text-muted-foreground">Nombre de jours :</span>
                   <span className="font-medium">{numberOfDays}</span>
                 </div>
               </div>
@@ -174,27 +172,26 @@ export default function BookingPage() {
               <Separator className="my-4" />
               
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Total Price:</span>
+                <span className="text-lg font-semibold">Prix Total :</span>
                 <div className="flex items-baseline text-accent">
-                  <DollarSign className="h-5 w-5" />
                   <span className="text-2xl font-bold">{totalPrice.toFixed(2)}</span>
+                  <span className="ml-1">€</span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Booking Form */}
         <div className="lg:col-span-2">
           <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="text-2xl">Your Information</CardTitle>
-              <CardDescription>Please provide your details to complete the booking request.</CardDescription>
+              <CardTitle className="text-2xl">Vos Informations</CardTitle>
+              <CardDescription>Veuillez fournir vos détails pour compléter la demande de réservation.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="dates" className="block text-sm font-medium mb-1">Rental Dates</Label>
+                  <Label htmlFor="dates" className="block text-sm font-medium mb-1">Dates de Location</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -206,14 +203,14 @@ export default function BookingPage() {
                         {dateRange?.from ? (
                           dateRange.to ? (
                             <>
-                              {format(dateRange.from, "LLL dd, y")} -{" "}
-                              {format(dateRange.to, "LLL dd, y")}
+                              {format(dateRange.from, "dd LLL, y", { locale: fr })} -{" "}
+                              {format(dateRange.to, "dd LLL, y", { locale: fr })}
                             </>
                           ) : (
-                            format(dateRange.from, "LLL dd, y")
+                            format(dateRange.from, "dd LLL, y", { locale: fr })
                           )
                         ) : (
-                          <span>Pick a date range</span>
+                          <span>Choisissez une période</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -225,7 +222,8 @@ export default function BookingPage() {
                         selected={dateRange}
                         onSelect={setDateRange}
                         numberOfMonths={2}
-                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } // Disable past dates
+                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } 
+                        locale={fr}
                       />
                     </PopoverContent>
                   </Popover>
@@ -233,25 +231,25 @@ export default function BookingPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><User className="h-4 w-4 text-muted-foreground"/>Full Name</Label>
-                    <Input id="fullName" type="text" placeholder="e.g. John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="h-11" />
+                    <Label htmlFor="fullName" className="flex items-center gap-1 mb-1"><User className="h-4 w-4 text-muted-foreground"/>Nom Complet</Label>
+                    <Input id="fullName" type="text" placeholder="ex. Jean Dupont" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="h-11" />
                   </div>
                   <div>
-                    <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email Address</Label>
-                    <Input id="email" type="email" placeholder="e.g. john.doe@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required  className="h-11"/>
+                    <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Adresse E-mail</Label>
+                    <Input id="email" type="email" placeholder="ex. jean.dupont@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required  className="h-11"/>
                   </div>
                 </div>
                 
                 <div>
-                  <Label htmlFor="phone" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Phone Number (Optional)</Label>
-                  <Input id="phone" type="tel" placeholder="e.g. (555) 123-4567" value={phone} onChange={(e) => setPhone(e.target.value)}  className="h-11"/>
+                  <Label htmlFor="phone" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Numéro de Téléphone (Optionnel)</Label>
+                  <Input id="phone" type="tel" placeholder="ex. 01 23 45 67 89" value={phone} onChange={(e) => setPhone(e.target.value)}  className="h-11"/>
                 </div>
 
                 <div>
-                  <Label htmlFor="message" className="mb-1">Message to Agency (Optional)</Label>
+                  <Label htmlFor="message" className="mb-1">Message à l'Agence (Optionnel)</Label>
                   <Textarea 
                     id="message" 
-                    placeholder="Any special requests or questions for the rental agency?" 
+                    placeholder="Des demandes spéciales ou questions pour l'agence de location ?" 
                     value={message} 
                     onChange={(e) => setMessage(e.target.value)}
                     rows={4}
@@ -259,14 +257,14 @@ export default function BookingPage() {
                 </div>
                 
                 <Button type="submit" size="lg" className="w-full" disabled={submitting || !dateRange?.from || !dateRange?.to}>
-                  {submitting ? 'Submitting Request...' : 'Send Booking Request'}
+                  {submitting ? 'Envoi en cours...' : 'Envoyer la Demande de Réservation'}
                 </Button>
               </form>
             </CardContent>
             <CardFooter>
                 <p className="text-xs text-muted-foreground">
-                    By submitting this request, you agree to our Terms of Service and Privacy Policy.
-                    The rental agency will contact you to confirm availability and payment.
+                    En soumettant cette demande, vous acceptez nos Conditions d'Utilisation et notre Politique de Confidentialité.
+                    L'agence de location vous contactera pour confirmer la disponibilité et le paiement.
                 </p>
             </CardFooter>
           </Card>

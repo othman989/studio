@@ -13,20 +13,21 @@ import { CarIcon, CalendarDaysIcon, InfoIcon, UsersIcon, DollarSignIcon, XCircle
 import type { Car, Booking, BlockedPeriod } from '@/types';
 import { SAMPLE_CARS } from '@/lib/constants'; // Assuming these are the agency's cars
 import { format, parseISO, isWithinInterval, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
+import { fr } from 'date-fns/locale'; // Import French locale for date-fns
 import Link from 'next/link';
 
 // Mock Bookings Data (replace with actual data fetching)
 const MOCK_BOOKINGS: Booking[] = [
-  { id: 'booking1', userId: 'user1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Smith", renterEmail:"alice@example.com" },
-  { id: 'booking2', userId: 'user2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Johnson", renterEmail:"bob@example.com" },
-  { id: 'booking3', userId: 'user3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carol White", renterEmail:"carol@example.com" },
-  { id: 'booking4', userId: 'user4', carId: '3', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(), totalPrice: 720, status: 'completed', createdAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), renterName: "David Green", renterEmail:"david@example.com"},
+  { id: 'booking1', userId: 'user1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Dupont", renterEmail:"alice@example.com" },
+  { id: 'booking2', userId: 'user2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Martin", renterEmail:"bob@example.com" },
+  { id: 'booking3', userId: 'user3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carole Blanc", renterEmail:"carol@example.com" },
+  { id: 'booking4', userId: 'user4', carId: '3', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(), totalPrice: 720, status: 'completed', createdAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), renterName: "David Vert", renterEmail:"david@example.com"},
 ];
 
 const MOCK_BLOCKED_PERIODS: BlockedPeriod[] = [
-    { id: 'block1', carId: '1', startDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 16)).toISOString(), reason: "Scheduled Maintenance", createdAt: new Date().toISOString() },
-    { id: 'block2', carId: '2', startDate: new Date(new Date().setDate(new Date().getDate() + 20)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 21)).toISOString(), reason: "Owner Use", createdAt: new Date().toISOString() },
-    { id: 'block3', carId: 'all', startDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), reason: "Agency Holiday", createdAt: new Date().toISOString() },
+    { id: 'block1', carId: '1', startDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 16)).toISOString(), reason: "Maintenance Programmée", createdAt: new Date().toISOString() },
+    { id: 'block2', carId: '2', startDate: new Date(new Date().setDate(new Date().getDate() + 20)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 21)).toISOString(), reason: "Utilisation Propriétaire", createdAt: new Date().toISOString() },
+    { id: 'block3', carId: 'all', startDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 25)).toISOString(), reason: "Férié Agence", createdAt: new Date().toISOString() },
 ];
 
 
@@ -89,13 +90,12 @@ const AgencyCalendarPage: NextPage = () => {
   const modifiersStyles = {
     booked: { 
       backgroundColor: 'hsl(var(--primary) / 0.2)', 
-      color: 'hsl(var(--primary-foreground))', // Changed to foreground for better contrast on light bg
+      color: 'hsl(var(--primary-foreground))',
       fontWeight: 'bold',
     },
     agencyBlocked: {
       backgroundColor: 'hsl(var(--muted) / 0.7)',
       color: 'hsl(var(--muted-foreground))',
-      // textDecoration: 'line-through',
       border: '1px dashed hsl(var(--muted-foreground))'
     },
     selected: { 
@@ -134,15 +134,26 @@ const AgencyCalendarPage: NextPage = () => {
     return agencyCars.find(car => car.id === carId);
   };
 
+  const getStatusText = (status: Booking['status']) => {
+    switch (status) {
+      case 'pending': return 'En attente';
+      case 'confirmed': return 'Confirmée';
+      case 'cancelled': return 'Annulée';
+      case 'completed': return 'Terminée';
+      case 'declined': return 'Refusée';
+      default: return status;
+    }
+  };
+
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <CalendarDaysIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Agency Calendar</h1>
+          <h1 className="text-3xl font-bold">Calendrier de l'Agence</h1>
         </div>
-        <p className="text-muted-foreground">Manage your car bookings and availability.</p>
+        <p className="text-muted-foreground">Gérez les réservations de vos voitures et leur disponibilité.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -151,21 +162,21 @@ const AgencyCalendarPage: NextPage = () => {
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <CardTitle>
-                  {selectedCarId === 'all' ? 'All Cars View' : `${getCarById(selectedCarId)?.make} ${getCarById(selectedCarId)?.model}`}
+                  {selectedCarId === 'all' ? 'Vue Toutes Voitures' : `${getCarById(selectedCarId)?.make} ${getCarById(selectedCarId)?.model}`}
                 </CardTitle>
                 <div className="w-full sm:w-auto min-w-[200px]">
-                  <Label htmlFor="car-filter" className="sr-only">Filter by Car</Label>
+                  <Label htmlFor="car-filter" className="sr-only">Filtrer par Voiture</Label>
                   <Select value={selectedCarId} onValueChange={(value) => {
                       setSelectedCarId(value);
-                      setSelectedDate(undefined); // Reset selected date on filter change
+                      setSelectedDate(undefined); 
                       setSelectedBookings([]);
                       setSelectedBlockedPeriods([]);
                   }}>
                     <SelectTrigger id="car-filter">
-                      <SelectValue placeholder="Filter by car..." />
+                      <SelectValue placeholder="Filtrer par voiture..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Cars</SelectItem>
+                      <SelectItem value="all">Toutes les voitures</SelectItem>
                       {agencyCars.map(car => (
                         <SelectItem key={car.id} value={car.id}>
                           {car.make} {car.model} ({car.year})
@@ -188,6 +199,7 @@ const AgencyCalendarPage: NextPage = () => {
                 className="p-0 rounded-md border shadow-sm"
                 numberOfMonths={1}
                 disabled={(date) => date < startOfMonth(new Date()) && !isSameDay(date, new Date()) && !isWithinInterval(date, {start: startOfMonth(new Date()), end: new Date()}) } 
+                locale={fr} // Add French locale to calendar
               />
             </CardContent>
           </Card>
@@ -198,7 +210,7 @@ const AgencyCalendarPage: NextPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <InfoIcon className="h-6 w-6 text-primary" />
-                Details for {selectedDate ? format(selectedDate, 'PPP') : 'Selected Date'}
+                Détails pour {selectedDate ? format(selectedDate, 'PPP', { locale: fr }) : 'Date Sélectionnée'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -213,19 +225,19 @@ const AgencyCalendarPage: NextPage = () => {
                          {booking.status === 'cancelled' && <XCircleIcon className="h-4 w-4 text-red-600" />}
 
                         <AlertTitle className="font-semibold">
-                          Booking ID: {booking.id.substring(0,8)} ({booking.status})
+                          Réservation ID: {booking.id.substring(0,8)} ({getStatusText(booking.status)})
                         </AlertTitle>
                         <AlertDescription className="space-y-1 text-sm">
                           {car && (
                             <p className="flex items-center gap-1"><CarIcon className="h-4 w-4 text-muted-foreground" /> {car.make} {car.model}</p>
                           )}
                           <p className="flex items-center gap-1"><UsersIcon className="h-4 w-4 text-muted-foreground" /> {booking.renterName}</p>
-                          <p className="flex items-center gap-1"><DollarSignIcon className="h-4 w-4 text-muted-foreground" /> ${booking.totalPrice.toFixed(2)}</p>
+                          <p className="flex items-center gap-1"><DollarSignIcon className="h-4 w-4 text-muted-foreground" /> {booking.totalPrice.toFixed(2)}€</p>
                           <p className="flex items-center gap-1"><CalendarDaysIcon className="h-4 w-4 text-muted-foreground" /> 
-                            {format(parseISO(booking.startDate), 'MMM d')} - {format(parseISO(booking.endDate), 'MMM d, yyyy')}
+                            {format(parseISO(booking.startDate), 'd MMM', { locale: fr })} - {format(parseISO(booking.endDate), 'd MMM, yyyy', { locale: fr })}
                           </p>
                            <Button variant="link" size="sm" className="p-0 h-auto" asChild>
-                             <Link href={`/account/bookings/${booking.id}`}>View Details</Link>
+                             <Link href={`/account/bookings/${booking.id}`}>Voir Détails</Link>
                            </Button>
                         </AlertDescription>
                       </Alert>
@@ -237,39 +249,39 @@ const AgencyCalendarPage: NextPage = () => {
                       <Alert key={`block-${period.id}`} variant="default" className="border-slate-400">
                         <BanIcon className="h-4 w-4 text-slate-600" />
                         <AlertTitle className="font-semibold">
-                          Agency Blocked: {period.reason || "Unavailable"}
+                          Bloqué par Agence: {period.reason || "Indisponible"}
                         </AlertTitle>
                         <AlertDescription className="space-y-1 text-sm">
                           {car && period.carId !== 'all' && (
                             <p className="flex items-center gap-1"><CarIcon className="h-4 w-4 text-muted-foreground" /> {car.make} {car.model}</p>
                           )}
                           {period.carId === 'all' && (
-                             <p className="flex items-center gap-1"><CarIcon className="h-4 w-4 text-muted-foreground" /> All Cars</p>
+                             <p className="flex items-center gap-1"><CarIcon className="h-4 w-4 text-muted-foreground" /> Toutes les voitures</p>
                           )}
                           <p className="flex items-center gap-1"><CalendarDaysIcon className="h-4 w-4 text-muted-foreground" /> 
-                            {format(parseISO(period.startDate), 'MMM d')} - {format(parseISO(period.endDate), 'MMM d, yyyy')}
+                            {format(parseISO(period.startDate), 'd MMM', { locale: fr })} - {format(parseISO(period.endDate), 'd MMM, yyyy', { locale: fr })}
                           </p>
-                           {period.reason === "Scheduled Maintenance" && <p className="flex items-center gap-1"><WrenchIcon className="h-4 w-4 text-muted-foreground" /> {period.reason}</p>}
+                           {period.reason === "Maintenance Programmée" && <p className="flex items-center gap-1"><WrenchIcon className="h-4 w-4 text-muted-foreground" /> {period.reason}</p>}
                         </AlertDescription>
                       </Alert>
                     );
                   })}
                 </div>
               ) : selectedDate ? (
-                <p className="text-muted-foreground">No bookings or blocks for this car on this date.</p>
+                <p className="text-muted-foreground">Aucune réservation ou blocage pour cette voiture à cette date.</p>
               ) : (
-                <p className="text-muted-foreground">Select a date on the calendar to see booking details or car availability.</p>
+                <p className="text-muted-foreground">Sélectionnez une date sur le calendrier pour voir les détails de réservation ou la disponibilité des voitures.</p>
               )}
             </CardContent>
           </Card>
           
           <Card className="shadow-md">
             <CardHeader>
-                <CardTitle className="text-lg">Manage Availability</CardTitle>
-                <CardDescription>Block out dates when cars are unavailable for maintenance or other reasons.</CardDescription>
+                <CardTitle className="text-lg">Gérer la Disponibilité</CardTitle>
+                <CardDescription>Bloquez des dates lorsque les voitures sont indisponibles pour maintenance ou autres raisons.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button className="w-full" disabled>Block Dates (Coming Soon)</Button>
+                <Button className="w-full" disabled>Bloquer Dates (Bientôt disponible)</Button>
             </CardContent>
           </Card>
         </div>
@@ -280,7 +292,6 @@ const AgencyCalendarPage: NextPage = () => {
 
 export default AgencyCalendarPage;
 
-// Extend Booking type for mock data
 declare module '@/types' {
   interface Booking {
     renterName?: string;

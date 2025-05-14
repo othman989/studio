@@ -23,24 +23,22 @@ export default function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    // Simulate API call for login
-    console.log('Login attempt:', { email, password });
+    console.log('Tentative de connexion :', { email, password });
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Simulate success/failure
     if (email === "test@example.com" && password === "password") {
       toast({
-        title: "Login Successful!",
-        description: `Welcome back to ${APP_NAME}.`,
+        title: "Connexion Réussie !",
+        description: `Bienvenue à nouveau sur ${APP_NAME}.`,
       });
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('isLoggedIn', 'true');
       }
-      router.push('/account/dashboard'); // Redirect to a protected dashboard page
+      router.push('/account/dashboard'); 
     } else {
       toast({
-        title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
+        title: "Échec de la Connexion",
+        description: "Adresse e-mail ou mot de passe invalide. Veuillez réessayer.",
         variant: "destructive",
       });
     }
@@ -54,17 +52,17 @@ export default function LoginPage() {
           <div className="flex justify-center items-center mb-4">
             <LogIn className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold">Welcome Back!</CardTitle>
-          <CardDescription>Sign in to continue to your {APP_NAME} account.</CardDescription>
+          <CardTitle className="text-3xl font-bold">Bon Retour !</CardTitle>
+          <CardDescription>Connectez-vous pour continuer vers votre compte {APP_NAME}.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email Address</Label>
+              <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Adresse E-mail</Label>
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="you@example.com" 
+                placeholder="vous@example.com" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
@@ -72,7 +70,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <Label htmlFor="password" className="flex items-center gap-1 mb-1"><Lock className="h-4 w-4 text-muted-foreground"/>Password</Label>
+              <Label htmlFor="password" className="flex items-center gap-1 mb-1"><Lock className="h-4 w-4 text-muted-foreground"/>Mot de Passe</Label>
               <Input 
                 id="password" 
                 type="password" 
@@ -85,24 +83,24 @@ export default function LoginPage() {
             </div>
             <div className="text-right text-sm">
               <Button variant="link" asChild className="p-0 h-auto font-normal">
-                <Link href="/forgot-password">Forgot Password?</Link>
+                <Link href="/forgot-password">Mot de passe oublié ?</Link>
               </Button>
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? 'Signing In...' : 'Sign In'}
+              {submitting ? 'Connexion en cours...' : 'Se Connecter'}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col items-center space-y-2">
           <p className="text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
+            Vous n'avez pas de compte ?{' '}
             <Button variant="link" asChild className="p-0 h-auto font-medium">
-              <Link href="/register">Sign Up</Link>
+              <Link href="/register">S'inscrire</Link>
             </Button>
           </p>
           <div className="flex items-center text-xs text-muted-foreground p-3 bg-muted/50 rounded-md mt-4">
             <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
-            <span>For demo: use <strong>test@example.com</strong> / <strong>password</strong></span>
+            <span>Pour la démo : utilisez <strong>test@example.com</strong> / <strong>password</strong></span>
           </div>
         </CardFooter>
       </Card>

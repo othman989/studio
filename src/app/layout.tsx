@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -21,14 +22,14 @@ export const metadata: Metadata = {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
   },
-  description: `Your go-to marketplace for car sharing and rentals. Connect with rental agencies and find the perfect vehicle for your needs.`,
-  keywords: ['car sharing', 'car rental', 'vehicle marketplace', 'rent a car', 'AutoPool'],
-  authors: [{ name: 'AutoPool Team' }],
+  description: `Votre marché de référence pour le covoiturage et la location de voitures. Connectez-vous avec les agences de location et trouvez le véhicule parfait pour vos besoins.`,
+  keywords: ['covoiturage', 'location de voiture', 'marché de véhicules', 'louer une voiture', 'AutoPool'],
+  authors: [{ name: 'L\'équipe AutoPool' }],
   openGraph: {
     title: APP_NAME,
-    description: 'Airbnb for cars - find and book rental vehicles easily.',
+    description: 'Airbnb pour les voitures - trouvez et réservez facilement des véhicules de location.',
     type: 'website',
-    locale: 'en_US',
+    locale: 'fr_FR',
     // url: 'YOUR_APP_URL', // Replace with your deployed app URL
     // siteName: APP_NAME,
     // images: [ // Add a default OG image
@@ -48,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased flex flex-col min-h-screen`}>
         <Header />
         <main className="flex-grow">

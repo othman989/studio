@@ -1,29 +1,31 @@
+
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
+import { APP_NAME } from '@/lib/constants';
 
 const testimonials = [
   {
     name: "Sarah L.",
-    role: "Weekend Explorer",
+    role: "Exploratrice du Week-end",
     avatar: "https://picsum.photos/seed/sarah/100/100",
-    quote: "AutoPool made finding a rental car for our weekend trip so easy! The process was smooth and the car was perfect. Highly recommend!",
+    quote: `${APP_NAME} a rendu la recherche d'une voiture de location pour notre week-end si facile ! Le processus était fluide et la voiture parfaite. Je recommande vivement !`,
     rating: 5,
     aiHint: "woman smiling"
   },
   {
-    name: "John B.",
-    role: "Business Traveler",
+    name: "Jean B.",
+    role: "Voyageur d'Affaires",
     avatar: "https://picsum.photos/seed/john/100/100",
-    quote: "As a frequent business traveler, I appreciate how quickly I can book a reliable car through AutoPool. The chat feature is great for quick questions.",
+    quote: `En tant que voyageur d'affaires fréquent, j'apprécie la rapidité avec laquelle je peux réserver une voiture fiable via ${APP_NAME}. La fonction de chat est idéale pour les questions rapides.`,
     rating: 4,
     aiHint: "man professional"
   },
   {
     name: "Maria G.",
-    role: "Family Vacationer",
+    role: "Vacancière en Famille",
     avatar: "https://picsum.photos/seed/maria/100/100",
-    quote: "We found a spacious van for our family vacation at a great price. The agency was very helpful. We'll definitely use AutoPool again!",
+    quote: "Nous avons trouvé un van spacieux pour nos vacances en famille à un prix avantageux. L'agence a été très serviable. Nous utiliserons certainement ${APP_NAME} à nouveau !",
     rating: 5,
     aiHint: "woman happy"
   },
@@ -35,10 +37,10 @@ export function TestimonialsSection() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            What Our Users Say
+            Ce Que Disent Nos Utilisateurs
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Hear from satisfied customers who found their perfect ride with AutoPool.
+            Découvrez les témoignages de clients satisfaits qui ont trouvé leur voiture idéale avec {APP_NAME}.
           </p>
         </div>
 

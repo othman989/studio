@@ -1,48 +1,48 @@
 
 import type { Car, NavItem, CarType } from '@/types';
-import { CarIcon, SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon } from 'lucide-react';
+import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon } from 'lucide-react';
 import { addDays, formatISO } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
 
 // Links always visible in the main navigation, or conditionally based on auth status
 export const NAV_LINKS_MAIN: NavItem[] = [
-  { href: '/cars', label: 'Find a Car', icon: SearchIcon, requiresAuth: true },
-  { href: '/account/listings/new', label: 'List Your Car', icon: ListPlusIcon, requiresAuth: true },
-  { href: '/features', label: 'Features', requiresAuth: false },
-  { href: '/pricing', label: 'Pricing', requiresAuth: false },
+  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true },
+  { href: '/account/listings/new', label: 'Inscrire Votre Voiture', icon: ListPlusIcon, requiresAuth: true },
+  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false },
+  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
 ];
 
 // Links for authentication (Sign In, Sign Up) - shown when logged out
 export const NAV_LINKS_AUTH: NavItem[] = [
-  { href: '/login', label: 'Sign In', icon: LogInIcon },
-  { href: '/register', label: 'Sign Up', icon: UserPlusIcon },
+  { href: '/login', label: 'Se Connecter', icon: LogInIcon },
+  { href: '/register', label: 'S\'inscrire', icon: UserPlusIcon },
 ];
 
 // Links for the authenticated user's account area/dropdown
 export const NAV_LINKS_USER_MENU: NavItem[] = [
-    { href: '/account/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon },
-    { href: '/account/bookings', label: 'My Bookings', icon: BookMarkedIcon }, // For renters primarily
-    { href: '/account/listings', label: 'My Listings', icon: ListPlusIcon }, // For agencies
-    { href: '/account/listings/visibility', label: 'Fleet Visibility', icon: EyeIcon }, // For agencies
-    { href: '/account/calendar', label: 'Agency Calendar', icon: CalendarRangeIcon }, // For agencies
+    { href: '/account/dashboard', label: 'Tableau de Bord', icon: LayoutDashboardIcon },
+    { href: '/account/bookings', label: 'Mes Réservations', icon: BookMarkedIcon }, // For renters primarily
+    { href: '/account/listings', label: 'Mes Annonces', icon: ListPlusIcon }, // For agencies
+    { href: '/account/listings/visibility', label: 'Visibilité Flotte', icon: EyeIcon }, // For agencies
+    { href: '/account/calendar', label: 'Calendrier Agence', icon: CalendarRangeIcon }, // For agencies
     { href: '/account/chat', label: 'Messages', icon: MessageSquareIcon },
-    { href: '/account/profile', label: 'Profile Settings', icon: SettingsIcon },
+    { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
 ];
 
 // Specific link for logged-in user direct access in header
-export const NAV_LINK_DASHBOARD: NavItem = { href: '/account/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon };
-export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Logout', icon: LogOutIcon }; // href='#' because logout is an action
+export const NAV_LINK_DASHBOARD: NavItem = { href: '/account/dashboard', label: 'Tableau de Bord', icon: LayoutDashboardIcon };
+export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon }; // href='#' because logout is an action
 
 export const CAR_TYPES: { value: CarType, label: string }[] = [
-  { value: 'Sedan', label: 'Sedan' },
+  { value: 'Sedan', label: 'Berline' },
   { value: 'SUV', label: 'SUV' },
-  { value: 'Truck', label: 'Truck' },
-  { value: 'Van', label: 'Van' },
-  { value: 'SportsCar', label: 'Sports Car' },
-  { value: 'Convertible', label: 'Convertible' },
-  { value: 'Coupe', label: 'Coupe' },
-  { value: 'Hatchback', label: 'Hatchback' },
+  { value: 'Truck', label: 'Camionnette' },
+  { value: 'Van', label: 'Van / Minibus' },
+  { value: 'SportsCar', label: 'Voiture de Sport' },
+  { value: 'Convertible', label: 'Cabriolet' },
+  { value: 'Coupe', label: 'Coupé' },
+  { value: 'Hatchback', label: 'Voiture à Hayon' },
   { value: 'Minivan', label: 'Minivan' },
 ];
 
@@ -59,13 +59,13 @@ export const SAMPLE_CARS: Car[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
     averageRating: 4.8,
-    features: ['Electric', 'Autopilot', 'Panoramic Roof', 'GPS Navigation', 'Bluetooth'],
+    features: ['Électrique', 'Autopilote', 'Toit Panoramique', 'Navigation GPS', 'Bluetooth'],
     seats: 5,
     fuelType: 'Electric',
     transmission: 'Automatic',
     agencyId: 'agency1',
     agencyName: 'SF Green Rides',
-    description: 'Experience the future of driving with the Tesla Model S. Smooth, silent, and incredibly fast.',
+    description: 'Découvrez l\'avenir de la conduite avec la Tesla Model S. Douce, silencieuse et incroyablement rapide.',
     isVisible: true,
     bookedPeriods: [
       { from: formatISO(addDays(today, 5), { representation: 'date' }), to: formatISO(addDays(today, 7), { representation: 'date' }) },
@@ -82,13 +82,13 @@ export const SAMPLE_CARS: Car[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.5,
-    features: ['Electric', 'Large Touchscreen', 'Spacious', 'Backup Camera', 'Apple CarPlay'],
+    features: ['Électrique', 'Grand Écran Tactile', 'Spacieux', 'Caméra de Recul', 'Apple CarPlay'],
     seats: 5,
     fuelType: 'Electric',
     transmission: 'Automatic',
     agencyId: 'agency1',
     agencyName: 'LA EV Rentals',
-    description: 'The Ford Mustang Mach-E combines iconic Mustang heritage with all-electric performance.',
+    description: 'Le Ford Mustang Mach-E combine l\'héritage iconique de la Mustang avec des performances tout électriques.',
     isVisible: true,
     bookedPeriods: [
       { from: formatISO(addDays(today, 2), { representation: 'date' }), to: formatISO(addDays(today, 4), { representation: 'date' }) },
@@ -104,13 +104,13 @@ export const SAMPLE_CARS: Car[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.7,
-    features: ['Luxury Interior', 'Powerful Engine', 'Sunroof', 'Leather Seats', 'Heated Seats'],
+    features: ['Intérieur Luxueux', 'Moteur Puissant', 'Toit Ouvrant', 'Sièges en Cuir', 'Sièges Chauffants'],
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
     agencyId: 'agency2',
     agencyName: 'NY Luxury Fleet',
-    description: 'The BMW X5 offers a blend of luxury, performance, and versatility for a premium driving experience.',
+    description: 'Le BMW X5 offre un mélange de luxe, de performance et de polyvalence pour une expérience de conduite premium.',
     isVisible: false, // Initially not visible
     bookedPeriods: []
   },
@@ -124,13 +124,13 @@ export const SAMPLE_CARS: Car[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
     averageRating: 4.6,
-    features: ['Reliable', 'Fuel Efficient', 'Bluetooth', 'Cruise Control'],
+    features: ['Fiable', 'Économe en Carburant', 'Bluetooth', 'Régulateur de Vitesse'],
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
     agencyId: 'agency2',
     agencyName: 'Chicago City Wheels',
-    description: 'A dependable and comfortable sedan, perfect for city driving and longer trips.',
+    description: 'Une berline fiable et confortable, parfaite pour la conduite en ville et les longs trajets.',
     isVisible: true,
     bookedPeriods: [
       { from: formatISO(addDays(today, 10), { representation: 'date' }), to: formatISO(addDays(today, 12), { representation: 'date' }) },
@@ -146,13 +146,13 @@ export const SAMPLE_CARS: Car[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.4,
-    features: ['4x4', 'Convertible Top', 'Off-road Capable', 'Android Auto'],
+    features: ['4x4', 'Toit Décapotable', 'Capacité Tout-Terrain', 'Android Auto'],
     seats: 4,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
     agencyId: 'agency3',
     agencyName: 'Rocky Mountain Rides',
-    description: 'Explore the great outdoors with the iconic Jeep Wrangler. Ready for any adventure.',
+    description: 'Explorez les grands espaces avec l\'iconique Jeep Wrangler. Prêt pour toute aventure.',
     isVisible: true,
     bookedPeriods: []
   },
@@ -166,13 +166,13 @@ export const SAMPLE_CARS: Car[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
     averageRating: 4.7,
-    features: ['Fuel Efficient', 'Apple CarPlay', 'Backup Camera', 'Keyless Entry'],
+    features: ['Économe en Carburant', 'Apple CarPlay', 'Caméra de Recul', 'Entrée sans Clé'],
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
     agencyId: 'agency3',
     agencyName: 'Austin Car Co',
-    description: 'The Honda Civic is a reliable and stylish compact car, great for zipping around the city.',
+    description: 'La Honda Civic est une voiture compacte fiable et élégante, idéale pour se déplacer en ville.',
     isVisible: true,
     bookedPeriods: [
        { from: formatISO(addDays(today, 1), { representation: 'date' }), to: formatISO(addDays(today, 3), { representation: 'date' }) },
@@ -180,4 +180,3 @@ export const SAMPLE_CARS: Car[] = [
     ]
   }
 ];
-

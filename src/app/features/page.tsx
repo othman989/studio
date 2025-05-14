@@ -1,38 +1,39 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Star, Zap } from 'lucide-react';
+import { CheckCircle, Star, Zap, DollarSign, MessageSquare } from 'lucide-react'; // Added DollarSign & MessageSquare
+import { APP_NAME } from '@/lib/constants';
 
 export default function FeaturesPage() {
   const features = [
     {
       icon: <Zap className="h-8 w-8 text-primary" />,
-      title: 'Blazing Fast Search',
-      description: 'Find the perfect car in seconds with our optimized search engine.',
+      title: 'Recherche Ultra-Rapide',
+      description: 'Trouvez la voiture parfaite en quelques secondes grâce à notre moteur de recherche optimisé.',
     },
     {
       icon: <CheckCircle className="h-8 w-8 text-accent" />,
-      title: 'Verified Listings',
-      description: 'All cars and agencies are verified for your peace of mind.',
+      title: 'Annonces Vérifiées',
+      description: 'Toutes les voitures et agences sont vérifiées pour votre tranquillité d\'esprit.',
     },
     {
       icon: <Star className="h-8 w-8 text-yellow-400" />,
-      title: 'Transparent Reviews',
-      description: 'Make informed decisions with genuine reviews from other users.',
+      title: 'Avis Transparents',
+      description: 'Prenez des décisions éclairées grâce aux avis authentiques d\'autres utilisateurs.',
     },
     {
-      icon: <Zap className="h-8 w-8 text-primary" />,
-      title: 'Instant Booking (Coming Soon)',
-      description: 'Book your preferred car instantly without waiting for agency confirmation.',
+      icon: <DollarSign className="h-8 w-8 text-primary" />, // Changed icon
+      title: 'Réservation Instantanée (Bientôt)',
+      description: 'Réservez votre voiture préférée instantanément sans attendre la confirmation de l\'agence.',
     },
     {
-      icon: <CheckCircle className="h-8 w-8 text-accent" />,
-      title: 'Secure Payments',
-      description: 'Your payment information is handled securely through our trusted partners.',
+      icon: <ShieldCheckIcon className="h-8 w-8 text-accent" />, // Changed icon
+      title: 'Paiements Sécurisés',
+      description: 'Vos informations de paiement sont traitées en toute sécurité par nos partenaires de confiance.',
     },
     {
-      icon: <Star className="h-8 w-8 text-yellow-400" />,
-      title: '24/7 Support',
-      description: 'Our dedicated support team is here to help you around the clock.',
+      icon: <MessageSquare className="h-8 w-8 text-yellow-400" />, // Changed icon
+      title: 'Support 24/7',
+      description: 'Notre équipe de support dédiée est là pour vous aider à toute heure.',
     },
   ];
 
@@ -40,10 +41,10 @@ export default function FeaturesPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-foreground">
-          AutoPool Features
+          Fonctionnalités de {APP_NAME}
         </h1>
         <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover why AutoPool is the best platform for car rentals and sharing. We offer a range of features designed to make your experience seamless and enjoyable.
+          Découvrez pourquoi {APP_NAME} est la meilleure plateforme de location et de partage de voitures. Nous offrons une gamme de fonctionnalités conçues pour rendre votre expérience fluide et agréable.
         </p>
       </header>
 
@@ -61,5 +62,26 @@ export default function FeaturesPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+// Helper icon for placeholder
+function ShieldCheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
   );
 }
