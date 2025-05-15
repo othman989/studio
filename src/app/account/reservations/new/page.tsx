@@ -9,21 +9,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CarIcon, UserIcon, UsersIcon, CalendarIcon as LucideCalendarIcon, DollarSignIcon, InfoIcon, FileTextIcon, PhoneIcon, MailIcon } from 'lucide-react';
+import { ArrowLeft, CarIcon, UserIcon, UsersIcon, CalendarIcon as LucideCalendarIcon, DollarSignIcon, InfoIcon, FileTextIcon, PhoneIcon, MailIcon, Check, ChevronsUpDown } from 'lucide-react';
 import { APP_NAME, SAMPLE_CARS } from '@/lib/constants';
 import type { Car, ClientProfile, Booking } from '@/types';
 import { format, differenceInDays, addDays, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 
 const MOCK_CLIENTS: ClientProfile[] = [
     { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: new Date().toISOString() },
     { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: new Date().toISOString() },
+    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: new Date().toISOString() },
 ];
 
 export default function NewReservationPage() {
@@ -31,7 +33,7 @@ export default function NewReservationPage() {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
-  const [agencyCars] = useState<Car[]>(SAMPLE_CARS.filter(c => c.agencyId === 'agency1' || c.agencyId === 'agency2')); // Simulating agency's cars
+  const [agencyCars] = useState<Car[]>(SAMPLE_CARS.filter(c => c.agencyId === 'agency1' || c.agencyId === 'agency2')); 
   const [existingClients, setExistingClients] = useState<ClientProfile[]>(MOCK_CLIENTS);
 
   const [selectedCarId, setSelectedCarId] = useState<string>('');
@@ -50,6 +52,10 @@ export default function NewReservationPage() {
   const [newClientLicenseIssueYear, setNewClientLicenseIssueYear] = useState<number | ''>('');
   const [newClientNotes, setNewClientNotes] = useState('');
 
+  // Combobox state
+  const [openCombobox, setOpenCombobox] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const selectedCar = useMemo(() => agencyCars.find(car => car.id === selectedCarId), [agencyCars, selectedCarId]);
   
   const numberOfDays = useMemo(() => {
@@ -66,6 +72,16 @@ export default function NewReservationPage() {
     }
     return 0;
   }, [selectedCar, numberOfDays]);
+
+  const filteredClients = useMemo(() => {
+    if (!searchQuery) return existingClients;
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return existingClients.filter(client => 
+      client.fullName.toLowerCase().includes(lowerCaseQuery) ||
+      (client.licenseNumber && client.licenseNumber.toLowerCase().includes(lowerCaseQuery)) ||
+      client.fullName.toLowerCase().split(' ').some(part => part.includes(lowerCaseQuery)) // Basic last name check
+    );
+  }, [searchQuery, existingClients]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,7 +102,6 @@ export default function NewReservationPage() {
         setSubmitting(false);
         return;
       }
-      // Simulate new client creation
       const newClient: ClientProfile = {
         id: `client-${Date.now()}`,
         fullName: newClientFullName,
@@ -95,11 +110,11 @@ export default function NewReservationPage() {
         licenseNumber: newClientLicenseNumber,
         licenseIssueYear: Number(newClientLicenseIssueYear),
         notes: newClientNotes,
-        agencyId: selectedCar?.agencyId || 'agency1', // Assuming car has agencyId
+        agencyId: selectedCar?.agencyId || 'agency1', 
         createdAt: new Date().toISOString(),
       };
       console.log("Création d'un nouveau client simulée :", newClient);
-      setExistingClients(prev => [...prev, newClient]); // Add to mock list for demo
+      setExistingClients(prev => [...prev, newClient]); 
       finalClientId = newClient.id;
       clientNameForToast = newClient.fullName;
     } else {
@@ -118,7 +133,7 @@ export default function NewReservationPage() {
         startDate: rentalDates.from.toISOString(),
         endDate: rentalDates.to.toISOString(),
         totalPrice: totalPrice,
-        status: 'confirmed', // Agency is creating it, so confirmed by default
+        status: 'confirmed', 
         createdAt: new Date().toISOString(),
     };
 
@@ -130,7 +145,6 @@ export default function NewReservationPage() {
       title: "Réservation Créée !",
       description: `La réservation pour ${clientNameForToast} avec ${selectedCar?.make} ${selectedCar?.model} a été créée.`,
     });
-    // ToDo: Add a note that client review can be done later.
     router.push('/account/calendar'); 
   };
 
@@ -158,14 +172,49 @@ export default function NewReservationPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="car" className="mb-1">Voiture *</Label>
-                  <Select value={selectedCarId} onValueChange={setSelectedCarId} required>
-                    <SelectTrigger id="car"><SelectValue placeholder="Choisissez une voiture..." /></SelectTrigger>
-                    <SelectContent>
-                      {agencyCars.map(car => (
-                        <SelectItem key={car.id} value={car.id}>{car.make} {car.model} ({car.year}) - {car.pricePerDay}€/jour</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openCombobox}
+                        className="w-full justify-between h-10"
+                      >
+                        {selectedCarId
+                          ? agencyCars.find((car) => car.id === selectedCarId)?.make + " " + agencyCars.find((car) => car.id === selectedCarId)?.model
+                          : "Choisissez une voiture..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput placeholder="Rechercher une voiture..." />
+                        <CommandList>
+                          <CommandEmpty>Aucune voiture trouvée.</CommandEmpty>
+                          <CommandGroup>
+                            {agencyCars.map((car) => (
+                              <CommandItem
+                                key={car.id}
+                                value={`${car.make} ${car.model} ${car.year} ${car.id}`}
+                                onSelect={() => {
+                                  setSelectedCarId(car.id === selectedCarId ? "" : car.id);
+                                  setOpenCombobox(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCarId === car.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {car.make} {car.model} ({car.year}) - {car.pricePerDay}€/jour
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </section>
@@ -187,14 +236,54 @@ export default function NewReservationPage() {
               {clientType === 'existing' && (
                 <div>
                   <Label htmlFor="existingClientSelect" className="mb-1">Sélectionner Client *</Label>
-                  <Select value={selectedClientId} onValueChange={setSelectedClientId} required>
-                    <SelectTrigger id="existingClientSelect"><SelectValue placeholder="Choisissez un client existant..." /></SelectTrigger>
-                    <SelectContent>
-                      {existingClients.map(client => (
-                        <SelectItem key={client.id} value={client.id}>{client.fullName} ({client.email})</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openCombobox}
+                        className="w-full justify-between h-10"
+                      >
+                        {selectedClientId
+                          ? existingClients.find((client) => client.id === selectedClientId)?.fullName
+                          : "Choisissez un client existant..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput 
+                            placeholder="Rechercher (nom, N° permis)..." 
+                            value={searchQuery}
+                            onValueChange={setSearchQuery}
+                        />
+                        <CommandList>
+                          <CommandEmpty>Aucun client trouvé.</CommandEmpty>
+                          <CommandGroup>
+                            {filteredClients.map((client) => (
+                              <CommandItem
+                                key={client.id}
+                                value={`${client.fullName} ${client.licenseNumber || ''} ${client.id}`}
+                                onSelect={() => {
+                                  setSelectedClientId(client.id === selectedClientId ? "" : client.id);
+                                  setOpenCombobox(false);
+                                  setSearchQuery("");
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedClientId === client.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {client.fullName} ({client.email}) {client.licenseNumber && `- ${client.licenseNumber}`}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
 
@@ -265,7 +354,7 @@ export default function NewReservationPage() {
                         selected={rentalDates}
                         onSelect={setRentalDates}
                         numberOfMonths={2}
-                        disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1))} // Allow selecting today
+                        disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1))} 
                         locale={fr}
                       />
                     </PopoverContent>
@@ -299,3 +388,5 @@ export default function NewReservationPage() {
     </div>
   );
 }
+
+
