@@ -14,10 +14,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, DollarSign, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react';
-import { Separator } from '@/components/ui/separator'; // Added Separator
+import { Calendar as CalendarIcon, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react'; // Removed DollarSign
+import { Separator } from '@/components/ui/separator';
 import { format, differenceInDays, addDays } from 'date-fns';
-import { fr } from 'date-fns/locale'; // Import French locale
+import { fr } from 'date-fns/locale'; 
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker"
 
@@ -92,6 +92,8 @@ export default function BookingPage() {
       endDate: dateRange.to.toISOString(),
       totalPrice,
       status: 'pending', 
+      renterName: fullName, // Assuming this page is for renters
+      renterEmail: email,
     };
     
     console.log('Réservation Soumise :', bookingData);

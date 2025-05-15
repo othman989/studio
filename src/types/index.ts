@@ -1,4 +1,5 @@
 
+
 export type CarType = 'Sedan' | 'SUV' | 'Truck' | 'Van' | 'SportsCar' | 'Convertible' | 'Coupe' | 'Hatchback' | 'Minivan';
 
 export interface Car {
@@ -9,15 +10,14 @@ export interface Car {
   pricePerDay: number;
   location: string;
   imageUrl: string;
-  images?: string[]; // Optional: for detail page gallery
+  images?: string[]; 
   type: CarType;
   averageRating?: number;
   description?: string;
   features?: string[];
   agencyId?: string; 
   agencyName?: string; 
-  availability?: { startDate: string; endDate:string }[]; // ISO date strings - Can be deprecated or used for agency blocks
-  bookedPeriods?: { from: string; to: string }[]; // ISO date strings for existing bookings
+  bookedPeriods?: { from: string; to: string }[]; 
   fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
   transmission?: 'Automatic' | 'Manual';
   seats?: number;
@@ -49,7 +49,7 @@ export interface Review {
 
 export interface Booking {
   id: string;
-  userId: string;
+  userId: string; // Could be a Renter ID or ClientProfile ID
   carId: string;
   agencyId: string;
   startDate: string; // ISO date string
@@ -59,21 +59,37 @@ export interface Booking {
   createdAt: string; // ISO date string
   renterName?: string; 
   renterEmail?: string; 
+  clientId?: string; // For agency-created bookings
 }
+
+export interface ClientProfile {
+    id: string;
+    fullName: string;
+    email: string;
+    phone?: string;
+    licenseNumber?: string;
+    licenseIssueYear?: number; // Or expiry date, TBD
+    address?: string;
+    notes?: string;
+    agencyId: string; // Link to the agency that created/manages this client
+    createdAt: string;
+}
+
 
 export interface BlockedPeriod {
   id: string;
-  carId: string; // Can be 'all' for agency-wide blocks
-  startDate: string; // ISO date string
-  endDate: string; // ISO date string
-  reason?: string; // e.g., "Maintenance", "Owner Use"
-  createdAt: string; // ISO date string
+  carId: string; 
+  startDate: string; 
+  endDate: string; 
+  reason?: string; 
+  createdAt: string; 
 }
 
 export interface NavItem {
   href: string;
   label: string;
   icon?: React.ElementType;
-  requiresAuth?: boolean; 
+  requiresAuth?: boolean;
+  showOnlyWhenLoggedIn?: boolean;
+  hideWhenLoggedIn?: boolean;
 }
-
