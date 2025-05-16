@@ -1,9 +1,11 @@
+
 "use client";
 
 import type { NextPage } from 'next';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // Moved import to the top
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -29,6 +31,7 @@ const fetchAgencyCars = async (agencyId: string): Promise<Car[]> => {
 };
 
 const AgencyListingsPage: NextPage = () => {
+  const router = useRouter(); // Initialized router instance
   const { toast } = useToast();
   const [agencyCars, setAgencyCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,11 +201,13 @@ const AgencyListingsPage: NextPage = () => {
 export default AgencyListingsPage;
 
 // Helper for routing, can be removed if not used elsewhere
-import { useRouter } from 'next/navigation';
+// Already imported at the top
+// import { useRouter } from 'next/navigation';
 
 // Ensure car type is used in router.push for highlight
 // ... (inside map function in AgencyListingsPage)
-// const router = useRouter();
+// const router = useRouter(); // This is now correctly initialized at the top of the component
 // ...
 // DropdownMenuItem onClick={() => router.push(`/account/listings/visibility?highlight=${car.id}`)}
 // This ensures the router import is used.
+
