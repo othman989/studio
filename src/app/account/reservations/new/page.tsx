@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // Added useSearchParams
+import { useRouter, useSearchParams } from 'next/navigation'; 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,22 +15,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CarIcon, UserIcon, UsersIcon, CalendarIcon as LucideCalendarIcon, DollarSignIcon, InfoIcon, FileTextIcon, PhoneIcon, MailIcon, Check, ChevronsUpDown } from 'lucide-react';
-import { APP_NAME, SAMPLE_CARS } from '@/lib/constants';
+import { APP_NAME, SAMPLE_CARS, MOCK_CLIENTS, MOCK_BOOKINGS } from '@/lib/constants'; // Import MOCK_BOOKINGS
 import type { Car, ClientProfile, Booking } from '@/types';
 import { format, differenceInDays, addDays, parseISO, isValid as isValidDate } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 
-const MOCK_CLIENTS: ClientProfile[] = [
-    { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: new Date().toISOString() },
-    { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: new Date().toISOString() },
-    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: new Date().toISOString() },
-];
 
 export default function NewReservationPage() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Get search params
+  const searchParams = useSearchParams(); 
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,12 +61,12 @@ export default function NewReservationPage() {
     if (startDateFromParams) {
       const parsedStartDate = parseISO(startDateFromParams);
       if (isValidDate(parsedStartDate)) {
-        setRentalDates({ from: parsedStartDate, to: addDays(parsedStartDate, 2) }); // Default to 3 days rental
+        setRentalDates({ from: parsedStartDate, to: addDays(parsedStartDate, 2) }); 
       } else {
-         setRentalDates({ from: new Date(), to: addDays(new Date(), 2) }); // Default if param is invalid
+         setRentalDates({ from: new Date(), to: addDays(new Date(), 2) }); 
       }
     } else {
-        setRentalDates({ from: new Date(), to: addDays(new Date(), 2) }); // Default if no param
+        setRentalDates({ from: new Date(), to: addDays(new Date(), 2) }); 
     }
   }, [searchParams, agencyCars]);
 
@@ -80,7 +75,7 @@ export default function NewReservationPage() {
   
   const numberOfDays = useMemo(() => {
     if (rentalDates?.from && rentalDates?.to) {
-      const days = differenceInDays(rentalDates.to, rentalDates.from) + 1; // Inclusive of start and end day
+      const days = differenceInDays(rentalDates.to, rentalDates.from) + 1; 
       return days > 0 ? days : 0;
     }
     return 0;
@@ -115,6 +110,9 @@ export default function NewReservationPage() {
 
     let finalClientId = selectedClientId;
     let clientNameForToast = '';
+    let finalClientEmail = '';
+    let finalClientFullName = '';
+
 
     if (clientType === 'new') {
       if (!newClientFullName || !newClientEmail || !newClientLicenseNumber || !newClientLicenseIssueYear) {
@@ -137,16 +135,23 @@ export default function NewReservationPage() {
       setExistingClients(prev => [...prev, newClient]); 
       finalClientId = newClient.id;
       clientNameForToast = newClient.fullName;
+      finalClientEmail = newClient.email;
+      finalClientFullName = newClient.fullName;
     } else {
         if(!selectedClientId) {
             toast({ title: "Client Manquant", description: "Veuillez sélectionner un client existant.", variant: "destructive" });
             setSubmitting(false);
             return;
         }
-        clientNameForToast = existingClients.find(c => c.id === selectedClientId)?.fullName || 'Client';
+        const existingClient = existingClients.find(c => c.id === selectedClientId);
+        clientNameForToast = existingClient?.fullName || 'Client';
+        finalClientEmail = existingClient?.email || '';
+        finalClientFullName = existingClient?.fullName || '';
     }
     
-    const newBooking: Partial<Booking> = {
+    const newBookingData: Booking = {
+        id: `booking-${Date.now()}`,
+        userId: finalClientId, // Using clientId as userId for agency-created bookings
         carId: selectedCarId,
         clientId: finalClientId,
         agencyId: selectedCar?.agencyId || 'agency1',
@@ -155,9 +160,13 @@ export default function NewReservationPage() {
         totalPrice: totalPrice,
         status: 'confirmed', 
         createdAt: new Date().toISOString(),
+        renterName: finalClientFullName,
+        renterEmail: finalClientEmail,
     };
 
-    console.log('Nouvelle Réservation (Agence) Soumise :', newBooking);
+    console.log('Nouvelle Réservation (Agence) Soumise :', newBookingData);
+    MOCK_BOOKINGS.push(newBookingData); // Add to the shared mock bookings array
+
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     setSubmitting(false);
@@ -408,5 +417,3 @@ export default function NewReservationPage() {
     </div>
   );
 }
-
-    

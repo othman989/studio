@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CarIcon, CalendarDaysIcon, WrenchIcon, ChevronLeftIcon, ChevronRightIcon, CalendarIcon as LucideCalendarIcon } from 'lucide-react';
 import type { Car, Booking, BlockedPeriod } from '@/types';
-import { SAMPLE_CARS } from '@/lib/constants';
+import { SAMPLE_CARS, MOCK_BOOKINGS } from '@/lib/constants'; // Import MOCK_BOOKINGS from constants
 import {
   format,
   parseISO,
@@ -29,13 +29,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
-// Mock Bookings Data (replace with actual data fetching)
-const MOCK_BOOKINGS: Booking[] = [
-  { id: 'booking1', userId: 'user1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Dupont", renterEmail:"alice@example.com" },
-  { id: 'booking2', userId: 'user2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Martin", renterEmail:"bob@example.com" },
-  { id: 'booking3', userId: 'user3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carole Blanc", renterEmail:"carol@example.com" },
-];
-
+// Mock Blocked Periods Data (replace with actual data fetching if needed for blocked periods)
 const MOCK_BLOCKED_PERIODS: BlockedPeriod[] = [
     { id: 'block1', carId: '1', startDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 16)).toISOString(), reason: "Maintenance Programmée", createdAt: new Date().toISOString() },
     { id: 'block2', carId: '2', startDate: new Date(new Date().setDate(new Date().getDate() + 20)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 21)).toISOString(), reason: "Utilisation Propriétaire", createdAt: new Date().toISOString() },
@@ -44,11 +38,12 @@ const MOCK_BLOCKED_PERIODS: BlockedPeriod[] = [
 
 
 const AgencyCalendarPage: NextPage = () => {
-  const [currentDate, setCurrentDate] = useState(new Date()); // Used to determine the current week
+  const [currentDate, setCurrentDate] = useState(new Date()); 
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const [agencyCars] = useState<Car[]>(SAMPLE_CARS.filter(c => c.agencyId === 'agency1' || c.agencyId === 'agency2'));
-  const [bookings] = useState<Booking[]>(MOCK_BOOKINGS);
+  // Use the imported MOCK_BOOKINGS directly or via useState if you plan to modify it locally further (not recommended for this shared data)
+  const bookings = MOCK_BOOKINGS; 
   const [blockedPeriods] = useState<BlockedPeriod[]>(MOCK_BLOCKED_PERIODS);
 
   const currentWeekStartDate = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1, locale: fr }), [currentDate]);
@@ -69,14 +64,14 @@ const AgencyCalendarPage: NextPage = () => {
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       setCurrentDate(date);
-      setIsDatePickerOpen(false); // Close popover on date select
+      setIsDatePickerOpen(false); 
     }
   };
 
   const isCarAvailableOnDate = (carId: string, targetDate: Date): { available: boolean, reason?: string } => {
     const targetDayStart = new Date(targetDate.setHours(0, 0, 0, 0));
 
-    // Check bookings
+    // Check bookings using the directly referenced `bookings` array
     const carBookings = bookings.filter(b => b.carId === carId && (b.status === 'confirmed' || b.status === 'pending'));
     for (const booking of carBookings) {
       const bookingStart = parseISO(booking.startDate);
@@ -184,20 +179,21 @@ const AgencyCalendarPage: NextPage = () => {
                         let cellTitleText = "";
 
                         if (availability.available) {
-                          cellClassName = cn(cellClassName, 'cursor-pointer');
-                          if (isPast) {
-                            cellClassName = cn(cellClassName, 'bg-card hover:bg-muted/30 dark:hover:bg-muted/50');
-                            cellTitleText = `Disponible (date passée) - Sélectionner ${car.make} ${car.model}`;
-                          } else {
-                            cellClassName = cn(cellClassName, 'hover:bg-green-100 dark:hover:bg-green-900/30');
-                            cellTitleText = `Disponible - Réserver ${car.make} ${car.model} le ${format(day, 'PPP', {locale: fr})}`;
-                          }
+                           cellClassName = cn(cellClassName, 'cursor-pointer');
+                           if (isPast) {
+                             cellClassName = cn(cellClassName, 'bg-card hover:bg-muted/30 dark:hover:bg-muted/50');
+                             cellTitleText = `Disponible (date passée) - Sélectionner ${car.make} ${car.model}`;
+                           } else {
+                             cellClassName = cn(cellClassName, 'hover:bg-green-100 dark:hover:bg-green-900/30');
+                             cellTitleText = `Disponible - Réserver ${car.make} ${car.model} le ${format(day, 'PPP', {locale: fr})}`;
+                           }
                         } else { // Not available
-                          cellClassName = cn(cellClassName, 'bg-primary/20 cursor-not-allowed');
+                          cellClassName = cn(cellClassName, 'cursor-not-allowed');
                           if (isPast) {
                             cellClassName = cn(cellClassName, 'bg-primary/10 opacity-70');
                             cellTitleText = `${availability.reason} (passé)`;
                           } else {
+                             cellClassName = cn(cellClassName, 'bg-primary/20');
                             cellTitleText = availability.reason || "Indisponible";
                           }
                         }
@@ -248,12 +244,9 @@ const AgencyCalendarPage: NextPage = () => {
 
 export default AgencyCalendarPage;
 
-// Ensure Booking type includes renterName and renterEmail if you use them elsewhere.
-// For this page, it's mainly about carId, startDate, endDate, status.
 declare module '@/types' {
   interface Booking {
     renterName?: string;
     renterEmail?: string;
   }
 }
-    

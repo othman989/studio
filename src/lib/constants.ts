@@ -1,5 +1,5 @@
 
-import type { Car, NavItem, CarType } from '@/types';
+import type { Car, NavItem, CarType, Booking, ClientProfile } from '@/types';
 import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus } from 'lucide-react';
 import { addDays, formatISO } from 'date-fns';
 
@@ -20,8 +20,8 @@ export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true },
   { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, showOnlyWhenLoggedIn: true },
   { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true },
-  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false },
-  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
+  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false, hideWhenLoggedIn: true },
+  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false, hideWhenLoggedIn: true },
 ];
 
 // Links for authentication (Sign In, Sign Up) - shown when logged out
@@ -31,8 +31,8 @@ export const NAV_LINKS_AUTH: NavItem[] = [
 ];
 
 // Links for the authenticated user's account area/dropdown
-export const NAV_LINKS_USER_MENU: NavItem[] = [ // This is used for mobile menu structure more than desktop now
-    NAV_LINK_DASHBOARD, // Use the defined constant
+export const NAV_LINKS_USER_MENU: NavItem[] = [ 
+    NAV_LINK_DASHBOARD, 
     { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus },
     { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon },
     { href: '/account/listings', label: 'Mes Annonces', icon: ListPlusIcon },
@@ -42,7 +42,7 @@ export const NAV_LINKS_USER_MENU: NavItem[] = [ // This is used for mobile menu 
     { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
 ];
 
-export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon }; // href='#' because logout is an action
+export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon }; 
 
 export const CAR_TYPES: { value: CarType, label: string }[] = [
   { value: 'Sedan', label: 'Berline' },
@@ -58,7 +58,6 @@ export const CAR_TYPES: { value: CarType, label: string }[] = [
 
 const today = new Date();
 
-// Changed from const to let to allow mutation for mock editing
 export let SAMPLE_CARS: Car[] = [
   {
     id: '1',
@@ -161,7 +160,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
-    agencyId: 'agency3',
+    agencyId: 'agency1', 
     agencyName: 'Aquitaine Loc Auto',
     description: 'Le Peugeot 2008 est un SUV compact et agile, parfait pour la ville et les escapades.',
     isVisible: true,
@@ -181,7 +180,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Manual',
-    agencyId: 'agency3',
+    agencyId: 'agency2', 
     agencyName: 'Nantes Auto Partage',
     description: 'La Renault Clio est une citadine polyvalente, économique et agréable à conduire.',
     isVisible: true,
@@ -190,4 +189,16 @@ export let SAMPLE_CARS: Car[] = [
        { from: formatISO(addDays(today, 20), { representation: 'date' }), to: formatISO(addDays(today, 22), { representation: 'date' }) },
     ]
   }
+];
+
+export let MOCK_BOOKINGS: Booking[] = [
+  { id: 'booking1', userId: 'user1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Dupont", renterEmail:"alice@example.com" },
+  { id: 'booking2', userId: 'user2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Martin", renterEmail:"bob@example.com" },
+  { id: 'booking3', userId: 'user3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carole Blanc", renterEmail:"carol@example.com" },
+];
+
+export const MOCK_CLIENTS: ClientProfile[] = [
+    { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: new Date().toISOString() },
+    { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: new Date().toISOString() },
+    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: new Date().toISOString() },
 ];
