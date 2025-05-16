@@ -8,16 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CarIcon, CalendarDaysIcon, WrenchIcon, ChevronLeftIcon, ChevronRightIcon, CalendarIcon as LucideCalendarIcon } from 'lucide-react';
 import type { Car, Booking, BlockedPeriod } from '@/types';
-import { SAMPLE_CARS } from '@/lib/constants'; 
-import { 
-  format, 
-  parseISO, 
-  isWithinInterval, 
-  eachDayOfInterval, 
-  startOfWeek, 
-  endOfWeek, 
-  addDays, 
-  subDays, 
+import { SAMPLE_CARS } from '@/lib/constants';
+import {
+  format,
+  parseISO,
+  isWithinInterval,
+  eachDayOfInterval,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  subDays,
   isSameDay,
   isAfter,
   isBefore
@@ -46,9 +46,9 @@ const MOCK_BLOCKED_PERIODS: BlockedPeriod[] = [
 const AgencyCalendarPage: NextPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date()); // Used to determine the current week
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  
+
   const [agencyCars] = useState<Car[]>(SAMPLE_CARS.filter(c => c.agencyId === 'agency1' || c.agencyId === 'agency2'));
-  const [bookings] = useState<Booking[]>(MOCK_BOOKINGS); 
+  const [bookings] = useState<Booking[]>(MOCK_BOOKINGS);
   const [blockedPeriods] = useState<BlockedPeriod[]>(MOCK_BLOCKED_PERIODS);
 
   const currentWeekStartDate = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1, locale: fr }), [currentDate]);
@@ -95,7 +95,7 @@ const AgencyCalendarPage: NextPage = () => {
         return { available: false, reason: period.reason || "Bloqué" };
       }
     }
-    
+
     // Check blocked periods (all cars)
     const allCarsBlockedPeriods = blockedPeriods.filter(p => p.carId === 'all');
      for (const period of allCarsBlockedPeriods) {
@@ -105,7 +105,7 @@ const AgencyCalendarPage: NextPage = () => {
         return { available: false, reason: period.reason || "Bloqué (toute l'agence)"};
       }
     }
-    return { available: true }; 
+    return { available: true };
   };
 
 
@@ -178,16 +178,31 @@ const AgencyCalendarPage: NextPage = () => {
                       </TableCell>
                       {weekDays.map(day => {
                         const availability = isCarAvailableOnDate(car.id, day);
-                        const isPast = isBefore(day, new Date()) && !isSameDay(day, new Date());
-                        const cellClassName = `h-16 text-center border-l ${
-                          isPast ? 'bg-muted/30 cursor-not-allowed' :
-                          availability.available ? 'hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer' : 'bg-primary/20 cursor-not-allowed'
-                        }`;
-                        
+                        const isPast = isBefore(day, new Date(new Date().setHours(0,0,0,0))); // Compare against start of today
+
+                        const cellClassName = cn(
+                          "h-16 text-center border-l",
+                          isPast
+                            ? availability.available
+                              ? 'bg-card cursor-not-allowed' // Past available: "white" bg, not clickable
+                              : 'bg-primary/10 opacity-70 cursor-not-allowed' // Past unavailable: dull blue, not clickable
+                            : availability.available
+                              ? 'hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer' // Future/Today available
+                              : 'bg-primary/20 cursor-not-allowed' // Future/Today unavailable
+                        );
+
+                        const cellTitle = (!availability.available && !isPast)
+                          ? availability.reason
+                          : isPast
+                            ? availability.reason
+                              ? `${availability.reason} (passé)`
+                              : "Date passée"
+                            : "Disponible";
+
                         return (
-                          <TableCell key={day.toISOString()} className={cellClassName} title={!availability.available && !isPast ? availability.reason : undefined}>
+                          <TableCell key={day.toISOString()} className={cellClassName} title={cellTitle}>
                             {availability.available && !isPast ? (
-                              <Link 
+                              <Link
                                 href={`/account/reservations/new?carId=${car.id}&startDate=${format(day, 'yyyy-MM-dd')}`}
                                 className="w-full h-full flex items-center justify-center"
                                 aria-label={`Réserver ${car.make} ${car.model} le ${format(day, 'PPP', {locale: fr})}`}
@@ -195,8 +210,13 @@ const AgencyCalendarPage: NextPage = () => {
                                 <span className="sr-only">Disponible</span>
                               </Link>
                             ) : (
-                               <div className="w-full h-full flex items-center justify-center">
-                                {isPast ? <span className="text-xs text-muted-foreground">Passé</span> : <span className="sr-only">Non disponible</span>}
+                               <div className="w-full h-full flex items-center justify-center text-xs">
+                                {!availability.available && (
+                                    <span className={cn("text-muted-foreground", isPast && "opacity-60")}>
+                                    {availability.reason}
+                                    </span>
+                                )}
+                                {/* No explicit text for "Past & Available" as the white bg and non-interactivity indicates it */}
                                </div>
                             )}
                           </TableCell>
@@ -212,7 +232,7 @@ const AgencyCalendarPage: NextPage = () => {
           )}
         </CardContent>
       </Card>
-      
+
       <Card className="shadow-md">
         <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2"><WrenchIcon className="h-5 w-5 text-primary"/>Gérer la Disponibilité</CardTitle>
