@@ -20,8 +20,8 @@ export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true },
   { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, showOnlyWhenLoggedIn: true },
   { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true },
-  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false, hideWhenLoggedIn: true },
-  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false, hideWhenLoggedIn: true },
+  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false },
+  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
 ];
 
 // Links for authentication (Sign In, Sign Up) - shown when logged out
@@ -58,7 +58,8 @@ export const CAR_TYPES: { value: CarType, label: string }[] = [
 
 const today = new Date();
 
-export const SAMPLE_CARS: Car[] = [
+// Changed from const to let to allow mutation for mock editing
+export let SAMPLE_CARS: Car[] = [
   {
     id: '1',
     make: 'Tesla',

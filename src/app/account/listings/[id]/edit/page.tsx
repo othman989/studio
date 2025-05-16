@@ -46,9 +46,12 @@ export default function EditListingPage() {
   const [seats, setSeats] = useState<number | ''>('');
   const [imageFiles, setImageFiles] = useState<FileList | null>(null);
   const [currentImageUrl, setCurrentImageUrl] = useState<string | undefined>(undefined);
+  const [imagePreview, setImagePreview] = useState<string | undefined>(undefined);
+
 
   useEffect(() => {
     if (carId) {
+      // Find car from the mutable SAMPLE_CARS array
       const carToEdit = SAMPLE_CARS.find(car => car.id === carId);
       if (carToEdit) {
         setInitialCarData(carToEdit);
@@ -64,6 +67,7 @@ export default function EditListingPage() {
         setTransmission(carToEdit.transmission || '');
         setSeats(carToEdit.seats || '');
         setCurrentImageUrl(carToEdit.imageUrl);
+        setImagePreview(carToEdit.imageUrl); // Set initial image preview
       } else {
         toast({ title: "Voiture non trouvée", description: "Impossible de trouver les détails de la voiture à modifier.", variant: "destructive" });
         router.push('/account/listings');
@@ -78,6 +82,23 @@ export default function EditListingPage() {
     );
   };
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+        setImageFiles(files);
+        // Create a preview URL for the first selected file
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(files[0]);
+    } else {
+        setImageFiles(null);
+        setImagePreview(currentImageUrl); // Revert to current if no file selected
+    }
+  };
+
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
@@ -89,23 +110,41 @@ export default function EditListingPage() {
     }
 
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const updatedCarData: Partial<Car> = {
-      id: carId, make, model, year: Number(year), pricePerDay: Number(pricePerDay), location, type: carType as Car['type'],
-      description, features, fuelType: fuelType as Car['fuelType'], transmission: transmission as Car['transmission'], seats: Number(seats),
-      // In a real app, handle image update logic here
-      imageUrl: currentImageUrl // Keep current image if no new one, or update
+    const carIndex = SAMPLE_CARS.findIndex(car => car.id === carId);
+    if (carIndex === -1) {
+        toast({ title: "Erreur", description: "Voiture non trouvée pour la mise à jour.", variant: "destructive" });
+        setSubmitting(false);
+        return;
+    }
+    
+    const updatedCarData: Car = {
+        ...SAMPLE_CARS[carIndex], // Preserve existing data like agencyId etc.
+        make, 
+        model, 
+        year: Number(year), 
+        pricePerDay: Number(pricePerDay), 
+        location, 
+        type: carType as Car['type'],
+        description, 
+        features, 
+        fuelType: fuelType as Car['fuelType'], 
+        transmission: transmission as Car['transmission'], 
+        seats: Number(seats),
+        imageUrl: imagePreview || SAMPLE_CARS[carIndex].imageUrl, // Use new preview or existing URL
     };
+    
+    // Mutate the SAMPLE_CARS array (for client-side mock persistence)
+    SAMPLE_CARS[carIndex] = updatedCarData;
 
-    console.log('Annonce de Voiture Mise à Jour :', updatedCarData);
-    if(imageFiles) console.log('Nouvelles images à télécharger :', imageFiles.length);
-
+    console.log('Annonce de Voiture Mise à Jour (mock) :', updatedCarData);
+    if(imageFiles) console.log('Nouvelles images à traiter (simulation) :', imageFiles.length);
 
     setSubmitting(false);
     toast({
       title: "Voiture mise à jour avec succès !",
-      description: `${make} ${model} a été mis à jour sur ${APP_NAME}.`,
+      description: `${make} ${model} a été mis à jour (simulation côté client).`,
     });
     router.push('/account/listings'); 
   };
@@ -115,7 +154,6 @@ export default function EditListingPage() {
   }
 
   if (!initialCarData) {
-    // This case should ideally be handled by the redirect in useEffect, but it's a fallback.
     return <div className="container mx-auto px-4 py-12 text-center">Voiture non trouvée.</div>;
   }
 
@@ -181,21 +219,21 @@ export default function EditListingPage() {
              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div>
                 <Label htmlFor="fuelType" className="flex items-center gap-1 mb-1"><Fuel className="h-4 w-4 text-muted-foreground"/>Type de Carburant</Label>
-                <Select value={fuelType} onValueChange={(value) => setFuelType(value as Car['fuelType'])}>
+                <Select value={fuelType || ''} onValueChange={(value) => setFuelType(value as Car['fuelType'])}>
                   <SelectTrigger id="fuelType"><SelectValue placeholder="Sélectionnez le type" /></SelectTrigger>
                   <SelectContent>{fuelTypes.map(ft => <SelectItem key={ft} value={ft}>{ft === 'Gasoline' ? 'Essence' : ft === 'Diesel' ? 'Diesel' : ft === 'Electric' ? 'Électrique' : 'Hybride'}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
                 <Label htmlFor="transmission" className="flex items-center gap-1 mb-1"><Settings className="h-4 w-4 text-muted-foreground"/>Transmission</Label>
-                 <Select value={transmission} onValueChange={(value) => setTransmission(value as Car['transmission'])}>
+                 <Select value={transmission || ''} onValueChange={(value) => setTransmission(value as Car['transmission'])}>
                   <SelectTrigger id="transmission"><SelectValue placeholder="Sélectionnez le type" /></SelectTrigger>
                   <SelectContent>{transmissionTypes.map(tt => <SelectItem key={tt} value={tt}>{tt === 'Automatic' ? 'Automatique' : 'Manuelle'}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
                <div>
                 <Label htmlFor="seats" className="flex items-center gap-1 mb-1"><Users className="h-4 w-4 text-muted-foreground"/>Nombre de Sièges</Label>
-                <Input id="seats" type="number" value={seats} onChange={(e) => setSeats(Number(e.target.value))} placeholder="ex. 5" min="1" />
+                <Input id="seats" type="number" value={seats || ''} onChange={(e) => setSeats(Number(e.target.value))} placeholder="ex. 5" min="1" />
               </div>
             </div>
 
@@ -224,22 +262,19 @@ export default function EditListingPage() {
 
             {/* Image Upload */}
             <h3 className="text-lg font-semibold pt-4 border-t">Images de la Voiture</h3>
-            {currentImageUrl && (
+            {imagePreview && (
                 <div className="mb-4">
-                    <p className="text-sm text-muted-foreground mb-2">Image actuelle :</p>
+                    <p className="text-sm text-muted-foreground mb-2">Aperçu de l'image :</p>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={currentImageUrl} alt="Image actuelle de la voiture" className="rounded-md max-h-48 object-contain border" data-ai-hint={`${carType} ${make}`}/>
+                    <img src={imagePreview} alt="Aperçu de la voiture" className="rounded-md max-h-48 object-contain border" data-ai-hint={`${carType} ${make}`}/>
                 </div>
             )}
             <div>
-              <Label htmlFor="images" className="flex items-center gap-1 mb-1"><UploadCloud className="h-4 w-4 text-muted-foreground"/>Télécharger de Nouvelles Images (Max 5)</Label>
-              <Input id="images" type="file" multiple accept="image/*" onChange={(e) => setImageFiles(e.target.files)} 
+              <Label htmlFor="images" className="flex items-center gap-1 mb-1"><UploadCloud className="h-4 w-4 text-muted-foreground"/>Télécharger de Nouvelles Images (Optionnel)</Label>
+              <Input id="images" type="file" accept="image/*" onChange={handleImageFileChange} 
                 className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
               />
-               <p className="text-xs text-muted-foreground mt-1">Le téléchargement de nouvelles images remplacera les existantes. Si aucune nouvelle image n'est téléchargée, l'image actuelle sera conservée.</p>
-              {imageFiles && imageFiles.length > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">{imageFiles.length} fichier(s) sélectionné(s). La première image sera l'image principale.</p>
-              )}
+               <p className="text-xs text-muted-foreground mt-1">Le téléchargement d'une nouvelle image remplacera l'image actuelle. La fonctionnalité de multi-images n'est pas encore implémentée.</p>
             </div>
             
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
@@ -256,5 +291,3 @@ export default function EditListingPage() {
     </div>
   );
 }
-
-    
