@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation'; // Added useSearchParams
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CarIcon, UserIcon, UsersIcon, CalendarIcon as LucideCalendarIcon, DollarSignIcon, InfoIcon, FileTextIcon, PhoneIcon, MailIcon, Check, ChevronsUpDown } from 'lucide-react';
 import { APP_NAME, SAMPLE_CARS } from '@/lib/constants';
 import type { Car, ClientProfile, Booking } from '@/types';
-import { format, differenceInDays, addDays, parseISO } from 'date-fns';
+import { format, differenceInDays, addDays, parseISO, isValid as isValidDate } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ const MOCK_CLIENTS: ClientProfile[] = [
 
 export default function NewReservationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Get search params
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
@@ -39,10 +40,7 @@ export default function NewReservationPage() {
   const [selectedCarId, setSelectedCarId] = useState<string>('');
   const [clientType, setClientType] = useState<'existing' | 'new'>('existing');
   const [selectedClientId, setSelectedClientId] = useState<string>('');
-  const [rentalDates, setRentalDates] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 3),
-  });
+  const [rentalDates, setRentalDates] = useState<DateRange | undefined>(undefined);
 
   // New Client Form State
   const [newClientFullName, setNewClientFullName] = useState('');
@@ -53,14 +51,36 @@ export default function NewReservationPage() {
   const [newClientNotes, setNewClientNotes] = useState('');
 
   // Combobox state
-  const [openCombobox, setOpenCombobox] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [openCarCombobox, setOpenCarCombobox] = useState(false);
+  const [openClientCombobox, setOpenClientCombobox] = useState(false);
+  const [searchClientQuery, setSearchClientQuery] = useState("");
+
+  useEffect(() => {
+    const carIdFromParams = searchParams.get('carId');
+    const startDateFromParams = searchParams.get('startDate');
+
+    if (carIdFromParams && agencyCars.find(c => c.id === carIdFromParams)) {
+      setSelectedCarId(carIdFromParams);
+    }
+
+    if (startDateFromParams) {
+      const parsedStartDate = parseISO(startDateFromParams);
+      if (isValidDate(parsedStartDate)) {
+        setRentalDates({ from: parsedStartDate, to: addDays(parsedStartDate, 2) }); // Default to 3 days rental
+      } else {
+         setRentalDates({ from: new Date(), to: addDays(new Date(), 2) }); // Default if param is invalid
+      }
+    } else {
+        setRentalDates({ from: new Date(), to: addDays(new Date(), 2) }); // Default if no param
+    }
+  }, [searchParams, agencyCars]);
+
 
   const selectedCar = useMemo(() => agencyCars.find(car => car.id === selectedCarId), [agencyCars, selectedCarId]);
   
   const numberOfDays = useMemo(() => {
     if (rentalDates?.from && rentalDates?.to) {
-      const days = differenceInDays(rentalDates.to, rentalDates.from) + 1;
+      const days = differenceInDays(rentalDates.to, rentalDates.from) + 1; // Inclusive of start and end day
       return days > 0 ? days : 0;
     }
     return 0;
@@ -74,14 +94,14 @@ export default function NewReservationPage() {
   }, [selectedCar, numberOfDays]);
 
   const filteredClients = useMemo(() => {
-    if (!searchQuery) return existingClients;
-    const lowerCaseQuery = searchQuery.toLowerCase();
+    if (!searchClientQuery) return existingClients;
+    const lowerCaseQuery = searchClientQuery.toLowerCase();
     return existingClients.filter(client => 
       client.fullName.toLowerCase().includes(lowerCaseQuery) ||
       (client.licenseNumber && client.licenseNumber.toLowerCase().includes(lowerCaseQuery)) ||
-      client.fullName.toLowerCase().split(' ').some(part => part.includes(lowerCaseQuery)) // Basic last name check
+      client.fullName.toLowerCase().split(' ').some(part => part.includes(lowerCaseQuery)) 
     );
-  }, [searchQuery, existingClients]);
+  }, [searchClientQuery, existingClients]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -172,12 +192,12 @@ export default function NewReservationPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="car" className="mb-1">Voiture *</Label>
-                  <Popover>
+                  <Popover open={openCarCombobox} onOpenChange={setOpenCarCombobox}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
-                        aria-expanded={openCombobox}
+                        aria-expanded={openCarCombobox}
                         className="w-full justify-between h-10"
                       >
                         {selectedCarId
@@ -198,7 +218,7 @@ export default function NewReservationPage() {
                                 value={`${car.make} ${car.model} ${car.year} ${car.id}`}
                                 onSelect={() => {
                                   setSelectedCarId(car.id === selectedCarId ? "" : car.id);
-                                  setOpenCombobox(false);
+                                  setOpenCarCombobox(false);
                                 }}
                               >
                                 <Check
@@ -236,12 +256,12 @@ export default function NewReservationPage() {
               {clientType === 'existing' && (
                 <div>
                   <Label htmlFor="existingClientSelect" className="mb-1">Sélectionner Client *</Label>
-                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <Popover open={openClientCombobox} onOpenChange={setOpenClientCombobox}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
-                        aria-expanded={openCombobox}
+                        aria-expanded={openClientCombobox}
                         className="w-full justify-between h-10"
                       >
                         {selectedClientId
@@ -254,8 +274,8 @@ export default function NewReservationPage() {
                       <Command>
                         <CommandInput 
                             placeholder="Rechercher (nom, N° permis)..." 
-                            value={searchQuery}
-                            onValueChange={setSearchQuery}
+                            value={searchClientQuery}
+                            onValueChange={setSearchClientQuery}
                         />
                         <CommandList>
                           <CommandEmpty>Aucun client trouvé.</CommandEmpty>
@@ -266,8 +286,8 @@ export default function NewReservationPage() {
                                 value={`${client.fullName} ${client.licenseNumber || ''} ${client.id}`}
                                 onSelect={() => {
                                   setSelectedClientId(client.id === selectedClientId ? "" : client.id);
-                                  setOpenCombobox(false);
-                                  setSearchQuery("");
+                                  setOpenClientCombobox(false);
+                                  setSearchClientQuery("");
                                 }}
                               >
                                 <Check
@@ -330,7 +350,7 @@ export default function NewReservationPage() {
                   <Label htmlFor="rentalDates" className="block text-sm font-medium mb-1">Dates de Location *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button id="rentalDates" variant={"outline"} className="w-full justify-start text-left font-normal h-10">
+                      <Button id="rentalDates" variant={"outline"} className={cn("w-full justify-start text-left font-normal h-10", !rentalDates && "text-muted-foreground")}>
                         <LucideCalendarIcon className="mr-2 h-4 w-4" />
                         {rentalDates?.from ? (
                           rentalDates.to ? (
@@ -389,4 +409,4 @@ export default function NewReservationPage() {
   );
 }
 
-
+    
