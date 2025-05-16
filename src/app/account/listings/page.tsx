@@ -5,7 +5,7 @@ import type { NextPage } from 'next';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // Moved import to the top
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -31,7 +31,7 @@ const fetchAgencyCars = async (agencyId: string): Promise<Car[]> => {
 };
 
 const AgencyListingsPage: NextPage = () => {
-  const router = useRouter(); // Initialized router instance
+  const router = useRouter();
   const { toast } = useToast();
   const [agencyCars, setAgencyCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,11 +46,7 @@ const AgencyListingsPage: NextPage = () => {
   }, [agencyId]);
 
   const handleEditCar = (carId: string) => {
-    toast({
-      title: "Fonctionnalité à venir",
-      description: `La modification de la voiture ${carId} sera bientôt disponible.`,
-    });
-    // router.push(`/account/listings/${carId}/edit`);
+    router.push(`/account/listings/${carId}/edit`);
   };
 
   const handleDeleteCar = (carId: string, carName: string) => {
@@ -199,15 +195,4 @@ const AgencyListingsPage: NextPage = () => {
 };
 
 export default AgencyListingsPage;
-
-// Helper for routing, can be removed if not used elsewhere
-// Already imported at the top
-// import { useRouter } from 'next/navigation';
-
-// Ensure car type is used in router.push for highlight
-// ... (inside map function in AgencyListingsPage)
-// const router = useRouter(); // This is now correctly initialized at the top of the component
-// ...
-// DropdownMenuItem onClick={() => router.push(`/account/listings/visibility?highlight=${car.id}`)}
-// This ensures the router import is used.
-
+    
