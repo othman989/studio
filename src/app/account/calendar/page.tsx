@@ -178,45 +178,45 @@ const AgencyCalendarPage: NextPage = () => {
                       </TableCell>
                       {weekDays.map(day => {
                         const availability = isCarAvailableOnDate(car.id, day);
-                        const isPast = isBefore(day, new Date(new Date().setHours(0,0,0,0))); // Compare against start of today
+                        const isPast = isBefore(day, new Date(new Date().setHours(0,0,0,0)));
 
-                        const cellClassName = cn(
-                          "h-16 text-center border-l",
-                          isPast
-                            ? availability.available
-                              ? 'bg-card cursor-not-allowed' // Past available: "white" bg, not clickable
-                              : 'bg-primary/10 opacity-70 cursor-not-allowed' // Past unavailable: dull blue, not clickable
-                            : availability.available
-                              ? 'hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer' // Future/Today available
-                              : 'bg-primary/20 cursor-not-allowed' // Future/Today unavailable
-                        );
+                        let cellClassName = "h-16 text-center border-l";
+                        let cellTitleText = "";
 
-                        const cellTitle = (!availability.available && !isPast)
-                          ? availability.reason
-                          : isPast
-                            ? availability.reason
-                              ? `${availability.reason} (passé)`
-                              : "Date passée"
-                            : "Disponible";
-
+                        if (availability.available) {
+                          cellClassName = cn(cellClassName, 'cursor-pointer');
+                          if (isPast) {
+                            cellClassName = cn(cellClassName, 'bg-card hover:bg-muted/30 dark:hover:bg-muted/50');
+                            cellTitleText = `Disponible (date passée) - Sélectionner ${car.make} ${car.model}`;
+                          } else {
+                            cellClassName = cn(cellClassName, 'hover:bg-green-100 dark:hover:bg-green-900/30');
+                            cellTitleText = `Disponible - Réserver ${car.make} ${car.model} le ${format(day, 'PPP', {locale: fr})}`;
+                          }
+                        } else { // Not available
+                          cellClassName = cn(cellClassName, 'bg-primary/20 cursor-not-allowed');
+                          if (isPast) {
+                            cellClassName = cn(cellClassName, 'bg-primary/10 opacity-70');
+                            cellTitleText = `${availability.reason} (passé)`;
+                          } else {
+                            cellTitleText = availability.reason || "Indisponible";
+                          }
+                        }
+                        
                         return (
-                          <TableCell key={day.toISOString()} className={cellClassName} title={cellTitle}>
-                            {availability.available && !isPast ? (
+                          <TableCell key={day.toISOString()} className={cellClassName} title={cellTitleText}>
+                            {availability.available ? (
                               <Link
                                 href={`/account/reservations/new?carId=${car.id}&startDate=${format(day, 'yyyy-MM-dd')}`}
                                 className="w-full h-full flex items-center justify-center"
-                                aria-label={`Réserver ${car.make} ${car.model} le ${format(day, 'PPP', {locale: fr})}`}
+                                aria-label={cellTitleText}
                               >
-                                <span className="sr-only">Disponible</span>
+                                <span className="sr-only">{isPast ? "Disponible (passé)" : "Disponible"}</span>
                               </Link>
                             ) : (
                                <div className="w-full h-full flex items-center justify-center text-xs">
-                                {!availability.available && (
-                                    <span className={cn("text-muted-foreground", isPast && "opacity-60")}>
-                                    {availability.reason}
-                                    </span>
-                                )}
-                                {/* No explicit text for "Past & Available" as the white bg and non-interactivity indicates it */}
+                                <span className={cn("text-muted-foreground", isPast && "opacity-60")}>
+                                  {availability.reason}
+                                </span>
                                </div>
                             )}
                           </TableCell>
