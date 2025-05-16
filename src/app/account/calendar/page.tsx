@@ -6,9 +6,9 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CarIcon, CalendarDaysIcon, WrenchIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { CarIcon, CalendarDaysIcon, WrenchIcon, ChevronLeftIcon, ChevronRightIcon, CalendarIcon as LucideCalendarIcon } from 'lucide-react';
 import type { Car, Booking, BlockedPeriod } from '@/types';
-import { SAMPLE_CARS } from '@/lib/constants';
+import { SAMPLE_CARS } from '@/lib/constants'; 
 import { 
   format, 
   parseISO, 
@@ -25,6 +25,9 @@ import {
 import { fr } from 'date-fns/locale';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 // Mock Bookings Data (replace with actual data fetching)
 const MOCK_BOOKINGS: Booking[] = [
@@ -42,6 +45,7 @@ const MOCK_BLOCKED_PERIODS: BlockedPeriod[] = [
 
 const AgencyCalendarPage: NextPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date()); // Used to determine the current week
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   
   const [agencyCars] = useState<Car[]>(SAMPLE_CARS.filter(c => c.agencyId === 'agency1' || c.agencyId === 'agency2'));
   const [bookings] = useState<Booking[]>(MOCK_BOOKINGS); 
@@ -62,7 +66,14 @@ const AgencyCalendarPage: NextPage = () => {
     setCurrentDate(addDays(currentWeekStartDate, 7));
   };
 
-  const isCarAvailableOnDate = (carId: string, targetDate: Date): boolean => {
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setCurrentDate(date);
+      setIsDatePickerOpen(false); // Close popover on date select
+    }
+  };
+
+  const isCarAvailableOnDate = (carId: string, targetDate: Date): { available: boolean, reason?: string } => {
     const targetDayStart = new Date(targetDate.setHours(0, 0, 0, 0));
 
     // Check bookings
@@ -71,7 +82,7 @@ const AgencyCalendarPage: NextPage = () => {
       const bookingStart = parseISO(booking.startDate);
       const bookingEnd = parseISO(booking.endDate);
       if (isWithinInterval(targetDayStart, { start: bookingStart, end: bookingEnd }) || isSameDay(targetDayStart, bookingStart) || isSameDay(targetDayStart, bookingEnd)) {
-        return false; // Booked
+        return { available: false, reason: `Réservé (${booking.renterName})` };
       }
     }
 
@@ -81,7 +92,7 @@ const AgencyCalendarPage: NextPage = () => {
       const periodStart = parseISO(period.startDate);
       const periodEnd = parseISO(period.endDate);
        if (isWithinInterval(targetDayStart, { start: periodStart, end: periodEnd }) || isSameDay(targetDayStart, periodStart) || isSameDay(targetDayStart, periodEnd)) {
-        return false; // Blocked by agency
+        return { available: false, reason: period.reason || "Bloqué" };
       }
     }
     
@@ -91,10 +102,10 @@ const AgencyCalendarPage: NextPage = () => {
       const periodStart = parseISO(period.startDate);
       const periodEnd = parseISO(period.endDate);
        if (isWithinInterval(targetDayStart, { start: periodStart, end: periodEnd }) || isSameDay(targetDayStart, periodStart) || isSameDay(targetDayStart, periodEnd)) {
-        return false; // Blocked for all cars
+        return { available: false, reason: period.reason || "Bloqué (toute l'agence)"};
       }
     }
-    return true; // Available
+    return { available: true }; 
   };
 
 
@@ -109,13 +120,38 @@ const AgencyCalendarPage: NextPage = () => {
       </header>
 
       <Card className="shadow-xl mb-8">
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-6">
           <Button variant="outline" onClick={goToPreviousWeek} aria-label="Semaine précédente">
             <ChevronLeftIcon className="h-5 w-5" />
           </Button>
-          <CardTitle className="text-xl text-center">
-            Semaine du {format(currentWeekStartDate, 'd LLLL yyyy', { locale: fr })} au {format(currentWeekEndDate, 'd LLLL yyyy', { locale: fr })}
-          </CardTitle>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <CardTitle className="text-xl text-center order-2 sm:order-1">
+              Semaine du {format(currentWeekStartDate, 'd LLLL yyyy', { locale: fr })}
+            </CardTitle>
+            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[200px] sm:w-[240px] justify-start text-left font-normal order-1 sm:order-2",
+                    !currentDate && "text-muted-foreground"
+                  )}
+                >
+                  <LucideCalendarIcon className="mr-2 h-4 w-4" />
+                  {currentDate ? format(currentDate, "MMMM yyyy", {locale: fr}) : <span>Choisir un mois</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <Calendar
+                  mode="single"
+                  selected={currentDate}
+                  onSelect={handleDateSelect}
+                  initialFocus
+                  locale={fr}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
           <Button variant="outline" onClick={goToNextWeek} aria-label="Semaine suivante">
             <ChevronRightIcon className="h-5 w-5" />
           </Button>
@@ -141,16 +177,16 @@ const AgencyCalendarPage: NextPage = () => {
                         {car.make} {car.model} <span className="text-xs text-muted-foreground">({car.year})</span>
                       </TableCell>
                       {weekDays.map(day => {
-                        const isAvailable = isCarAvailableOnDate(car.id, day);
+                        const availability = isCarAvailableOnDate(car.id, day);
                         const isPast = isBefore(day, new Date()) && !isSameDay(day, new Date());
                         const cellClassName = `h-16 text-center border-l ${
                           isPast ? 'bg-muted/30 cursor-not-allowed' :
-                          isAvailable ? 'hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer' : 'bg-primary/20 cursor-not-allowed'
+                          availability.available ? 'hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer' : 'bg-primary/20 cursor-not-allowed'
                         }`;
                         
                         return (
-                          <TableCell key={day.toISOString()} className={cellClassName}>
-                            {isAvailable && !isPast ? (
+                          <TableCell key={day.toISOString()} className={cellClassName} title={!availability.available && !isPast ? availability.reason : undefined}>
+                            {availability.available && !isPast ? (
                               <Link 
                                 href={`/account/reservations/new?carId=${car.id}&startDate=${format(day, 'yyyy-MM-dd')}`}
                                 className="w-full h-full flex items-center justify-center"
@@ -200,5 +236,4 @@ declare module '@/types' {
     renterEmail?: string;
   }
 }
-
     
