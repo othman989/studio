@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CarIcon, UserIcon, UsersIcon, CalendarIcon as LucideCalendarIcon, DollarSignIcon, InfoIcon, FileTextIcon, PhoneIcon, MailIcon, Check, ChevronsUpDown } from 'lucide-react';
-import { APP_NAME, SAMPLE_CARS, MOCK_CLIENTS, MOCK_BOOKINGS } from '@/lib/constants'; // Import MOCK_BOOKINGS
+import { APP_NAME, SAMPLE_CARS, MOCK_CLIENTS, MOCK_BOOKINGS } from '@/lib/constants'; 
 import type { Car, ClientProfile, Booking } from '@/types';
 import { format, differenceInDays, addDays, parseISO, isValid as isValidDate } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -98,6 +98,25 @@ export default function NewReservationPage() {
     );
   }, [searchClientQuery, existingClients]);
 
+  const handleClientSelection = (clientIdToSelect: string) => {
+    const client = existingClients.find(c => c.id === clientIdToSelect);
+    setOpenClientCombobox(false);
+    setSearchClientQuery("");
+
+    if (client && client.isBlacklisted) {
+      toast({
+        title: "Client sur Liste Noire",
+        description: `${client.fullName} est sur la liste noire. Consultation de son profil. Raison : ${client.blacklistReason || 'Non spécifiée'}`,
+        variant: "destructive",
+        duration: 7000,
+      });
+      router.push(`/admin/renters/${client.id}`);
+      setSelectedClientId(""); // Réinitialiser la sélection
+      return;
+    }
+    setSelectedClientId(clientIdToSelect === selectedClientId ? "" : clientIdToSelect);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
@@ -130,6 +149,7 @@ export default function NewReservationPage() {
         notes: newClientNotes,
         agencyId: selectedCar?.agencyId || 'agency1', 
         createdAt: new Date().toISOString(),
+        isBlacklisted: false, // Nouveaux clients ne sont pas sur liste noire par défaut
       };
       console.log("Création d'un nouveau client simulée :", newClient);
       setExistingClients(prev => [...prev, newClient]); 
@@ -144,6 +164,17 @@ export default function NewReservationPage() {
             return;
         }
         const existingClient = existingClients.find(c => c.id === selectedClientId);
+        if (existingClient && existingClient.isBlacklisted) {
+            toast({
+                title: "Client sur Liste Noire",
+                description: `${existingClient.fullName} est sur la liste noire et ne peut pas effectuer de réservation.`,
+                variant: "destructive",
+                duration: 7000,
+            });
+            setSubmitting(false);
+            router.push(`/admin/renters/${existingClient.id}`);
+            return;
+        }
         clientNameForToast = existingClient?.fullName || 'Client';
         finalClientEmail = existingClient?.email || '';
         finalClientFullName = existingClient?.fullName || '';
@@ -151,7 +182,7 @@ export default function NewReservationPage() {
     
     const newBookingData: Booking = {
         id: `booking-${Date.now()}`,
-        userId: finalClientId, // Using clientId as userId for agency-created bookings
+        userId: finalClientId, 
         carId: selectedCarId,
         clientId: finalClientId,
         agencyId: selectedCar?.agencyId || 'agency1',
@@ -165,7 +196,7 @@ export default function NewReservationPage() {
     };
 
     console.log('Nouvelle Réservation (Agence) Soumise :', newBookingData);
-    MOCK_BOOKINGS.push(newBookingData); // Add to the shared mock bookings array
+    MOCK_BOOKINGS.push(newBookingData); 
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -293,11 +324,8 @@ export default function NewReservationPage() {
                               <CommandItem
                                 key={client.id}
                                 value={`${client.fullName} ${client.licenseNumber || ''} ${client.id}`}
-                                onSelect={() => {
-                                  setSelectedClientId(client.id === selectedClientId ? "" : client.id);
-                                  setOpenClientCombobox(false);
-                                  setSearchClientQuery("");
-                                }}
+                                onSelect={() => handleClientSelection(client.id)}
+                                disabled={client.isBlacklisted && !searchClientQuery} // Visually disable if blacklisted and no search active
                               >
                                 <Check
                                   className={cn(
@@ -305,7 +333,9 @@ export default function NewReservationPage() {
                                     selectedClientId === client.id ? "opacity-100" : "opacity-0"
                                   )}
                                 />
-                                {client.fullName} ({client.email}) {client.licenseNumber && `- ${client.licenseNumber}`}
+                                {client.fullName} ({client.email})
+                                {client.licenseNumber && ` - ${client.licenseNumber}`}
+                                {client.isBlacklisted && <span className="ml-2 text-xs text-destructive">(Liste Noire)</span>}
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -417,3 +447,6 @@ export default function NewReservationPage() {
     </div>
   );
 }
+
+
+    
