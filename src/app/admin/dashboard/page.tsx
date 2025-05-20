@@ -86,7 +86,7 @@ const AdminDashboardPage = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {section.links.map((link) => (
-              <Card key={link.href} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col group">
+              <Card key={link.label} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col group">
                 <CardHeader className="pb-3">
                    <div className="flex items-start gap-4">
                       <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -116,3 +116,4 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
+
