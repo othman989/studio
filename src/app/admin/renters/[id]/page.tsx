@@ -161,7 +161,7 @@ export default function RenterDetailsPage() {
               {renter.isBlacklisted && renter.blacklistReason && (
                  <div className="pt-2">
                     <p className="font-semibold text-destructive">Motif de la liste noire :</p>
-                    <p className="text-sm text-destructive-foreground bg-destructive/10 p-2 rounded-md">{renter.blacklistReason}</p>
+                    <p className="text-sm text-destructive bg-destructive/10 p-2 rounded-md">{renter.blacklistReason}</p>
                  </div>
               )}
             </CardContent>
@@ -253,3 +253,4 @@ export default function RenterDetailsPage() {
     </div>
   );
 }
+
