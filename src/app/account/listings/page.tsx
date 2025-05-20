@@ -175,7 +175,7 @@ const AgencyListingsPage: NextPage = () => {
                       <TableCell className="hidden md:table-cell">
                         <Badge variant="secondary">{carTypeLabel(car.type)}</Badge>
                       </TableCell>
-                      <TableCell>{car.pricePerDay.toFixed(2)}€</TableCell>
+                      <TableCell>{car.pricePerDay.toFixed(2)} MAD</TableCell>
                       <TableCell>
                         <Badge variant={car.isVisible ? 'default' : 'outline'} className={car.isVisible ? 'bg-green-600/80 hover:bg-green-600 text-green-50' : ''}>
                            {car.isVisible ? <EyeIcon className="mr-1 h-3.5 w-3.5" /> : <EyeOffIcon className="mr-1 h-3.5 w-3.5" />}

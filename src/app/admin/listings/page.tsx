@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import type { Car } from '@/types';
-import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
+import { SAMPLE_CARS, CAR_TYPES, MOCK_BOOKINGS } from '@/lib/constants';
 
 const AdminManageListingsPage: NextPage = () => {
   const { toast } = useToast();
@@ -61,15 +61,27 @@ const AdminManageListingsPage: NextPage = () => {
 
   const handleDeleteListing = () => {
     if (!carToModify) return;
+    const carIdToDelete = carToModify.id;
 
-    const carIndex = SAMPLE_CARS.findIndex(c => c.id === carToModify.id);
+    // Remove car
+    const carIndex = SAMPLE_CARS.findIndex(c => c.id === carIdToDelete);
     if (carIndex !== -1) {
         SAMPLE_CARS.splice(carIndex, 1);
     }
+
+    // Remove associated bookings
+    const bookingsToRemove = MOCK_BOOKINGS.filter(booking => booking.carId === carIdToDelete);
+    bookingsToRemove.forEach(bookingToRemove => {
+      const bookingIndex = MOCK_BOOKINGS.findIndex(booking => booking.id === bookingToRemove.id);
+      if (bookingIndex !== -1) {
+        MOCK_BOOKINGS.splice(bookingIndex, 1);
+      }
+    });
+    
     setAllCars([...SAMPLE_CARS]);
     toast({ 
         title: "Annonce Supprimée (Simulation)", 
-        description: `L'annonce pour ${carToModify.make} ${carToModify.model} a été supprimée.`, 
+        description: `L'annonce pour ${carToModify.make} ${carToModify.model} et ses réservations associées ont été supprimées.`, 
         variant: "destructive" 
     });
     setIsDeleteDialogOpen(false);
@@ -138,7 +150,7 @@ const AdminManageListingsPage: NextPage = () => {
                       <TableCell className="hidden md:table-cell">
                         <Badge variant="secondary">{carTypeLabel(car.type)}</Badge>
                       </TableCell>
-                      <TableCell>{car.pricePerDay.toFixed(2)}€</TableCell>
+                      <TableCell>{car.pricePerDay.toFixed(2)} MAD</TableCell>
                       <TableCell>
                         <Badge variant={car.isVisible ? 'default' : 'outline'} className={car.isVisible ? 'bg-green-600/80 hover:bg-green-600 text-green-50' : ''}>
                            {car.isVisible ? <EyeIcon className="mr-1 h-3.5 w-3.5" /> : <EyeOffIcon className="mr-1 h-3.5 w-3.5" />}
@@ -187,7 +199,7 @@ const AdminManageListingsPage: NextPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmer Suppression</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer définitivement l'annonce pour {carToModify?.make} {carToModify?.model} ? Cette action est irréversible.
+              Êtes-vous sûr de vouloir supprimer définitivement l'annonce pour {carToModify?.make} {carToModify?.model} ? Cette action est irréversible et supprimera également les réservations associées.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
