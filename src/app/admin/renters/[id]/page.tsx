@@ -6,11 +6,13 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, UserIcon, MailIcon, PhoneIcon, FileTextIcon, CalendarDaysIcon, Edit3Icon, UserXIcon, UserCheckIcon, MapPinIcon } from 'lucide-react';
+import { ArrowLeft, UserIcon, MailIcon, PhoneIcon, FileTextIcon, CalendarDaysIcon, Edit3Icon, UserXIcon, UserCheckIcon, MapPinIcon, MessageSquareIcon } from 'lucide-react';
 import type { ClientProfile } from '@/types';
 import { MOCK_CLIENTS } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +33,7 @@ export default function RenterDetailsPage() {
   const [renter, setRenter] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBlacklistDialogOpen, setIsBlacklistDialogOpen] = useState(false);
+  const [blacklistReasonInput, setBlacklistReasonInput] = useState("");
 
   useEffect(() => {
     const foundRenter = MOCK_CLIENTS.find(r => r.id === renterId);
@@ -43,17 +46,37 @@ export default function RenterDetailsPage() {
   const handleToggleBlacklist = () => {
     if (!renter) return;
 
+    if (!renter.isBlacklisted && !blacklistReasonInput.trim()) {
+      toast({
+        title: "Motif Requis",
+        description: "Veuillez fournir un motif pour ajouter ce locataire à la liste noire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const renterIndex = MOCK_CLIENTS.findIndex(r => r.id === renter.id);
     if (renterIndex !== -1) {
-      MOCK_CLIENTS[renterIndex].isBlacklisted = !MOCK_CLIENTS[renterIndex].isBlacklisted;
-      setRenter({...MOCK_CLIENTS[renterIndex]}); // Update local state to re-render
+      const newBlacklistStatus = !MOCK_CLIENTS[renterIndex].isBlacklisted;
+      MOCK_CLIENTS[renterIndex].isBlacklisted = newBlacklistStatus;
+      MOCK_CLIENTS[renterIndex].blacklistReason = newBlacklistStatus ? blacklistReasonInput : undefined;
+      
+      setRenter({...MOCK_CLIENTS[renterIndex]});
       toast({
         title: `Statut du Locataire Mis à Jour`,
-        description: `${renter.fullName} a été ${MOCK_CLIENTS[renterIndex].isBlacklisted ? 'ajouté à' : 'retiré de'} la liste noire.`,
+        description: `${renter.fullName} a été ${newBlacklistStatus ? 'ajouté à' : 'retiré de'} la liste noire.`,
       });
     }
     setIsBlacklistDialogOpen(false);
+    setBlacklistReasonInput("");
   };
+
+  const openBlacklistDialog = () => {
+    if (!renter) return;
+    setBlacklistReasonInput(renter.isBlacklisted ? renter.blacklistReason || "" : "");
+    setIsBlacklistDialogOpen(true);
+  };
+
 
   const handlePlaceholderAction = (actionName: string) => {
     toast({
@@ -98,7 +121,7 @@ export default function RenterDetailsPage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-6">
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Informations Personnelles</CardTitle>
@@ -133,9 +156,24 @@ export default function RenterDetailsPage() {
                 </div>
               )}
                {renter.notes && (
-                <p className="text-sm text-muted-foreground"><span className="font-semibold">Notes :</span> {renter.notes}</p>
+                <p className="text-sm text-muted-foreground"><span className="font-semibold">Notes Administrateur :</span> {renter.notes}</p>
+              )}
+              {renter.isBlacklisted && renter.blacklistReason && (
+                 <div className="pt-2">
+                    <p className="font-semibold text-destructive">Motif de la liste noire :</p>
+                    <p className="text-sm text-destructive-foreground bg-destructive/10 p-2 rounded-md">{renter.blacklistReason}</p>
+                 </div>
               )}
             </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+             <CardHeader>
+                <CardTitle>Historique des Réservations</CardTitle>
+             </CardHeader>
+             <CardContent>
+                <p className="text-muted-foreground">L'historique des réservations pour {renter.fullName} sera affiché ici (fonctionnalité à venir).</p>
+             </CardContent>
           </Card>
         </div>
 
@@ -151,7 +189,7 @@ export default function RenterDetailsPage() {
               <Button 
                 className="w-full" 
                 variant={renter.isBlacklisted ? 'default' : 'destructive'} 
-                onClick={() => setIsBlacklistDialogOpen(true)}
+                onClick={openBlacklistDialog}
               >
                 {renter.isBlacklisted ? (
                   <UserCheckIcon className="mr-2 h-4 w-4" />
@@ -160,20 +198,47 @@ export default function RenterDetailsPage() {
                 )}
                 {renter.isBlacklisted ? "Retirer de la liste noire" : "Ajouter à la liste noire"}
               </Button>
+               <Button className="w-full" variant="outline" onClick={() => handlePlaceholderAction("Envoyer un message")}>
+                <MessageSquareIcon className="mr-2 h-4 w-4" /> Envoyer un Message
+              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
 
       {/* Blacklist Dialog */}
-      <AlertDialog open={isBlacklistDialogOpen} onOpenChange={setIsBlacklistDialogOpen}>
+      <AlertDialog open={isBlacklistDialogOpen} onOpenChange={(open) => {
+          setIsBlacklistDialogOpen(open);
+          if (!open) setBlacklistReasonInput(""); 
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer l'Action sur la Liste Noire</AlertDialogTitle>
+            <AlertDialogTitle>Confirmer l'Action : {renter?.fullName}</AlertDialogTitle>
             <AlertDialogDescription>
               Êtes-vous sûr de vouloir {renter?.isBlacklisted ? 'retirer' : 'ajouter'} "{renter?.fullName}" {renter?.isBlacklisted ? 'de la' : 'à la'} liste noire ?
             </AlertDialogDescription>
           </AlertDialogHeader>
+           {!renter?.isBlacklisted && (
+            <div className="space-y-2 py-2">
+              <Label htmlFor="blacklistReasonDialog" className="text-sm font-medium">
+                Motif de la mise sur liste noire (obligatoire) :
+              </Label>
+              <Textarea
+                id="blacklistReasonDialog"
+                value={blacklistReasonInput}
+                onChange={(e) => setBlacklistReasonInput(e.target.value)}
+                placeholder="Expliquez pourquoi ce locataire est mis sur liste noire..."
+                rows={3}
+              />
+            </div>
+          )}
+          {renter?.isBlacklisted && renter.blacklistReason && (
+             <div className="py-2 text-sm">
+                <p className="font-semibold">Motif actuel de la liste noire :</p>
+                <p className="text-muted-foreground p-2 border rounded-md bg-muted/50">{renter.blacklistReason}</p>
+             </div>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction 

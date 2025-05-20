@@ -73,6 +73,7 @@ export interface ClientProfile {
     agencyId: string; // Link to the agency that created/manages this client
     createdAt: string;
     isBlacklisted?: boolean;
+    blacklistReason?: string;
 }
 
 

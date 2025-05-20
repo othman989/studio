@@ -5,6 +5,15 @@ import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
 
+export const NAV_LINK_DASHBOARD: NavItem = { // Renamed for clarity, used by Header
+  href: '/account/dashboard',
+  label: 'Tableau de Bord',
+  icon: LayoutDashboardIcon,
+  requiresAuth: true,
+  showOnlyWhenLoggedIn: true,
+  isAgencyLink: true,
+};
+
 export const NAV_LINK_ACCOUNT_DASHBOARD: NavItem = {
   href: '/account/dashboard',
   label: 'Tableau de Bord Agence',
@@ -36,7 +45,7 @@ export const NAV_LINKS_AUTH: NavItem[] = [
   { href: '/register', label: 'S\'inscrire', icon: UserPlusIcon },
 ];
 
-export const NAV_LINKS_AGENCY_MENU: NavItem[] = [
+export const NAV_LINKS_AGENCY_MENU: NavItem[] = [ // For mobile menu of agency
     NAV_LINK_ACCOUNT_DASHBOARD,
     { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus },
     { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon },
@@ -47,13 +56,14 @@ export const NAV_LINKS_AGENCY_MENU: NavItem[] = [
     { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
 ];
 
-export const NAV_LINKS_ADMIN_MENU: NavItem[] = [
+export const NAV_LINKS_ADMIN_MENU: NavItem[] = [ // For mobile menu of admin
     NAV_LINK_ADMIN_DASHBOARD,
     { href: '/admin/agencies', label: 'Gérer les Agences', icon: Building },
     { href: '/admin/renters', label: 'Gérer les Locataires', icon: UsersIcon },
     { href: '/admin/listings', label: 'Gérer les Annonces', icon: CarIcon },
     { href: '/admin/bookings', label: 'Gérer les Réservations', icon: BookMarkedIcon },
 ];
+
 
 export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon };
 
@@ -173,7 +183,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
-    agencyId: 'agency1',
+    agencyId: 'agency1', // Corrected agencyId
     agencyName: 'Aquitaine Loc Auto',
     description: 'Le Peugeot 2008 est un SUV compact et agile, parfait pour la ville et les escapades.',
     isVisible: true,
@@ -193,7 +203,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Manual',
-    agencyId: 'agency2',
+    agencyId: 'agency2', // Corrected agencyId
     agencyName: 'Nantes Auto Partage',
     description: 'La Renault Clio est une citadine polyvalente, économique et agréable à conduire.',
     isVisible: true,
@@ -207,7 +217,7 @@ export let SAMPLE_CARS: Car[] = [
 export let MOCK_CLIENTS: ClientProfile[] = [
     { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: formatISO(subDays(today, 30)), isBlacklisted: false },
     { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: formatISO(subDays(today, 60)), isBlacklisted: false },
-    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: formatISO(subDays(today, 15)), isBlacklisted: true },
+    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: formatISO(subDays(today, 15)), isBlacklisted: true, blacklistReason: "Multiples retards de paiement et dommages légers non signalés." },
 ];
 
 export let MOCK_BOOKINGS: Booking[] = [

@@ -9,7 +9,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UsersIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, UserXIcon, UserCheckIcon } from 'lucide-react';
+import { UsersIcon, PlusCircle, ArrowLeft, MoreHorizontal, EyeIcon, UserXIcon, UserCheckIcon, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -29,6 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import type { ClientProfile } from '@/types';
 import { MOCK_CLIENTS } from '@/lib/constants';
 
@@ -39,6 +41,8 @@ const AdminManageRentersPage: NextPage = () => {
   const [renterToModify, setRenterToModify] = useState<ClientProfile | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBlacklistDialogOpen, setIsBlacklistDialogOpen] = useState(false);
+  const [blacklistReasonInput, setBlacklistReasonInput] = useState("");
+
 
   const handleViewDetails = (renterId: string) => {
     router.push(`/admin/renters/${renterId}`);
@@ -46,22 +50,36 @@ const AdminManageRentersPage: NextPage = () => {
 
   const openBlacklistDialog = (renter: ClientProfile) => {
     setRenterToModify(renter);
+    setBlacklistReasonInput(renter.isBlacklisted ? renter.blacklistReason || "" : "");
     setIsBlacklistDialogOpen(true);
   };
 
   const handleToggleBlacklist = () => {
     if (!renterToModify) return;
 
+    if (!renterToModify.isBlacklisted && !blacklistReasonInput.trim()) {
+      toast({
+        title: "Motif Requis",
+        description: "Veuillez fournir un motif pour ajouter ce locataire à la liste noire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const renterIndex = MOCK_CLIENTS.findIndex(r => r.id === renterToModify.id);
     if (renterIndex !== -1) {
-      MOCK_CLIENTS[renterIndex].isBlacklisted = !MOCK_CLIENTS[renterIndex].isBlacklisted;
-      setRenters([...MOCK_CLIENTS]); // Update local state to trigger re-render
+      const newBlacklistStatus = !MOCK_CLIENTS[renterIndex].isBlacklisted;
+      MOCK_CLIENTS[renterIndex].isBlacklisted = newBlacklistStatus;
+      MOCK_CLIENTS[renterIndex].blacklistReason = newBlacklistStatus ? blacklistReasonInput : undefined;
+      
+      setRenters([...MOCK_CLIENTS]); 
       toast({
         title: `Statut du Locataire Mis à Jour`,
-        description: `${renterToModify.fullName} a été ${MOCK_CLIENTS[renterIndex].isBlacklisted ? 'ajouté à' : 'retiré de'} la liste noire.`,
+        description: `${renterToModify.fullName} a été ${newBlacklistStatus ? 'ajouté à' : 'retiré de'} la liste noire.`,
       });
     }
     setIsBlacklistDialogOpen(false);
+    setBlacklistReasonInput("");
     setRenterToModify(null);
   };
 
@@ -206,16 +224,46 @@ const AdminManageRentersPage: NextPage = () => {
       </AlertDialog>
 
       {/* Blacklist Dialog */}
-      <AlertDialog open={isBlacklistDialogOpen} onOpenChange={setIsBlacklistDialogOpen}>
+      <AlertDialog open={isBlacklistDialogOpen} onOpenChange={(open) => {
+          setIsBlacklistDialogOpen(open);
+          if (!open) {
+            setRenterToModify(null);
+            setBlacklistReasonInput("");
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer l'Action sur la Liste Noire</AlertDialogTitle>
+            <AlertDialogTitle>
+              Confirmer l'Action sur la Liste Noire : {renterToModify?.fullName}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Êtes-vous sûr de vouloir {renterToModify?.isBlacklisted ? 'retirer' : 'ajouter'} "{renterToModify?.fullName}" {renterToModify?.isBlacklisted ? 'de la' : 'à la'} liste noire ?
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {!renterToModify?.isBlacklisted && (
+            <div className="space-y-2 py-2">
+              <Label htmlFor="blacklistReason" className="text-sm font-medium">
+                Motif de la mise sur liste noire (obligatoire) :
+              </Label>
+              <Textarea
+                id="blacklistReason"
+                value={blacklistReasonInput}
+                onChange={(e) => setBlacklistReasonInput(e.target.value)}
+                placeholder="Expliquez pourquoi ce locataire est mis sur liste noire..."
+                rows={3}
+                required
+              />
+            </div>
+          )}
+          {renterToModify?.isBlacklisted && renterToModify.blacklistReason && (
+             <div className="py-2 text-sm">
+                <p className="font-semibold">Motif actuel de la liste noire :</p>
+                <p className="text-muted-foreground p-2 border rounded-md bg-muted/50">{renterToModify.blacklistReason}</p>
+             </div>
+          )}
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setRenterToModify(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleToggleBlacklist} 
               className={renterToModify?.isBlacklisted ? '' : buttonVariants({variant: "destructive"})}
