@@ -184,7 +184,7 @@ export default function AgencyDetailsPage() {
                 variant={agency.status === 'Suspendue' ? 'default' : 'destructive'}
                 onClick={() => setIsSuspendDialogOpen(true)}
               >
-                 {agency.status === 'Suspendue' ? <CheckCircle className="mr-2 h-4 w-4"/> : <Ban className="mr-2 h-4 w-4"/>}
+                 {agency.status === 'Suspendue' ? <CheckCircle className="mr-2 h-4 w-4"/> : <BanIcon className="mr-2 h-4 w-4"/>}
                 {agency.status === 'Suspendue' ? "Réactiver l'Agence" : "Suspendre l'Agence"}
               </Button>
             </CardContent>
