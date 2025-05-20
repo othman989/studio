@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
-import { MailLock, ArrowLeft } from 'lucide-react';
+import { MailQuestion, ArrowLeft } from 'lucide-react'; // Changed MailLock to MailQuestion
 import { APP_NAME } from '@/lib/constants';
 
 export default function ForgotPasswordPage() {
@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
-            <MailLock className="h-10 w-10 text-primary" />
+            <MailQuestion className="h-10 w-10 text-primary" />
           </div>
           <CardTitle className="text-3xl font-bold">Mot de Passe Oublié ?</CardTitle>
           <CardDescription>

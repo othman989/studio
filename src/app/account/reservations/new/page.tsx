@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react'; // Added React and Suspense
 import { useRouter, useSearchParams } from 'next/navigation'; 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 
 
-export default function NewReservationPage() {
+function NewReservationForm() { // Inner component
   const router = useRouter();
   const searchParams = useSearchParams(); 
   const { toast } = useToast();
@@ -106,12 +106,12 @@ export default function NewReservationPage() {
     if (client && client.isBlacklisted) {
       toast({
         title: "Client sur Liste Noire",
-        description: `${client.fullName} est sur la liste noire. Consultation de son profil. Raison : ${client.blacklistReason || 'Non spécifiée'}`,
+        description: `${client.fullName} est sur la liste noire et ne peut pas effectuer de nouvelles réservations. Consultation de son profil...`,
         variant: "destructive",
         duration: 7000,
       });
       router.push(`/admin/renters/${client.id}`);
-      setSelectedClientId(""); // Réinitialiser la sélection
+      setSelectedClientId(""); 
       return;
     }
     setSelectedClientId(clientIdToSelect === selectedClientId ? "" : clientIdToSelect);
@@ -149,9 +149,10 @@ export default function NewReservationPage() {
         notes: newClientNotes,
         agencyId: selectedCar?.agencyId || 'agency1', 
         createdAt: new Date().toISOString(),
-        isBlacklisted: false, // Nouveaux clients ne sont pas sur liste noire par défaut
+        isBlacklisted: false, 
       };
       setExistingClients(prev => [...prev, newClient]); 
+      MOCK_CLIENTS.push(newClient); // Also update the global mock if needed by other parts immediately
       finalClientId = newClient.id;
       clientNameForToast = newClient.fullName;
       finalClientEmail = newClient.email;
@@ -323,7 +324,7 @@ export default function NewReservationPage() {
                                 key={client.id}
                                 value={`${client.fullName} ${client.licenseNumber || ''} ${client.id}`}
                                 onSelect={() => handleClientSelection(client.id)}
-                                disabled={client.isBlacklisted && !searchClientQuery} // Visually disable if blacklisted and no search active
+                                disabled={client.isBlacklisted && !searchClientQuery} 
                               >
                                 <Check
                                   className={cn(
@@ -446,7 +447,11 @@ export default function NewReservationPage() {
   );
 }
 
-
-    
-
-    
+// Default export wrapped in Suspense
+export default function NewReservationPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center">Chargement de la page de réservation...</div>}>
+      <NewReservationForm />
+    </Suspense>
+  );
+}
