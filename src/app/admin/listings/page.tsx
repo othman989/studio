@@ -5,6 +5,7 @@ import type { NextPage } from 'next';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // Import useRouter
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -24,6 +25,7 @@ import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
 
 const AdminManageListingsPage: NextPage = () => {
   const { toast } = useToast();
+  const router = useRouter(); // Initialize useRouter
   const [allCars, setAllCars] = useState<Car[]>(SAMPLE_CARS); // Use all cars
 
   const carTypeLabel = (typeValue: Car['type']) => CAR_TYPES.find(ct => ct.value === typeValue)?.label || typeValue;
@@ -124,7 +126,7 @@ const AdminManageListingsPage: NextPage = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions Admin</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => toast({title: "Bientôt !", description: "Voir les détails de l'annonce."})}>
+                            <DropdownMenuItem onClick={() => router.push(`/cars/${car.id}`)}>
                                 <EyeIcon className="mr-2 h-4 w-4" /> Voir l'Annonce
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleToggleVisibility(car.id)}>
