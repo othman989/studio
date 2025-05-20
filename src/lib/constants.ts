@@ -1,11 +1,10 @@
 
-import type { Car, NavItem, CarType, Booking, ClientProfile } from '@/types';
+import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency } from '@/types';
 import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon } from 'lucide-react';
-import { addDays, formatISO } from 'date-fns';
+import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
 
-// Individual NavItem for Dashboard, used in Header
 export const NAV_LINK_ACCOUNT_DASHBOARD: NavItem = {
   href: '/account/dashboard',
   label: 'Tableau de Bord Agence',
@@ -18,30 +17,25 @@ export const NAV_LINK_ACCOUNT_DASHBOARD: NavItem = {
 export const NAV_LINK_ADMIN_DASHBOARD: NavItem = {
   href: '/admin/dashboard',
   label: 'Tableau de Bord Admin',
-  icon: ShieldCheckIcon, // Changed icon for Admin
+  icon: ShieldCheckIcon,
   requiresAuth: true,
   showOnlyWhenLoggedIn: true,
   isAdminLink: true,
 };
 
-
-// Links always visible in the main navigation, or conditionally based on auth status
 export const NAV_LINKS_MAIN: NavItem[] = [
-  // Dashboard links are now handled by NAV_LINK_ACCOUNT_DASHBOARD or NAV_LINK_ADMIN_DASHBOARD and prepended in Header.tsx
+  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: false, hideWhenLoggedIn: false },
   { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
-  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true }, // Or make this public if desired
   { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
   { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false, hideWhenLoggedIn: true },
   { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false, hideWhenLoggedIn: true },
 ];
 
-// Links for authentication (Sign In, Sign Up) - shown when logged out
 export const NAV_LINKS_AUTH: NavItem[] = [
   { href: '/login', label: 'Se Connecter', icon: LogInIcon },
   { href: '/register', label: 'S\'inscrire', icon: UserPlusIcon },
 ];
 
-// Links for the authenticated user's account area/dropdown (Agency specific)
 export const NAV_LINKS_AGENCY_MENU: NavItem[] = [
     NAV_LINK_ACCOUNT_DASHBOARD,
     { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus },
@@ -53,16 +47,13 @@ export const NAV_LINKS_AGENCY_MENU: NavItem[] = [
     { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
 ];
 
-// Links for Admin user's menu
 export const NAV_LINKS_ADMIN_MENU: NavItem[] = [
     NAV_LINK_ADMIN_DASHBOARD,
     { href: '/admin/agencies', label: 'Gérer les Agences', icon: Building },
     { href: '/admin/renters', label: 'Gérer les Locataires', icon: UsersIcon },
     { href: '/admin/listings', label: 'Gérer les Annonces', icon: CarIcon },
     { href: '/admin/bookings', label: 'Gérer les Réservations', icon: BookMarkedIcon },
-    // { href: '/admin/settings', label: 'Paramètres Plateforme', icon: SettingsIcon }, // Example for future
 ];
-
 
 export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon };
 
@@ -214,13 +205,68 @@ export let SAMPLE_CARS: Car[] = [
 ];
 
 export let MOCK_BOOKINGS: Booking[] = [
-  { id: 'booking1', userId: 'client1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Dupont", renterEmail:"alice@example.com", clientId: 'client1' },
-  { id: 'booking2', userId: 'client2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Martin", renterEmail:"bob@example.com", clientId: 'client2' },
-  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carole Blanc", renterEmail:"carol@example.com", clientId: 'client3' },
+  { id: 'booking1', userId: 'client1', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 2)), endDate: formatISO(addDays(today, 4)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 5)), renterName: "Alice Dupont", renterEmail:"alice@example.com", clientId: 'client1' },
+  { id: 'booking2', userId: 'client2', carId: '2', agencyId: 'agency1', startDate: formatISO(addDays(today, 5)), endDate: formatISO(addDays(today, 7)), totalPrice: 360, status: 'pending', createdAt: formatISO(subDays(today, 3)), renterName: "Bob Martin", renterEmail:"bob@example.com", clientId: 'client2' },
+  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 10)), endDate: formatISO(addDays(today, 12)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 1)), renterName: "Carole Blanc", renterEmail:"carol@example.com", clientId: 'client3' },
 ];
 
 export let MOCK_CLIENTS: ClientProfile[] = [
-    { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: new Date().toISOString() },
-    { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: new Date().toISOString() },
-    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: new Date().toISOString() },
+    { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: formatISO(subDays(today, 30)) },
+    { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: formatISO(subDays(today, 60)) },
+    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: formatISO(subDays(today, 15)) },
+];
+
+export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
+  {
+    id: 'agency1',
+    name: 'Location Verte Paris',
+    contactEmail: 'contact@verteparis.fr',
+    status: 'Approuvée',
+    listingsCount: 3,
+    createdAt: formatISO(subDays(today, 100)),
+    ownerName: 'Jean Écologiste',
+    ownerEmail: 'jean.eco@verteparis.fr',
+    agencyAddress: '10 Rue du Faubourg Saint-Antoine, 75012 Paris',
+    phoneNumber: '01 23 45 67 89',
+    description: 'Spécialistes des véhicules électriques et hybrides au cœur de Paris.',
+    permissions: { canListCars: true, canAccessAnalytics: true, isVerified: true, canManageBookings: true }
+  },
+  {
+    id: 'agency2',
+    name: 'EV Loc Lyon',
+    contactEmail: 'info@evlyon.com',
+    status: 'Approuvée',
+    listingsCount: 5,
+    createdAt: formatISO(subDays(today, 80)),
+    ownerName: 'Sophie Ampère',
+    ownerEmail: 'sophie.ampere@evlyon.com',
+    agencyAddress: '25 Quai Claude Bernard, 69007 Lyon',
+    phoneNumber: '04 56 78 90 12',
+    description: 'Votre partenaire pour la location de voitures électriques à Lyon et ses environs.',
+    permissions: { canListCars: true, canAccessAnalytics: false, isVerified: true, canManageBookings: true }
+  },
+  {
+    id: 'agency3',
+    name: 'Sud Auto Plaisir',
+    contactEmail: 'sudauto@example.com',
+    status: 'En attente',
+    listingsCount: 0,
+    createdAt: formatISO(subDays(today, 5)),
+    ownerName: 'Marc Soleil',
+    ownerEmail: 'marc.soleil@sudautoplaisir.com',
+    agencyAddress: 'Avenue de la Mer, 13008 Marseille',
+    permissions: { canListCars: false, canAccessAnalytics: false, isVerified: false, canManageBookings: false }
+  },
+  {
+    id: 'agency4',
+    name: 'Roues Agiles Bordeaux',
+    contactEmail: 'bordeaux@rouesagiles.fr',
+    status: 'Suspendue',
+    listingsCount: 2,
+    createdAt: formatISO(subDays(today, 200)),
+    ownerName: 'Alain Vitesse',
+    ownerEmail: 'alain.vitesse@rouesagiles.fr',
+    agencyAddress: 'Cours de la Marne, 33800 Bordeaux',
+    permissions: { canListCars: false, canAccessAnalytics: true, isVerified: true, canManageBookings: false }
+  },
 ];

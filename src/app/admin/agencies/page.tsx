@@ -4,11 +4,12 @@
 import type { NextPage } from 'next';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { BuildingIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon } from 'lucide-react';
+import { BuildingIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, ShieldAlert } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -18,38 +19,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface MockAgency {
-  id: string;
-  name: string;
-  contactEmail: string;
-  status: 'Approuvée' | 'En attente' | 'Suspendue';
-  listingsCount: number;
-  createdAt: string;
-}
-
-const MOCK_AGENCIES: MockAgency[] = [
-  { id: 'agency1', name: 'Location Verte Paris', contactEmail: 'contact@verteparis.fr', status: 'Approuvée', listingsCount: 3, createdAt: '2023-01-15' },
-  { id: 'agency2', name: 'EV Loc Lyon', contactEmail: 'info@evlyon.com', status: 'Approuvée', listingsCount: 5, createdAt: '2023-03-20' },
-  { id: 'agency3', name: 'Sud Auto Plaisir', contactEmail: 'sudauto@example.com', status: 'En attente', listingsCount: 0, createdAt: '2024-05-10' },
-  { id: 'agency4', name: 'Roues Agiles Bordeaux', contactEmail: 'bordeaux@rouesagiles.fr', status: 'Suspendue', listingsCount: 2, createdAt: '2022-11-01' },
-];
+import type { AdminAgency } from '@/types';
+import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
+import { format, parseISO } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const AdminManageAgenciesPage: NextPage = () => {
   const { toast } = useToast();
-  const [agencies, setAgencies] = useState<MockAgency[]>(MOCK_AGENCIES);
+  const router = useRouter();
+  const [agencies, setAgencies] = useState<AdminAgency[]>(MOCK_ADMIN_AGENCIES);
 
-  const handleViewDetails = (agencyId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La visualisation des détails de l'agence ${agencyId} sera bientôt disponible.` });
+  const handleToggleSuspendAgency = (agencyId: string, currentStatus: AdminAgency['status']) => {
+    const newStatus: AdminAgency['status'] = currentStatus === 'Suspendue' ? 'Approuvée' : 'Suspendue';
+    setAgencies(prev => prev.map(a => a.id === agencyId ? {...a, status: newStatus} : a));
+    const agency = agencies.find(a => a.id === agencyId);
+    toast({ 
+        title: `Statut de l'agence ${agency?.name} mis à jour`,
+        description: `L'agence est maintenant ${newStatus.toLowerCase()}. (Simulation)`
+    });
   };
 
-  const handleSuspendAgency = (agencyId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La suspension de l'agence ${agencyId} sera bientôt disponible.` });
-     setAgencies(prev => prev.map(a => a.id === agencyId ? {...a, status: a.status === 'Suspendue' ? 'Approuvée' : 'Suspendue'} : a));
-  };
-
-  const handleDeleteAgency = (agencyId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La suppression de l'agence ${agencyId} sera bientôt disponible.`, variant: "destructive" });
+  const handleDeleteAgency = (agencyId: string, agencyName: string) => {
+    // In a real app, show a confirmation dialog before deleting
+    // setAgencies(prev => prev.filter(a => a.id !== agencyId));
+    toast({ 
+        title: "Suppression d'agence (Simulation)", 
+        description: `L'agence ${agencyName} serait supprimée. Cette action est désactivée en démo.`, 
+        variant: "destructive" 
+    });
   };
 
   return (
@@ -96,6 +93,7 @@ const AdminManageAgenciesPage: NextPage = () => {
                     <TableHead className="hidden sm:table-cell">Email de Contact</TableHead>
                     <TableHead className="hidden md:table-cell">Annonces</TableHead>
                     <TableHead>Statut</TableHead>
+                    <TableHead className="hidden lg:table-cell">Créée le</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -113,6 +111,9 @@ const AdminManageAgenciesPage: NextPage = () => {
                           {agency.status}
                         </Badge>
                       </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {format(parseISO(agency.createdAt), 'dd/MM/yyyy', { locale: fr })}
+                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -122,18 +123,21 @@ const AdminManageAgenciesPage: NextPage = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleViewDetails(agency.id)}>
+                            <DropdownMenuLabel>Actions Admin</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/agencies/${agency.id}`)}>
                               <EyeIcon className="mr-2 h-4 w-4" /> Voir Détails
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleSuspendAgency(agency.id)}>
+                             <DropdownMenuItem onClick={() => router.push(`/admin/agencies/${agency.id}/permissions`)}>
+                              <ShieldAlert className="mr-2 h-4 w-4" /> Gérer Permissions
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleSuspendAgency(agency.id, agency.status)}>
                               <Edit3 className="mr-2 h-4 w-4" /> 
                               {agency.status === 'Suspendue' ? "Réactiver" : "Suspendre"}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => handleDeleteAgency(agency.id)}
+                              onClick={() => handleDeleteAgency(agency.id, agency.name)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Supprimer
                             </DropdownMenuItem>

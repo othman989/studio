@@ -1,5 +1,4 @@
 
-
 export type CarType = 'Sedan' | 'SUV' | 'Truck' | 'Van' | 'SportsCar' | 'Convertible' | 'Coupe' | 'Hatchback' | 'Minivan';
 
 export interface Car {
@@ -94,4 +93,27 @@ export interface NavItem {
   hideWhenLoggedIn?: boolean;
   isAgencyLink?: boolean; // To differentiate agency user links
   isAdminLink?: boolean; // To differentiate admin user links
+}
+
+// Types for Admin Dashboard
+export interface AgencyPermission {
+  canListCars: boolean;
+  canAccessAnalytics: boolean;
+  isVerified: boolean;
+  canManageBookings: boolean;
+}
+
+export interface AdminAgency {
+  id: string;
+  name: string;
+  contactEmail: string;
+  status: 'Approuvée' | 'En attente' | 'Suspendue';
+  listingsCount: number;
+  createdAt: string; // ISO Date string
+  ownerName?: string;
+  ownerEmail?: string;
+  agencyAddress?: string;
+  phoneNumber?: string;
+  description?: string;
+  permissions?: AgencyPermission;
 }
