@@ -4,11 +4,12 @@
 import type { NextPage } from 'next';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UsersIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon } from 'lucide-react';
+import { UsersIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, Ban } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -18,24 +19,54 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import type { ClientProfile } from '@/types';
-import { MOCK_CLIENTS } from '@/lib/constants'; // Assuming MOCK_CLIENTS is in constants
+import { MOCK_CLIENTS } from '@/lib/constants';
 
 const AdminManageRentersPage: NextPage = () => {
   const { toast } = useToast();
-  const [renters, setRenters] = useState<ClientProfile[]>(MOCK_CLIENTS); // Use MOCK_CLIENTS
+  const router = useRouter();
+  const [renters, setRenters] = useState<ClientProfile[]>(MOCK_CLIENTS);
+  const [renterToModify, setRenterToModify] = useState<ClientProfile | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleViewDetails = (renterId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La visualisation des détails du locataire ${renterId} sera bientôt disponible.` });
+    router.push(`/admin/renters/${renterId}`);
   };
 
   const handleSuspendRenter = (renterId: string) => {
-    // Simulate suspension toggle - in a real app, update status in DB
     toast({ title: "Fonctionnalité à venir", description: `La suspension du locataire ${renterId} sera bientôt disponible.` });
   };
 
-  const handleDeleteRenter = (renterId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La suppression du locataire ${renterId} sera bientôt disponible.`, variant: "destructive" });
+  const openDeleteDialog = (renter: ClientProfile) => {
+    setRenterToModify(renter);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteRenter = () => {
+    if (!renterToModify) return;
+
+    const renterIndex = MOCK_CLIENTS.findIndex(r => r.id === renterToModify.id);
+    if (renterIndex !== -1) {
+      MOCK_CLIENTS.splice(renterIndex, 1);
+    }
+    setRenters([...MOCK_CLIENTS]);
+    toast({ 
+        title: "Locataire Supprimé (Simulation)", 
+        description: `Le locataire ${renterToModify.fullName} a été supprimé.`, 
+        variant: "destructive" 
+    });
+    setIsDeleteDialogOpen(false);
+    setRenterToModify(null);
   };
 
   return (
@@ -51,7 +82,7 @@ const AdminManageRentersPage: NextPage = () => {
           <UsersIcon className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">Gérer les Locataires</h1>
         </div>
-        <CardDescription>Visualisez, modifiez ou suspendez des comptes locataires.</CardDescription>
+        <CardDescription>Visualisez, modifiez ou supprimez des comptes locataires.</CardDescription>
       </header>
 
       <div className="mb-6 text-right">
@@ -108,12 +139,12 @@ const AdminManageRentersPage: NextPage = () => {
                               <EyeIcon className="mr-2 h-4 w-4" /> Voir Détails
                             </DropdownMenuItem>
                              <DropdownMenuItem onClick={() => handleSuspendRenter(renter.id)}>
-                              <Edit3 className="mr-2 h-4 w-4" /> Suspendre/Réactiver
+                              <Ban className="mr-2 h-4 w-4 text-orange-600" /> Suspendre/Réactiver
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => handleDeleteRenter(renter.id)}
+                              onClick={() => openDeleteDialog(renter)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Supprimer
                             </DropdownMenuItem>
@@ -128,8 +159,28 @@ const AdminManageRentersPage: NextPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer Suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer définitivement le locataire "{renterToModify?.fullName}" ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRenterToModify(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteRenter} className={buttonVariants({variant: "destructive"})}>
+              Supprimer Définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AdminManageRentersPage;
+
+    

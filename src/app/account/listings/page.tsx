@@ -6,11 +6,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ListChecksIcon, PlusCircle, Edit3, Trash2, ArrowLeft, CarIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import { ListChecksIcon, PlusCircle, Edit3, Trash2, ArrowLeft, CarIcon, EyeIcon, EyeOffIcon, MoreHorizontal } from 'lucide-react';
 import type { Car } from '@/types';
 import { SAMPLE_CARS, CAR_TYPES, APP_NAME } from '@/lib/constants';
 import { useToast } from "@/hooks/use-toast";
@@ -21,12 +21,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
-// Simuler la récupération des voitures pour une agence spécifique
+
 const fetchAgencyCars = async (agencyId: string): Promise<Car[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simuler un délai réseau
+  await new Promise(resolve => setTimeout(resolve, 500)); 
   return SAMPLE_CARS.filter(car => car.agencyId === agencyId);
 };
 
@@ -35,6 +44,8 @@ const AgencyListingsPage: NextPage = () => {
   const { toast } = useToast();
   const [agencyCars, setAgencyCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
+  const [carToDelete, setCarToDelete] = useState<Car | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const agencyId = 'agency1'; // Simuler l'ID de l'agence connectée
 
   useEffect(() => {
@@ -49,13 +60,28 @@ const AgencyListingsPage: NextPage = () => {
     router.push(`/account/listings/${carId}/edit`);
   };
 
-  const handleDeleteCar = (carId: string, carName: string) => {
-     toast({
-      title: "Fonctionnalité à venir",
-      description: `La suppression de la voiture ${carName} sera bientôt disponible.`,
+  const openDeleteDialog = (car: Car) => {
+    setCarToDelete(car);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDeleteCar = () => {
+    if (!carToDelete) return;
+
+    const carIndex = SAMPLE_CARS.findIndex(c => c.id === carToDelete.id && c.agencyId === agencyId);
+    if (carIndex !== -1) {
+        SAMPLE_CARS.splice(carIndex, 1);
+    }
+    // Re-fetch or filter local state
+    setAgencyCars(prevCars => prevCars.filter(car => car.id !== carToDelete.id));
+
+    toast({
+      title: "Voiture Supprimée (Simulation)",
+      description: `La voiture ${carToDelete.make} ${carToDelete.model} a été supprimée de vos annonces.`,
       variant: "destructive"
     });
-    // Mettre en place la logique de suppression ici, par exemple avec une boîte de dialogue de confirmation
+    setIsDeleteDialogOpen(false);
+    setCarToDelete(null);
   };
   
   const carTypeLabel = (typeValue: Car['type']) => CAR_TYPES.find(ct => ct.value === typeValue)?.label || typeValue;
@@ -175,7 +201,7 @@ const AgencyListingsPage: NextPage = () => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                                 className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                onClick={() => handleDeleteCar(car.id, `${car.make} ${car.model}`)}
+                                onClick={() => openDeleteDialog(car)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Supprimer
                             </DropdownMenuItem>
@@ -190,9 +216,28 @@ const AgencyListingsPage: NextPage = () => {
           </CardContent>
         </Card>
       )}
+
+       {/* Delete Car Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la Suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer l'annonce pour {carToDelete?.make} {carToDelete?.model} ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCarToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDeleteCar} className={buttonVariants({variant: "destructive"})}>
+              Supprimer Définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AgencyListingsPage;
+
     

@@ -5,8 +5,8 @@ import type { NextPage } from 'next';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // Import useRouter
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -20,31 +20,60 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import type { Car } from '@/types';
 import { SAMPLE_CARS, CAR_TYPES } from '@/lib/constants';
 
 const AdminManageListingsPage: NextPage = () => {
   const { toast } = useToast();
-  const router = useRouter(); // Initialize useRouter
-  const [allCars, setAllCars] = useState<Car[]>(SAMPLE_CARS); // Use all cars
+  const router = useRouter();
+  const [allCars, setAllCars] = useState<Car[]>(SAMPLE_CARS);
+  const [carToModify, setCarToModify] = useState<Car | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const carTypeLabel = (typeValue: Car['type']) => CAR_TYPES.find(ct => ct.value === typeValue)?.label || typeValue;
 
   const handleToggleVisibility = (carId: string) => {
-    setAllCars(prevCars =>
-      prevCars.map(car =>
-        car.id === carId ? { ...car, isVisible: !car.isVisible } : car
-      )
-    );
-    const car = allCars.find(c => c.id === carId);
-    toast({
-      title: `Visibilité mise à jour pour ${car?.make} ${car?.model}`,
-      description: `${car?.make} ${car?.model} est maintenant ${!car?.isVisible ? 'visible' : 'cachée'}.`,
-    });
+    const carIndex = SAMPLE_CARS.findIndex(car => car.id === carId);
+    if (carIndex !== -1) {
+      SAMPLE_CARS[carIndex].isVisible = !SAMPLE_CARS[carIndex].isVisible;
+      setAllCars([...SAMPLE_CARS]);
+      toast({
+        title: `Visibilité mise à jour pour ${SAMPLE_CARS[carIndex].make} ${SAMPLE_CARS[carIndex].model}`,
+        description: `${SAMPLE_CARS[carIndex].make} ${SAMPLE_CARS[carIndex].model} est maintenant ${SAMPLE_CARS[carIndex].isVisible ? 'visible' : 'cachée'}.`,
+      });
+    }
   };
   
-  const handleDeleteListing = (carId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La suppression de l'annonce ${carId} sera bientôt disponible.`, variant: "destructive" });
+  const openDeleteDialog = (car: Car) => {
+    setCarToModify(car);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteListing = () => {
+    if (!carToModify) return;
+
+    const carIndex = SAMPLE_CARS.findIndex(c => c.id === carToModify.id);
+    if (carIndex !== -1) {
+        SAMPLE_CARS.splice(carIndex, 1);
+    }
+    setAllCars([...SAMPLE_CARS]);
+    toast({ 
+        title: "Annonce Supprimée (Simulation)", 
+        description: `L'annonce pour ${carToModify.make} ${carToModify.model} a été supprimée.`, 
+        variant: "destructive" 
+    });
+    setIsDeleteDialogOpen(false);
+    setCarToModify(null);
   };
 
 
@@ -136,7 +165,7 @@ const AdminManageListingsPage: NextPage = () => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                                 className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                onClick={() => handleDeleteListing(car.id)}
+                                onClick={() => openDeleteDialog(car)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Supprimer l'Annonce
                             </DropdownMenuItem>
@@ -151,8 +180,28 @@ const AdminManageListingsPage: NextPage = () => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Delete Listing Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer Suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer définitivement l'annonce pour {carToModify?.make} {carToModify?.model} ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCarToModify(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteListing} className={buttonVariants({variant: "destructive"})}>
+              Supprimer Définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AdminManageListingsPage;
+
+    

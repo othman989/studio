@@ -4,7 +4,7 @@
 import type { NextPage } from 'next';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -18,10 +18,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import type { Booking } from '@/types';
-import { MOCK_BOOKINGS, SAMPLE_CARS } from '@/lib/constants'; // Assuming MOCK_BOOKINGS is in constants
+import { MOCK_BOOKINGS, SAMPLE_CARS } from '@/lib/constants'; 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
+
 
 interface EnrichedBooking extends Booking {
   carMakeModel?: string;
@@ -30,33 +42,62 @@ interface EnrichedBooking extends Booking {
 
 const AdminManageBookingsPage: NextPage = () => {
   const { toast } = useToast();
+  const router = useRouter();
   
-  const enrichedBookings: EnrichedBooking[] = MOCK_BOOKINGS.map(booking => {
-    const car = SAMPLE_CARS.find(c => c.id === booking.carId);
-    return {
-      ...booking,
-      carMakeModel: car ? `${car.make} ${car.model}` : 'Voiture inconnue',
-      agencyNameDisplay: car?.agencyName || booking.agencyId,
-    };
-  });
+  const [bookings, setBookings] = useState<EnrichedBooking[]>(() => 
+    MOCK_BOOKINGS.map(booking => {
+      const car = SAMPLE_CARS.find(c => c.id === booking.carId);
+      return {
+        ...booking,
+        carMakeModel: car ? `${car.make} ${car.model}` : 'Voiture inconnue',
+        agencyNameDisplay: car?.agencyName || booking.agencyId,
+      };
+    })
+  );
+  const [bookingToModify, setBookingToModify] = useState<EnrichedBooking | null>(null);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
-  const [bookings, setBookings] = useState<EnrichedBooking[]>(enrichedBookings);
 
   const handleViewDetails = (bookingId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La visualisation des détails de la réservation ${bookingId} sera bientôt disponible.` });
+     router.push(`/admin/bookings/${bookingId}`);
   };
   
-  const handleCancelBooking = (bookingId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `L'annulation de la réservation ${bookingId} sera bientôt disponible.`, variant: "destructive"});
+  const openCancelDialog = (booking: EnrichedBooking) => {
+    setBookingToModify(booking);
+    setIsCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancelBooking = () => {
+    if (!bookingToModify) return;
+
+    const bookingIndex = MOCK_BOOKINGS.findIndex(b => b.id === bookingToModify.id);
+    if (bookingIndex !== -1) {
+      MOCK_BOOKINGS[bookingIndex].status = 'cancelled';
+    }
+    setBookings(MOCK_BOOKINGS.map(booking => {
+      const car = SAMPLE_CARS.find(c => c.id === booking.carId);
+      return {
+        ...booking,
+        carMakeModel: car ? `${car.make} ${car.model}` : 'Voiture inconnue',
+        agencyNameDisplay: car?.agencyName || booking.agencyId,
+      };
+    }));
+    toast({ 
+        title: "Réservation Annulée", 
+        description: `La réservation ${bookingToModify.id} a été annulée.`, 
+        variant: "destructive" 
+    });
+    setIsCancelDialogOpen(false);
+    setBookingToModify(null);
   };
 
   const getStatusBadgeVariant = (status: Booking['status']) => {
     switch (status) {
-      case 'confirmed': return 'default'; // green
-      case 'pending': return 'secondary'; // yellow/gray
-      case 'completed': return 'outline'; // blue/gray
+      case 'confirmed': return 'default'; 
+      case 'pending': return 'secondary'; 
+      case 'completed': return 'outline';
       case 'cancelled':
-      case 'declined': return 'destructive'; // red
+      case 'declined': return 'destructive'; 
       default: return 'secondary';
     }
   };
@@ -141,7 +182,7 @@ const AdminManageBookingsPage: NextPage = () => {
                             {(booking.status === 'pending' || booking.status === 'confirmed') && (
                                 <DropdownMenuItem 
                                     className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                    onClick={() => handleCancelBooking(booking.id)}
+                                    onClick={() => openCancelDialog(booking)}
                                 >
                                 <XCircleIcon className="mr-2 h-4 w-4" /> Annuler Réservation
                                 </DropdownMenuItem>
@@ -157,8 +198,28 @@ const AdminManageBookingsPage: NextPage = () => {
           )}
         </CardContent>
       </Card>
+
+       {/* Cancel Booking Dialog */}
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer Annulation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir annuler la réservation {bookingToModify?.id} pour {bookingToModify?.renterName} ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBookingToModify(null)}>Non, Retour</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancelBooking} className={buttonVariants({variant: "destructive"})}>
+              Oui, Annuler Réservation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AdminManageBookingsPage;
+
+    

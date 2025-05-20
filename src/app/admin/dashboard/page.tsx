@@ -29,7 +29,7 @@ const AdminDashboardPage = () => {
     if (typeof window !== 'undefined') {
       const isAdmin = window.localStorage.getItem('isAdminLoggedIn') === 'true';
       if (!isAdmin) {
-        router.push('/login'); // Redirect if not admin
+        router.push('/login'); 
       }
     }
   }, [router]);
@@ -62,7 +62,7 @@ const AdminDashboardPage = () => {
       title: 'Paramètres de la Plateforme',
       icon: SettingsIcon,
       links: [
-        { href: '#', label: 'Paramètres Généraux (Bientôt)', icon: WrenchIcon, description: "Configurer les aspects clés de la plateforme." , disabled: true},
+        { href: '/admin/settings', label: 'Paramètres Généraux', icon: WrenchIcon, description: "Configurer les aspects clés de la plateforme." , disabled: false},
         { href: '#', label: 'Gestion des Permissions (Future)', icon: ShieldCheckIcon, description: "Définir les rôles et permissions (fonctionnalité avancée).", disabled: true },
       ]
     }
@@ -101,7 +101,7 @@ const AdminDashboardPage = () => {
                 <CardContent className="flex-grow flex items-end pt-2">
                   <Button asChild className="w-full mt-auto" variant="outline" disabled={link.disabled}>
                     <Link href={link.disabled ? '#' : link.href}>
-                      {link.label.includes('Créer') ? 'Accéder' : `Gérer ${link.label.replace('Gérer les ', '').replace(' (Global)', '').replace(' (Bientôt)', '').replace(' (Future)', '')}`}
+                      {link.label.includes('Créer') || link.label.includes('Paramètres') ? 'Accéder' : `Gérer ${link.label.replace('Gérer les ', '').replace(' (Global)', '').replace(' (Bientôt)', '').replace(' (Future)', '')}`}
                       {link.disabled && <span className="ml-1 text-xs">(Bientôt)</span>}
                     </Link>
                   </Button>
@@ -117,3 +117,4 @@ const AdminDashboardPage = () => {
 
 export default AdminDashboardPage;
 
+    

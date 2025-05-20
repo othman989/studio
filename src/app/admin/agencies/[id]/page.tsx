@@ -4,9 +4,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, BuildingIcon, MailIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarIcon, ListChecksIcon, ShieldCheckIcon, Edit3Icon, BanIcon } from 'lucide-react';
+import { ArrowLeft, BuildingIcon, MailIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarIcon, ListChecksIcon, ShieldCheckIcon, Edit3Icon, BanIcon, CheckCircle } from 'lucide-react';
 import type { AdminAgency } from '@/types';
 import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
 import { format, parseISO } from 'date-fns';
@@ -14,6 +14,17 @@ import { fr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 
 export default function AgencyDetailsPage() {
   const params = useParams();
@@ -23,6 +34,7 @@ export default function AgencyDetailsPage() {
 
   const [agency, setAgency] = useState<AdminAgency | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
 
   useEffect(() => {
     const foundAgency = MOCK_ADMIN_AGENCIES.find(a => a.id === agencyId);
@@ -32,12 +44,31 @@ export default function AgencyDetailsPage() {
     setLoading(false);
   }, [agencyId]);
 
-  const handlePlaceholderAction = (actionName: string) => {
+  const handleToggleSuspendAgency = () => {
+    if (!agency) return;
+
+    const newStatus: AdminAgency['status'] = agency.status === 'Suspendue' ? 'Approuvée' : 'Suspendue';
+    const agencyIndex = MOCK_ADMIN_AGENCIES.findIndex(a => a.id === agency.id);
+    if (agencyIndex !== -1) {
+      MOCK_ADMIN_AGENCIES[agencyIndex].status = newStatus;
+       // Ensure permissions are appropriately set if re-activating from suspended
+      if (newStatus === 'Approuvée' && MOCK_ADMIN_AGENCIES[agencyIndex].permissions) {
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canListCars = true;
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canManageBookings = true;
+      } else if (newStatus === 'Suspendue' && MOCK_ADMIN_AGENCIES[agencyIndex].permissions) {
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canListCars = false;
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canManageBookings = false;
+      }
+      setAgency({...MOCK_ADMIN_AGENCIES[agencyIndex]}); // Update local state to re-render
+    }
+    
     toast({
-      title: "Fonctionnalité à venir",
-      description: `${actionName} pour l'agence ${agency?.name} sera bientôt disponible.`,
+      title: `Statut de l'agence ${agency.name} mis à jour`,
+      description: `L'agence est maintenant ${newStatus.toLowerCase()}.`,
     });
+    setIsSuspendDialogOpen(false);
   };
+
 
   if (loading) {
     return <div className="container mx-auto px-4 py-12 text-center">Chargement des détails de l'agence...</div>;
@@ -70,7 +101,7 @@ export default function AgencyDetailsPage() {
         <Badge variant={
             agency.status === 'Approuvée' ? 'default' :
             agency.status === 'En attente' ? 'secondary' : 'destructive'
-            } className={`text-sm ${agency.status === 'Approuvée' ? 'bg-green-600 hover:bg-green-700' : ''}`}>
+            } className={`text-sm ${agency.status === 'Approuvée' ? 'bg-green-600 hover:bg-green-700' : agency.status === 'Suspendue' ? 'bg-destructive hover:bg-destructive/90' : ''}`}>
             Statut : {agency.status}
         </Badge>
       </header>
@@ -142,7 +173,7 @@ export default function AgencyDetailsPage() {
               <CardTitle className="text-lg">Actions Administrateur</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button className="w-full" variant="outline" onClick={() => handlePlaceholderAction("Modifier les informations de l'agence")}>
+              <Button className="w-full" variant="outline" onClick={() => router.push(`/admin/agencies/${agency.id}/edit`)}>
                 <Edit3Icon className="mr-2 h-4 w-4" /> Modifier l'Agence
               </Button>
               <Button className="w-full" variant="outline" onClick={() => router.push(`/admin/agencies/${agency.id}/permissions`)}>
@@ -151,15 +182,36 @@ export default function AgencyDetailsPage() {
                <Button 
                 className="w-full" 
                 variant={agency.status === 'Suspendue' ? 'default' : 'destructive'}
-                onClick={() => handlePlaceholderAction(agency.status === 'Suspendue' ? "Réactiver l'agence" : "Suspendre l'agence")}
+                onClick={() => setIsSuspendDialogOpen(true)}
               >
-                <BanIcon className="mr-2 h-4 w-4" /> 
+                 {agency.status === 'Suspendue' ? <CheckCircle className="mr-2 h-4 w-4"/> : <Ban className="mr-2 h-4 w-4"/>}
                 {agency.status === 'Suspendue' ? "Réactiver l'Agence" : "Suspendre l'Agence"}
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Suspend/Reactivate Dialog */}
+      <AlertDialog open={isSuspendDialogOpen} onOpenChange={setIsSuspendDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer {agency?.status === 'Suspendue' ? 'Réactivation' : 'Suspension'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir {agency?.status === 'Suspendue' ? 'réactiver' : 'suspendre'} l'agence "{agency?.name}" ?
+              {agency?.status !== 'Suspendue' && " Cela pourrait affecter sa capacité à lister des voitures et à gérer des réservations."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleSuspendAgency} className={agency?.status === 'Suspendue' ? '' : buttonVariants({variant: "destructive"})}>
+              Confirmer {agency?.status === 'Suspendue' ? 'Réactivation' : 'Suspension'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
+    

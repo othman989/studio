@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { BuildingIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, ShieldAlert } from 'lucide-react';
+import { BuildingIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, ShieldAlert, Ban, CheckCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -19,6 +19,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import type { AdminAgency } from '@/types';
 import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
 import { format, parseISO } from 'date-fns';
@@ -28,25 +39,60 @@ const AdminManageAgenciesPage: NextPage = () => {
   const { toast } = useToast();
   const router = useRouter();
   const [agencies, setAgencies] = useState<AdminAgency[]>(MOCK_ADMIN_AGENCIES);
+  const [agencyToModify, setAgencyToModify] = useState<AdminAgency | null>(null);
+  const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const handleToggleSuspendAgency = (agencyId: string, currentStatus: AdminAgency['status']) => {
-    const newStatus: AdminAgency['status'] = currentStatus === 'Suspendue' ? 'Approuvée' : 'Suspendue';
-    setAgencies(prev => prev.map(a => a.id === agencyId ? {...a, status: newStatus} : a));
-    const agency = agencies.find(a => a.id === agencyId);
-    toast({ 
-        title: `Statut de l'agence ${agency?.name} mis à jour`,
-        description: `L'agence est maintenant ${newStatus.toLowerCase()}. (Simulation)`
-    });
+
+  const openSuspendDialog = (agency: AdminAgency) => {
+    setAgencyToModify(agency);
+    setIsSuspendDialogOpen(true);
   };
 
-  const handleDeleteAgency = (agencyId: string, agencyName: string) => {
-    // In a real app, show a confirmation dialog before deleting
-    // setAgencies(prev => prev.filter(a => a.id !== agencyId));
-    toast({ 
-        title: "Suppression d'agence (Simulation)", 
-        description: `L'agence ${agencyName} serait supprimée. Cette action est désactivée en démo.`, 
-        variant: "destructive" 
+  const openDeleteDialog = (agency: AdminAgency) => {
+    setAgencyToModify(agency);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleToggleSuspendAgency = () => {
+    if (!agencyToModify) return;
+
+    const newStatus: AdminAgency['status'] = agencyToModify.status === 'Suspendue' ? 'Approuvée' : 'Suspendue';
+    const agencyIndex = MOCK_ADMIN_AGENCIES.findIndex(a => a.id === agencyToModify.id);
+    if (agencyIndex !== -1) {
+      MOCK_ADMIN_AGENCIES[agencyIndex].status = newStatus;
+      // Ensure permissions are appropriately set if re-activating from suspended
+      if (newStatus === 'Approuvée' && MOCK_ADMIN_AGENCIES[agencyIndex].permissions) {
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canListCars = true;
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canManageBookings = true;
+      } else if (newStatus === 'Suspendue' && MOCK_ADMIN_AGENCIES[agencyIndex].permissions) {
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canListCars = false;
+         MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canManageBookings = false;
+      }
+    }
+    setAgencies([...MOCK_ADMIN_AGENCIES]);
+    toast({
+      title: `Statut de l'agence ${agencyToModify.name} mis à jour`,
+      description: `L'agence est maintenant ${newStatus.toLowerCase()}.`,
     });
+    setIsSuspendDialogOpen(false);
+    setAgencyToModify(null);
+  };
+
+  const handleDeleteAgency = () => {
+    if (!agencyToModify) return;
+    const agencyIndex = MOCK_ADMIN_AGENCIES.findIndex(a => a.id === agencyToModify.id);
+    if (agencyIndex !== -1) {
+      MOCK_ADMIN_AGENCIES.splice(agencyIndex, 1);
+    }
+    setAgencies([...MOCK_ADMIN_AGENCIES]);
+    toast({
+      title: "Agence Supprimée (Simulation)",
+      description: `L'agence ${agencyToModify.name} a été supprimée de la liste.`,
+      variant: "destructive"
+    });
+    setIsDeleteDialogOpen(false);
+    setAgencyToModify(null);
   };
 
   return (
@@ -127,17 +173,20 @@ const AdminManageAgenciesPage: NextPage = () => {
                             <DropdownMenuItem onClick={() => router.push(`/admin/agencies/${agency.id}`)}>
                               <EyeIcon className="mr-2 h-4 w-4" /> Voir Détails
                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => router.push(`/admin/agencies/${agency.id}/edit`)}>
+                              <Edit3 className="mr-2 h-4 w-4" /> Modifier
+                            </DropdownMenuItem>
                              <DropdownMenuItem onClick={() => router.push(`/admin/agencies/${agency.id}/permissions`)}>
                               <ShieldAlert className="mr-2 h-4 w-4" /> Gérer Permissions
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleSuspendAgency(agency.id, agency.status)}>
-                              <Edit3 className="mr-2 h-4 w-4" /> 
+                            <DropdownMenuItem onClick={() => openSuspendDialog(agency)}>
+                               {agency.status === 'Suspendue' ? <CheckCircle className="mr-2 h-4 w-4 text-green-600"/> : <Ban className="mr-2 h-4 w-4 text-destructive"/>}
                               {agency.status === 'Suspendue' ? "Réactiver" : "Suspendre"}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => handleDeleteAgency(agency.id, agency.name)}
+                              onClick={() => openDeleteDialog(agency)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Supprimer
                             </DropdownMenuItem>
@@ -152,8 +201,47 @@ const AdminManageAgenciesPage: NextPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Suspend/Reactivate Dialog */}
+      <AlertDialog open={isSuspendDialogOpen} onOpenChange={setIsSuspendDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer {agencyToModify?.status === 'Suspendue' ? 'Réactivation' : 'Suspension'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir {agencyToModify?.status === 'Suspendue' ? 'réactiver' : 'suspendre'} l'agence "{agencyToModify?.name}" ?
+              {agencyToModify?.status !== 'Suspendue' && " Cela pourrait affecter sa capacité à lister des voitures et à gérer des réservations."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setAgencyToModify(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleSuspendAgency}>
+              Confirmer {agencyToModify?.status === 'Suspendue' ? 'Réactivation' : 'Suspension'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer Suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer définitivement l'agence "{agencyToModify?.name}" ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setAgencyToModify(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAgency} className={buttonVariants({variant: "destructive"})}>
+              Supprimer Définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AdminManageAgenciesPage;
+
+    
