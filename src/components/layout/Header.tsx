@@ -2,12 +2,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { Menu, X, LogInIcon, UserPlusIcon, LayoutDashboardIcon, LogOutIcon } from 'lucide-react';
+import React, { useState, useEffect, Fragment } from 'react';
+import { Menu, X, LogInIcon, UserPlusIcon, LogOutIcon } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { LogoIcon } from '@/components/icons/LogoIcon';
-import { NAV_LINKS_MAIN, NAV_LINKS_AUTH, APP_NAME, NAV_LINK_DASHBOARD, NAV_ACTION_LOGOUT } from '@/lib/constants';
+import { NAV_LINKS_MAIN, NAV_LINKS_AUTH, APP_NAME, NAV_LINK_ACCOUNT_DASHBOARD, NAV_LINK_ADMIN_DASHBOARD, NAV_ACTION_LOGOUT, NAV_LINKS_AGENCY_MENU, NAV_LINKS_ADMIN_MENU } from '@/lib/constants';
 import type { NavItem } from '@/types';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
@@ -15,18 +15,21 @@ import { usePathname, useRouter } from 'next/navigation';
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true); 
+    setMounted(true);
   }, []);
 
   useEffect(() => {
     if (mounted && typeof window !== 'undefined') {
       const loggedInStatus = window.localStorage.getItem('isLoggedIn');
+      const adminStatus = window.localStorage.getItem('isAdminLoggedIn');
       setIsLoggedIn(loggedInStatus === 'true');
+      setIsAdmin(adminStatus === 'true');
     }
   }, [pathname, mounted]);
 
@@ -39,45 +42,58 @@ export function Header() {
     );
 
     if (Icon) {
-      // For links with icons (typically in mobile menu or specific desktop links)
       return (
         <Link href={href} onClick={onClick} className={linkClasses}>
-          <span className={cn("flex items-center", Icon ? "gap-x-2" : "")}>
-            <Icon className="h-4 w-4 lg:hidden" /> {/* lg:hidden for icons primarily in mobile */}
+          <span className="flex items-center gap-x-2">
+            <Icon className="h-4 w-4 lg:hidden" />
             {label}
           </span>
         </Link>
       );
     }
-    // For links without icons (typically main desktop nav links)
     return (
       <Link href={href} onClick={onClick} className={linkClasses}>
         {label}
       </Link>
     );
   };
-  
+
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem('isLoggedIn');
+      window.localStorage.removeItem('isAdminLoggedIn');
     }
     setIsLoggedIn(false);
-    setIsMobileMenuOpen(false); 
+    setIsAdmin(false);
+    setIsMobileMenuOpen(false);
     router.push('/');
     // Potentially show a toast notification for logout
   };
 
   const renderDesktopNavLinks = () => {
-    const linksToRender: NavItem[] = [];
-    
-    if (mounted && isLoggedIn) {
-      linksToRender.push(NAV_LINK_DASHBOARD);
-      NAV_LINKS_MAIN.filter(link => link.requiresAuth).forEach(link => linksToRender.push(link));
-    } else {
-      // Logged out or not mounted: Show public links + Features/Pricing
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth).forEach(link => linksToRender.push(link));
+    if (!mounted) {
+      // Render placeholders or public links only
+      return NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).map((item) => (
+        <span key={item.label} className={cn(buttonVariants({ variant: "ghost" }), "opacity-50 cursor-not-allowed text-sm font-medium")}>
+          {item.label}
+        </span>
+      ));
     }
-    
+
+    const linksToRender: NavItem[] = [];
+    if (isLoggedIn) {
+      if (isAdmin) {
+        linksToRender.push(NAV_LINK_ADMIN_DASHBOARD);
+        // Admins might see a different set of main links or none if all managed via dashboard
+      } else {
+        linksToRender.push(NAV_LINK_ACCOUNT_DASHBOARD);
+        NAV_LINKS_MAIN.filter(link => link.isAgencyLink && link.requiresAuth).forEach(link => linksToRender.push(link));
+      }
+    } else {
+      // Logged out: Show public links (Features, Pricing)
+      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).forEach(link => linksToRender.push(link));
+    }
+
     return (
       <>
         {linksToRender.map((item) => (
@@ -87,14 +103,15 @@ export function Header() {
     );
   };
 
+
   const renderDesktopAuthSection = () => {
     if (!mounted) {
       return NAV_LINKS_AUTH.map((item) => (
-        <span 
-            key={item.label} 
+        <span
+            key={item.label}
             className={cn(
-                buttonVariants({variant: item.label === 'S\'inscrire' ? 'default' : 'outline', size: "sm"}), 
-                "opacity-50 cursor-not-allowed" 
+                buttonVariants({variant: item.label === 'S\'inscrire' ? 'default' : 'outline', size: "sm"}),
+                "opacity-50 cursor-not-allowed"
             )}
         >
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -106,14 +123,14 @@ export function Header() {
     if (!isLoggedIn) {
       return NAV_LINKS_AUTH.map((item) => (
         <Button key={item.label} variant={item.label === 'S\'inscrire' ? 'default' : 'outline'} size="sm" asChild>
-          <Link href={item.href}> 
+          <Link href={item.href}>
             {item.icon && <item.icon className="mr-2 h-4 w-4" />}
             {item.label}
           </Link>
         </Button>
       ));
     }
-    // If mounted AND isLoggedIn: Only show Logout button here
+
     return (
       <Button variant="outline" size="sm" onClick={handleLogout}>
          {NAV_ACTION_LOGOUT.icon && <NAV_ACTION_LOGOUT.icon className="mr-2 h-4 w-4" />}
@@ -123,18 +140,21 @@ export function Header() {
   };
 
   const renderMobileNavLinks = () => {
-     const links: NavItem[] = [];
+    if (!mounted) {
+      return NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).map((item) => (
+         <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2"/>
+      ));
+    }
 
-    if (mounted && isLoggedIn) {
-      links.push(NAV_LINK_DASHBOARD);
-      NAV_LINKS_MAIN.filter(link => link.requiresAuth === true).forEach(link => links.push(link));
-      // Add logout as a nav item for mobile menu
-      // The NavLink component will handle its onClick for logout
-    } else if (mounted && !isLoggedIn) {
-      // Show only public links and Features/Pricing when logged out and mounted
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth).forEach(link => links.push(link));
-    } else { // Not mounted yet, render placeholders or minimal public links
-       NAV_LINKS_MAIN.filter(link => !link.requiresAuth).forEach(link => links.push(link));
+    const links: NavItem[] = [];
+    if (isLoggedIn) {
+      if (isAdmin) {
+        NAV_LINKS_ADMIN_MENU.forEach(link => links.push(link));
+      } else {
+        NAV_LINKS_AGENCY_MENU.forEach(link => links.push(link));
+      }
+    } else {
+      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).forEach(link => links.push(link));
     }
 
     return (
@@ -145,23 +165,19 @@ export function Header() {
             href={item.href}
             label={item.label}
             icon={item.icon}
-            onClick={() => {
-              // Specific onClick for logout is handled by passing handleLogout below
-              setIsMobileMenuOpen(false);
-            }}
+            onClick={() => setIsMobileMenuOpen(false)}
             className="text-base py-2"
           />
         ))}
-        {/* Add Logout item specifically here for mobile menu list if logged in and mounted */}
-        {mounted && isLoggedIn && (
+        {isLoggedIn && (
           <NavLink
             key={NAV_ACTION_LOGOUT.label}
-            href={NAV_ACTION_LOGOUT.href} // which is '#'
+            href={NAV_ACTION_LOGOUT.href}
             label={NAV_ACTION_LOGOUT.label}
             icon={NAV_ACTION_LOGOUT.icon}
             onClick={() => {
-              handleLogout(); // This executes the logout logic
-              setIsMobileMenuOpen(false); // Then closes the menu
+              handleLogout();
+              setIsMobileMenuOpen(false);
             }}
             className="text-base py-2"
           />
@@ -173,10 +189,10 @@ export function Header() {
   const renderMobileAuthSection = () => {
     if (!mounted) {
       return NAV_LINKS_AUTH.map((item) => (
-        <span 
-            key={item.label} 
+        <span
+            key={item.label}
             className={cn(
-                buttonVariants({variant: item.label === "S'inscrire" ? 'default' : 'outline', className: "w-full justify-start"}), 
+                buttonVariants({variant: item.label === "S'inscrire" ? 'default' : 'outline', className: "w-full justify-start"}),
                 "opacity-50 cursor-not-allowed"
             )}
         >
@@ -195,8 +211,6 @@ export function Header() {
         </Button>
       ));
     }
-    // If mounted AND isLoggedIn: This section now renders nothing for logout,
-    // as logout is handled in renderMobileNavLinks.
     return null;
   };
 
@@ -216,7 +230,7 @@ export function Header() {
           <div className="hidden lg:flex items-center space-x-3">
             {renderDesktopAuthSection()}
           </div>
-          
+
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Ouvrir le menu mobile">
@@ -224,26 +238,26 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs p-6 flex flex-col">
-              <SheetHeader className="flex flex-row justify-between items-center mb-6">
+              <SheetHeader className="flex flex-row justify-between items-center mb-4">
                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} page d'accueil`}>
                   <LogoIcon />
                 </Link>
-                <SheetTitle className="sr-only">Menu principal</SheetTitle> 
+                <SheetTitle className="sr-only">Menu principal</SheetTitle>
                 <SheetClose asChild>
                    <Button variant="ghost" size="icon" aria-label="Fermer le menu mobile">
                       <X className="h-6 w-6" />
                     </Button>
                 </SheetClose>
               </SheetHeader>
-              
-              <nav className="flex flex-col space-y-1 flex-grow"> {/* Reduced space-y-4 to space-y-1 for tighter list */}
+
+              <nav className="flex flex-col space-y-1 flex-grow overflow-y-auto">
                 {renderMobileNavLinks()}
               </nav>
-              {/* Only render separator and auth section if not logged in or if there are items */}
+
               {(!isLoggedIn || !mounted) && (
                 <>
                   <hr className="my-4"/>
-                  <div className="flex flex-col space-y-3">
+                  <div className="flex flex-col space-y-3 mt-auto">
                     {renderMobileAuthSection()}
                   </div>
                 </>

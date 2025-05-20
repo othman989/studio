@@ -1,25 +1,36 @@
 
 import type { Car, NavItem, CarType, Booking, ClientProfile } from '@/types';
-import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus } from 'lucide-react';
+import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, ListFilterIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon } from 'lucide-react';
 import { addDays, formatISO } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
 
 // Individual NavItem for Dashboard, used in Header
-export const NAV_LINK_DASHBOARD: NavItem = {
+export const NAV_LINK_ACCOUNT_DASHBOARD: NavItem = {
   href: '/account/dashboard',
-  label: 'Tableau de Bord',
+  label: 'Tableau de Bord Agence',
   icon: LayoutDashboardIcon,
   requiresAuth: true,
   showOnlyWhenLoggedIn: true,
+  isAgencyLink: true,
 };
+
+export const NAV_LINK_ADMIN_DASHBOARD: NavItem = {
+  href: '/admin/dashboard',
+  label: 'Tableau de Bord Admin',
+  icon: ShieldCheckIcon, // Changed icon for Admin
+  requiresAuth: true,
+  showOnlyWhenLoggedIn: true,
+  isAdminLink: true,
+};
+
 
 // Links always visible in the main navigation, or conditionally based on auth status
 export const NAV_LINKS_MAIN: NavItem[] = [
-  // Dashboard link is now handled by NAV_LINK_DASHBOARD and prepended in Header.tsx
-  { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true },
-  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, showOnlyWhenLoggedIn: true },
-  { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true },
+  // Dashboard links are now handled by NAV_LINK_ACCOUNT_DASHBOARD or NAV_LINK_ADMIN_DASHBOARD and prepended in Header.tsx
+  { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
+  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true }, // Or make this public if desired
+  { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
   { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false, hideWhenLoggedIn: true },
   { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false, hideWhenLoggedIn: true },
 ];
@@ -30,9 +41,9 @@ export const NAV_LINKS_AUTH: NavItem[] = [
   { href: '/register', label: 'S\'inscrire', icon: UserPlusIcon },
 ];
 
-// Links for the authenticated user's account area/dropdown
-export const NAV_LINKS_USER_MENU: NavItem[] = [ 
-    NAV_LINK_DASHBOARD, 
+// Links for the authenticated user's account area/dropdown (Agency specific)
+export const NAV_LINKS_AGENCY_MENU: NavItem[] = [
+    NAV_LINK_ACCOUNT_DASHBOARD,
     { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus },
     { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon },
     { href: '/account/listings', label: 'Mes Annonces', icon: ListPlusIcon },
@@ -42,7 +53,18 @@ export const NAV_LINKS_USER_MENU: NavItem[] = [
     { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
 ];
 
-export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon }; 
+// Links for Admin user's menu
+export const NAV_LINKS_ADMIN_MENU: NavItem[] = [
+    NAV_LINK_ADMIN_DASHBOARD,
+    { href: '/admin/agencies', label: 'Gérer les Agences', icon: Building },
+    { href: '/admin/renters', label: 'Gérer les Locataires', icon: UsersIcon },
+    { href: '/admin/listings', label: 'Gérer les Annonces', icon: CarIcon },
+    { href: '/admin/bookings', label: 'Gérer les Réservations', icon: BookMarkedIcon },
+    // { href: '/admin/settings', label: 'Paramètres Plateforme', icon: SettingsIcon }, // Example for future
+];
+
+
+export const NAV_ACTION_LOGOUT: NavItem = { href: '#', label: 'Déconnexion', icon: LogOutIcon };
 
 export const CAR_TYPES: { value: CarType, label: string }[] = [
   { value: 'Sedan', label: 'Berline' },
@@ -121,7 +143,7 @@ export let SAMPLE_CARS: Car[] = [
     agencyId: 'agency2',
     agencyName: 'Flotte Luxe Sud',
     description: 'Le BMW X5 offre un mélange de luxe, de performance et de polyvalence pour une expérience de conduite premium.',
-    isVisible: false, 
+    isVisible: false,
     bookedPeriods: []
   },
   {
@@ -160,7 +182,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
-    agencyId: 'agency1', 
+    agencyId: 'agency1',
     agencyName: 'Aquitaine Loc Auto',
     description: 'Le Peugeot 2008 est un SUV compact et agile, parfait pour la ville et les escapades.',
     isVisible: true,
@@ -180,7 +202,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Manual',
-    agencyId: 'agency2', 
+    agencyId: 'agency2',
     agencyName: 'Nantes Auto Partage',
     description: 'La Renault Clio est une citadine polyvalente, économique et agréable à conduire.',
     isVisible: true,
@@ -192,12 +214,12 @@ export let SAMPLE_CARS: Car[] = [
 ];
 
 export let MOCK_BOOKINGS: Booking[] = [
-  { id: 'booking1', userId: 'user1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Dupont", renterEmail:"alice@example.com" },
-  { id: 'booking2', userId: 'user2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Martin", renterEmail:"bob@example.com" },
-  { id: 'booking3', userId: 'user3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carole Blanc", renterEmail:"carol@example.com" },
+  { id: 'booking1', userId: 'client1', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Alice Dupont", renterEmail:"alice@example.com", clientId: 'client1' },
+  { id: 'booking2', userId: 'client2', carId: '2', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), totalPrice: 360, status: 'pending', createdAt: new Date().toISOString(), renterName: "Bob Martin", renterEmail:"bob@example.com", clientId: 'client2' },
+  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(), endDate: new Date(new Date().setDate(new Date().getDate() + 12)).toISOString(), totalPrice: 450, status: 'confirmed', createdAt: new Date().toISOString(), renterName: "Carole Blanc", renterEmail:"carol@example.com", clientId: 'client3' },
 ];
 
-export const MOCK_CLIENTS: ClientProfile[] = [
+export let MOCK_CLIENTS: ClientProfile[] = [
     { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: new Date().toISOString() },
     { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: new Date().toISOString() },
     { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: new Date().toISOString() },

@@ -10,18 +10,18 @@ export interface Car {
   pricePerDay: number;
   location: string;
   imageUrl: string;
-  images?: string[]; 
+  images?: string[];
   type: CarType;
   averageRating?: number;
   description?: string;
   features?: string[];
-  agencyId?: string; 
-  agencyName?: string; 
-  bookedPeriods?: { from: string; to: string }[]; 
+  agencyId?: string;
+  agencyName?: string;
+  bookedPeriods?: { from: string; to: string }[];
   fuelType?: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
   transmission?: 'Automatic' | 'Manual';
   seats?: number;
-  isVisible?: boolean; 
+  isVisible?: boolean;
 }
 
 export interface Agency {
@@ -57,8 +57,8 @@ export interface Booking {
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'declined';
   createdAt: string; // ISO date string
-  renterName?: string; 
-  renterEmail?: string; 
+  renterName?: string;
+  renterEmail?: string;
   clientId?: string; // For agency-created bookings
 }
 
@@ -78,11 +78,11 @@ export interface ClientProfile {
 
 export interface BlockedPeriod {
   id: string;
-  carId: string; 
-  startDate: string; 
-  endDate: string; 
-  reason?: string; 
-  createdAt: string; 
+  carId: string; // Can be specific carId or 'all' for agency-wide
+  startDate: string; // ISO date string
+  endDate: string; // ISO date string
+  reason?: string; // e.g., "Maintenance", "Owner Use", "Agency Holiday"
+  createdAt: string; // ISO date string
 }
 
 export interface NavItem {
@@ -92,4 +92,6 @@ export interface NavItem {
   requiresAuth?: boolean;
   showOnlyWhenLoggedIn?: boolean;
   hideWhenLoggedIn?: boolean;
+  isAgencyLink?: boolean; // To differentiate agency user links
+  isAdminLink?: boolean; // To differentiate admin user links
 }

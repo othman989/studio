@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
-import { LogIn, Mail, Lock, Lightbulb } from 'lucide-react';
+import { LogIn, Mail, Lock, Lightbulb, ShieldAlert } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
 
 export default function LoginPage() {
@@ -26,15 +26,26 @@ export default function LoginPage() {
     console.log('Tentative de connexion :', { email, password });
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (email === "test@example.com" && password === "password") {
+    if (email === "admin@autopool.com" && password === "adminpassword") {
+      toast({
+        title: "Connexion Administrateur Réussie !",
+        description: `Bienvenue sur le tableau de bord administrateur ${APP_NAME}.`,
+      });
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('isAdminLoggedIn', 'true');
+        window.localStorage.setItem('isLoggedIn', 'true'); // Aussi marquer comme connecté de manière générale
+      }
+      router.push('/admin/dashboard');
+    } else if (email === "test@example.com" && password === "password") {
       toast({
         title: "Connexion Réussie !",
         description: `Bienvenue à nouveau sur ${APP_NAME}.`,
       });
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('isLoggedIn', 'true');
+        window.localStorage.removeItem('isAdminLoggedIn'); // S'assurer que ce n'est pas un admin
       }
-      router.push('/account/dashboard'); 
+      router.push('/account/dashboard');
     } else {
       toast({
         title: "Échec de la Connexion",
@@ -59,25 +70,25 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Adresse E-mail</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="vous@example.com" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                required 
+              <Input
+                id="email"
+                type="email"
+                placeholder="vous@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="h-11"
               />
             </div>
             <div>
               <Label htmlFor="password" className="flex items-center gap-1 mb-1"><Lock className="h-4 w-4 text-muted-foreground"/>Mot de Passe</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                placeholder="••••••••" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 className="h-11"
               />
             </div>
@@ -100,7 +111,11 @@ export default function LoginPage() {
           </p>
           <div className="flex items-center text-xs text-muted-foreground p-3 bg-muted/50 rounded-md mt-4">
             <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
-            <span>Pour la démo : utilisez <strong>test@example.com</strong> / <strong>password</strong></span>
+            <span>Démo Agence : <strong>test@example.com</strong> / <strong>password</strong></span>
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground p-3 bg-blue-100 dark:bg-blue-900/30 rounded-md mt-2">
+            <ShieldAlert className="h-4 w-4 mr-2 text-blue-500" />
+            <span>Démo Admin : <strong>admin@autopool.com</strong> / <strong>adminpassword</strong></span>
           </div>
         </CardFooter>
       </Card>
