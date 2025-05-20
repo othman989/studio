@@ -75,7 +75,7 @@ export function CarCard({ car }: CarCardProps) {
       <CardFooter className="p-4 border-t flex items-center justify-between">
         <div className="flex items-baseline">
           <span className="text-xl font-bold text-accent">{car.pricePerDay}</span>
-          <span className="text-sm text-muted-foreground">€/jour</span>
+          <span className="text-sm text-muted-foreground">MAD/jour</span>
         </div>
         <Button asChild size="sm">
           <Link href={`/cars/${car.id}/book`}>

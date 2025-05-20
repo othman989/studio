@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react'; // Added React and Suspense
+import React, { useState, useEffect, useMemo, Suspense } from 'react'; 
 import { useRouter, useSearchParams } from 'next/navigation'; 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 
 
-function NewReservationForm() { // Inner component
+function NewReservationForm() { 
   const router = useRouter();
   const searchParams = useSearchParams(); 
   const { toast } = useToast();
@@ -152,7 +152,7 @@ function NewReservationForm() { // Inner component
         isBlacklisted: false, 
       };
       setExistingClients(prev => [...prev, newClient]); 
-      MOCK_CLIENTS.push(newClient); // Also update the global mock if needed by other parts immediately
+      MOCK_CLIENTS.push(newClient); 
       finalClientId = newClient.id;
       clientNameForToast = newClient.fullName;
       finalClientEmail = newClient.email;
@@ -266,7 +266,7 @@ function NewReservationForm() { // Inner component
                                     selectedCarId === car.id ? "opacity-100" : "opacity-0"
                                   )}
                                 />
-                                {car.make} {car.model} ({car.year}) - {car.pricePerDay}€/jour
+                                {car.make} {car.model} ({car.year}) - {car.pricePerDay} MAD/jour
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -423,9 +423,9 @@ function NewReservationForm() { // Inner component
                     <CardTitle className="text-lg mb-2">Récapitulatif du Prix</CardTitle>
                     <div className="space-y-1 text-sm">
                       <p>Voiture: {selectedCar.make} {selectedCar.model}</p>
-                      <p>Prix par jour: {selectedCar.pricePerDay.toFixed(2)}€</p>
+                      <p>Prix par jour: {selectedCar.pricePerDay.toFixed(2)} MAD</p>
                       <p>Nombre de jours: {numberOfDays}</p>
-                      <p className="font-semibold text-md mt-2">Total Estimé: {totalPrice.toFixed(2)}€</p>
+                      <p className="font-semibold text-md mt-2">Total Estimé: {totalPrice.toFixed(2)} MAD</p>
                     </div>
                   </Card>
                 )}
@@ -447,7 +447,6 @@ function NewReservationForm() { // Inner component
   );
 }
 
-// Default export wrapped in Suspense
 export default function NewReservationPage() {
   return (
     <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center">Chargement de la page de réservation...</div>}>

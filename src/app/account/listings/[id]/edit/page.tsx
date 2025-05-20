@@ -51,7 +51,6 @@ export default function EditListingPage() {
 
   useEffect(() => {
     if (carId) {
-      // Find car from the mutable SAMPLE_CARS array
       const carToEdit = SAMPLE_CARS.find(car => car.id === carId);
       if (carToEdit) {
         setInitialCarData(carToEdit);
@@ -67,7 +66,7 @@ export default function EditListingPage() {
         setTransmission(carToEdit.transmission || '');
         setSeats(carToEdit.seats || '');
         setCurrentImageUrl(carToEdit.imageUrl);
-        setImagePreview(carToEdit.imageUrl); // Set initial image preview
+        setImagePreview(carToEdit.imageUrl); 
       } else {
         toast({ title: "Voiture non trouvée", description: "Impossible de trouver les détails de la voiture à modifier.", variant: "destructive" });
         router.push('/account/listings');
@@ -86,7 +85,6 @@ export default function EditListingPage() {
     const files = e.target.files;
     if (files && files.length > 0) {
         setImageFiles(files);
-        // Create a preview URL for the first selected file
         const reader = new FileReader();
         reader.onloadend = () => {
             setImagePreview(reader.result as string);
@@ -94,7 +92,7 @@ export default function EditListingPage() {
         reader.readAsDataURL(files[0]);
     } else {
         setImageFiles(null);
-        setImagePreview(currentImageUrl); // Revert to current if no file selected
+        setImagePreview(currentImageUrl); 
     }
   };
 
@@ -109,9 +107,6 @@ export default function EditListingPage() {
       return;
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     const carIndex = SAMPLE_CARS.findIndex(car => car.id === carId);
     if (carIndex === -1) {
         toast({ title: "Erreur", description: "Voiture non trouvée pour la mise à jour.", variant: "destructive" });
@@ -120,7 +115,7 @@ export default function EditListingPage() {
     }
     
     const updatedCarData: Car = {
-        ...SAMPLE_CARS[carIndex], // Preserve existing data like agencyId etc.
+        ...SAMPLE_CARS[carIndex], 
         make, 
         model, 
         year: Number(year), 
@@ -132,10 +127,9 @@ export default function EditListingPage() {
         fuelType: fuelType as Car['fuelType'], 
         transmission: transmission as Car['transmission'], 
         seats: Number(seats),
-        imageUrl: imagePreview || SAMPLE_CARS[carIndex].imageUrl, // Use new preview or existing URL
+        imageUrl: imagePreview || SAMPLE_CARS[carIndex].imageUrl, 
     };
     
-    // Mutate the SAMPLE_CARS array (for client-side mock persistence)
     SAMPLE_CARS[carIndex] = updatedCarData;
 
     setSubmitting(false);
@@ -187,8 +181,8 @@ export default function EditListingPage() {
                 <Input id="year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} placeholder="ex. 2022" required min="1980" max={new Date().getFullYear() + 1} />
               </div>
               <div>
-                <Label htmlFor="pricePerDay" className="flex items-center gap-1 mb-1"><DollarSign className="h-4 w-4 text-muted-foreground"/>Prix par Jour (€) *</Label>
-                <Input id="pricePerDay" type="number" value={pricePerDay} onChange={(e) => setPricePerDay(Number(e.target.value))} placeholder="ex. 50" required min="1" />
+                <Label htmlFor="pricePerDay" className="flex items-center gap-1 mb-1"><DollarSign className="h-4 w-4 text-muted-foreground"/>Prix par Jour (MAD) *</Label>
+                <Input id="pricePerDay" type="number" value={pricePerDay} onChange={(e) => setPricePerDay(Number(e.target.value))} placeholder="ex. 500" required min="1" />
               </div>
             </div>
 
@@ -288,5 +282,3 @@ export default function EditListingPage() {
     </div>
   );
 }
-
-    

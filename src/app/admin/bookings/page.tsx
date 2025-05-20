@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { Booking } from '@/types';
 import { MOCK_BOOKINGS, SAMPLE_CARS } from '@/lib/constants'; 
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 
@@ -52,7 +52,7 @@ const AdminManageBookingsPage: NextPage = () => {
         carMakeModel: car ? `${car.make} ${car.model}` : 'Voiture inconnue',
         agencyNameDisplay: car?.agencyName || booking.agencyId,
       };
-    })
+    }).sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()) // Sort by creation date
   );
   const [bookingToModify, setBookingToModify] = useState<EnrichedBooking | null>(null);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
@@ -81,7 +81,7 @@ const AdminManageBookingsPage: NextPage = () => {
         carMakeModel: car ? `${car.make} ${car.model}` : 'Voiture inconnue',
         agencyNameDisplay: car?.agencyName || booking.agencyId,
       };
-    }));
+    }).sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()));
     toast({ 
         title: "Réservation Annulée", 
         description: `La réservation ${bookingToModify.id} a été annulée.`, 
@@ -158,9 +158,9 @@ const AdminManageBookingsPage: NextPage = () => {
                       <TableCell className="hidden md:table-cell">{booking.carMakeModel}</TableCell>
                       <TableCell className="hidden sm:table-cell">{booking.agencyNameDisplay}</TableCell>
                       <TableCell>
-                        {format(new Date(booking.startDate), 'dd/MM/yy', { locale: fr })} - {format(new Date(booking.endDate), 'dd/MM/yy', { locale: fr })}
+                        {format(parseISO(booking.startDate), 'dd/MM/yy', { locale: fr })} - {format(parseISO(booking.endDate), 'dd/MM/yy', { locale: fr })}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">{booking.totalPrice.toFixed(2)}€</TableCell>
+                      <TableCell className="hidden lg:table-cell">{booking.totalPrice.toFixed(2)} MAD</TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(booking.status)} className={getStatusBadgeClass(booking.status)}>
                           {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
@@ -221,5 +221,3 @@ const AdminManageBookingsPage: NextPage = () => {
 };
 
 export default AdminManageBookingsPage;
-
-    

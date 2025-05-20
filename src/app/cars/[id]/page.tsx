@@ -15,7 +15,7 @@ import { MapPin, Star, DollarSign, CalendarDays, Fuel, Settings, Users, MessageS
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CarCard } from '@/components/CarCard';
 import { fr } from 'date-fns/locale';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns'; // Added parseISO
 
 
 async function getCarDetails(id: string): Promise<Car | undefined> {
@@ -171,7 +171,7 @@ export default function CarDetailsPage() {
             <CardHeader>
               <div className="flex items-baseline justify-center text-accent mb-2">
                 <span className="text-4xl font-bold">{car.pricePerDay}</span>
-                <span className="text-lg text-muted-foreground">€/jour</span>
+                <span className="text-lg text-muted-foreground">MAD/jour</span>
               </div>
               <Button size="lg" className="w-full mt-4" asChild>
                 <Link href={`/cars/${car.id}/book`}>
@@ -233,7 +233,7 @@ export default function CarDetailsPage() {
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">
-                        {format(new Date(review.createdAt), 'dd MMMM yyyy', { locale: fr })}
+                        {format(parseISO(review.createdAt), 'dd MMMM yyyy', { locale: fr })}
                       </p>
                       <p className="text-sm text-muted-foreground">{review.comment}</p>
                     </div>

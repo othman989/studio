@@ -60,12 +60,6 @@ export default function NewListingPage() {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // const newCarData: Partial<Car> = {
-    //   make, model, year: Number(year), pricePerDay: Number(pricePerDay), location, type: carType as Car['type'],
-    //   description, features, fuelType: fuelType as Car['fuelType'], transmission: transmission as Car['transmission'], seats: Number(seats),
-    // };
-    // if(imageFiles) // Simulate image upload logic
-
     setSubmitting(false);
     toast({
       title: "Voiture listée avec succès !",
@@ -107,8 +101,8 @@ export default function NewListingPage() {
                 <Input id="year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} placeholder="ex. 2022" required min="1980" max={new Date().getFullYear() + 1} />
               </div>
               <div>
-                <Label htmlFor="pricePerDay" className="flex items-center gap-1 mb-1"><DollarSign className="h-4 w-4 text-muted-foreground"/>Prix par Jour (€) *</Label>
-                <Input id="pricePerDay" type="number" value={pricePerDay} onChange={(e) => setPricePerDay(Number(e.target.value))} placeholder="ex. 50" required min="1" />
+                <Label htmlFor="pricePerDay" className="flex items-center gap-1 mb-1"><DollarSign className="h-4 w-4 text-muted-foreground"/>Prix par Jour (MAD) *</Label>
+                <Input id="pricePerDay" type="number" value={pricePerDay} onChange={(e) => setPricePerDay(Number(e.target.value))} placeholder="ex. 500" required min="1" />
               </div>
             </div>
 
@@ -203,5 +197,3 @@ export default function NewListingPage() {
     </div>
   );
 }
-
-    

@@ -4,10 +4,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, BookMarkedIcon, CarIcon, UserIcon, CalendarRangeIcon, DollarSignIcon, BuildingIcon, TagIcon, CheckCircle2Icon, XCircleIcon, MailIcon } from 'lucide-react';
-import type { Booking, Car, ClientProfile } from '@/types'; // Added ClientProfile
+import type { Booking, Car, ClientProfile } from '@/types'; 
 import { MOCK_BOOKINGS, SAMPLE_CARS, MOCK_CLIENTS } from '@/lib/constants';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -153,7 +153,7 @@ export default function BookingDetailsPage() {
               <p><span className="font-semibold">Fin :</span> {format(parseISO(booking.endDate), 'PPPP p', { locale: fr })}</p>
               <p><span className="font-semibold">Durée :</span> {Math.max(1, differenceInDays(parseISO(booking.endDate), parseISO(booking.startDate)) +1 )} jours</p>
               <Separator className="my-3"/>
-              <p className="text-lg"><span className="font-semibold">Prix Total :</span> <span className="text-accent font-bold">{booking.totalPrice.toFixed(2)}€</span></p>
+              <p className="text-lg"><span className="font-semibold">Prix Total :</span> <span className="text-accent font-bold">{booking.totalPrice.toFixed(2)} MAD</span></p>
               <p className="text-xs text-muted-foreground">Réservé le : {format(parseISO(booking.createdAt), 'PPP p', { locale: fr })}</p>
             </CardContent>
           </Card>

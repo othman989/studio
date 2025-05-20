@@ -14,12 +14,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Calendar as LucideCalendarIcon, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react'; // Renamed CalendarIcon to LucideCalendarIcon
 import { Separator } from '@/components/ui/separator';
-import { format, differenceInDays, addDays } from 'date-fns';
+import { format, differenceInDays, addDays, isValid, parseISO } from 'date-fns'; // Added isValid, parseISO
 import { fr } from 'date-fns/locale'; 
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker"
+import { cn } from "@/lib/utils";
 
 
 async function getCarDetails(id: string): Promise<Car | undefined> {
@@ -84,9 +85,9 @@ export default function BookingPage() {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const newBooking: Booking = { // Changed to full Booking type
-      id: `booking-${Date.now()}`, // Ensure an ID is generated
-      userId: 'current_user_id_placeholder', // Placeholder
+    const newBooking: Booking = { 
+      id: `booking-${Date.now()}`, 
+      userId: 'current_user_id_placeholder', 
       carId: car.id,
       agencyId: car.agencyId || 'default_agency_id_placeholder',
       startDate: dateRange.from.toISOString(),
@@ -96,10 +97,9 @@ export default function BookingPage() {
       renterName: fullName, 
       renterEmail: email,
       createdAt: new Date().toISOString(),
-      // clientId could be added if integrating with ClientProfile system more deeply here
     };
     
-    MOCK_BOOKINGS.push(newBooking); // Add to the shared mock bookings
+    MOCK_BOOKINGS.push(newBooking); 
 
     setSubmitting(false);
     toast({
@@ -159,7 +159,7 @@ export default function BookingPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Prix par jour :</span>
-                  <span className="font-medium">{car.pricePerDay.toFixed(2)}€</span>
+                  <span className="font-medium">{car.pricePerDay.toFixed(2)} MAD</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Dates sélectionnées :</span>
@@ -180,7 +180,7 @@ export default function BookingPage() {
                 <span className="text-lg font-semibold">Prix Total :</span>
                 <div className="flex items-baseline text-accent">
                   <span className="text-2xl font-bold">{totalPrice.toFixed(2)}</span>
-                  <span className="ml-1">€</span>
+                  <span className="ml-1">MAD</span>
                 </div>
               </div>
             </CardContent>
@@ -202,9 +202,9 @@ export default function BookingPage() {
                       <Button
                         id="dates"
                         variant={"outline"}
-                        className="w-full justify-start text-left font-normal h-12"
+                        className={cn("w-full justify-start text-left font-normal h-12", !dateRange && "text-muted-foreground")}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <LucideCalendarIcon className="mr-2 h-4 w-4" />
                         {dateRange?.from ? (
                           dateRange.to ? (
                             <>
@@ -278,5 +278,3 @@ export default function BookingPage() {
     </div>
   );
 }
-
-    

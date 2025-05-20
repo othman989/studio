@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckIcon, DollarSign } from 'lucide-react'; // Added DollarSign
+import { CheckIcon, DollarSign } from 'lucide-react'; 
 import { APP_NAME } from '@/lib/constants';
 
 const pricingTiers = [
@@ -20,7 +20,7 @@ const pricingTiers = [
   },
   {
     name: 'Agence Débutant',
-    price: '49€',
+    price: '490 MAD',
     priceSuffix: '/mois',
     description: 'Pour les nouvelles agences qui débutent.',
     features: [
@@ -35,7 +35,7 @@ const pricingTiers = [
   },
   {
     name: 'Agence Pro',
-    price: '99€',
+    price: '990 MAD',
     priceSuffix: '/mois',
     description: 'Pour les agences en croissance ayant besoin de plus.',
     features: [
