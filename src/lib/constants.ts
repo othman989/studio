@@ -1,6 +1,6 @@
 
-import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency, Review } from '@/types';
-import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon } from 'lucide-react';
+import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency, Review, ContactPerson } from '@/types';
+import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon, StarIcon } from 'lucide-react';
 import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
@@ -36,7 +36,7 @@ export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, hideWhenLoggedIn: false },
   { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
   { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
-  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false },
+  { href: '/features', label: 'Fonctionnalités', icon: StarIcon, requiresAuth: false },
   { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
 ];
 
@@ -71,7 +71,7 @@ export const CAR_TYPES: { value: CarType, label: string }[] = [
   { value: 'Sedan', label: 'Berline' },
   { value: 'SUV', label: 'SUV' },
   { value: 'Truck', label: 'Camionnette' },
-  { value: 'Van', label: 'Van / Minibus' },
+  { value: 'Van / Minibus', label: 'Van / Minibus' },
   { value: 'SportsCar', label: 'Voiture de Sport' },
   { value: 'Convertible', label: 'Cabriolet' },
   { value: 'Coupe', label: 'Coupé' },
@@ -243,10 +243,15 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     createdAt: formatISO(subDays(today, 100)),
     ownerName: 'Jean Écologiste',
     ownerEmail: 'jean.eco@verteparis.fr',
+    ownerPhone: '06 11 22 33 44',
     agencyAddress: '10 Rue du Faubourg Saint-Antoine, 75012 Paris',
     phoneNumber: '01 23 45 67 89',
     description: 'Spécialistes des véhicules électriques et hybrides au cœur de Paris.',
-    permissions: { canListCars: true, maxCarListings: 10, canAccessAnalytics: true, isVerified: true, canManageBookings: true }
+    permissions: { canListCars: true, maxCarListings: 10, canAccessAnalytics: true, isVerified: true, canManageBookings: true },
+    otherContacts: [
+      { id: 'oc1-1', name: 'Sophie Durand', email: 'sophie@verteparis.fr', phone: '01 23 45 67 90', role: 'Responsable Réservations' },
+      { id: 'oc1-2', name: 'Pierre Martin', email: 'pierre.m@verteparis.fr', phone: '01 23 45 67 91', role: 'Support Technique' }
+    ]
   },
   {
     id: 'agency2',
@@ -257,10 +262,12 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     createdAt: formatISO(subDays(today, 80)),
     ownerName: 'Sophie Ampère',
     ownerEmail: 'sophie.ampere@evlyon.com',
+    ownerPhone: '07 88 99 00 11',
     agencyAddress: '25 Quai Claude Bernard, 69007 Lyon',
     phoneNumber: '04 56 78 90 12',
     description: 'Votre partenaire pour la location de voitures électriques à Lyon et ses environs.',
-    permissions: { canListCars: true, maxCarListings: 20, canAccessAnalytics: false, isVerified: true, canManageBookings: true }
+    permissions: { canListCars: true, maxCarListings: 20, canAccessAnalytics: false, isVerified: true, canManageBookings: true },
+    otherContacts: []
   },
   {
     id: 'agency3',
@@ -271,6 +278,7 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     createdAt: formatISO(subDays(today, 5)),
     ownerName: 'Marc Soleil',
     ownerEmail: 'marc.soleil@sudautoplaisir.com',
+    ownerPhone: '06 55 44 33 22',
     agencyAddress: 'Avenue de la Mer, 13008 Marseille',
     permissions: { canListCars: false, maxCarListings: 0, canAccessAnalytics: false, isVerified: false, canManageBookings: false }
   },
@@ -279,7 +287,7 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     name: 'Roues Agiles Bordeaux',
     contactEmail: 'bordeaux@rouesagiles.fr',
     status: 'Suspendue',
-    listingsCount: 0, // Assuming suspended agency has 0 active listings shown
+    listingsCount: 0, 
     createdAt: formatISO(subDays(today, 200)),
     ownerName: 'Alain Vitesse',
     ownerEmail: 'alain.vitesse@rouesagiles.fr',

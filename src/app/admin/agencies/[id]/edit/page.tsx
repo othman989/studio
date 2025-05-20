@@ -10,9 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Building, Mail, User, Phone, MapPin, Edit3Icon, Save } from 'lucide-react';
+import { ArrowLeft, Building, Mail, User, Phone, MapPin, Edit3Icon, Save, PlusCircle, Trash2, UserCircleIcon } from 'lucide-react';
 import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
-import type { AdminAgency } from '@/types';
+import type { AdminAgency, ContactPerson } from '@/types';
+import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 
 export default function AdminEditAgencyPage() {
   const router = useRouter();
@@ -32,6 +34,15 @@ export default function AdminEditAgencyPage() {
   const [agencyPhoneNumber, setAgencyPhoneNumber] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
+  const [otherContacts, setOtherContacts] = useState<ContactPerson[]>([]);
+  
+  // Dialog state for adding new contact
+  const [isAddContactDialogOpen, setIsAddContactDialogOpen] = useState(false);
+  const [newContactName, setNewContactName] = useState('');
+  const [newContactEmail, setNewContactEmail] = useState('');
+  const [newContactPhone, setNewContactPhone] = useState('');
+  const [newContactRole, setNewContactRole] = useState('');
   
 
   useEffect(() => {
@@ -46,6 +57,8 @@ export default function AdminEditAgencyPage() {
         setAgencyPhoneNumber(agencyToEdit.phoneNumber || '');
         setOwnerName(agencyToEdit.ownerName || '');
         setOwnerEmail(agencyToEdit.ownerEmail || '');
+        setOwnerPhone(agencyToEdit.ownerPhone || '');
+        setOtherContacts(agencyToEdit.otherContacts || []);
       } else {
         toast({ title: "Agence non trouvée", description: "Impossible de trouver les détails de l'agence à modifier.", variant: "destructive" });
         router.push('/admin/agencies');
@@ -53,6 +66,33 @@ export default function AdminEditAgencyPage() {
       setLoading(false);
     }
   }, [agencyId, router, toast]);
+
+  const handleAddOtherContact = () => {
+    if (!newContactName.trim()) {
+      toast({ title: "Nom du contact requis", description: "Veuillez entrer le nom du nouveau contact.", variant: "destructive" });
+      return;
+    }
+    const newContact: ContactPerson = {
+      id: `contact-${Date.now()}`, // Simple unique ID for client-side
+      name: newContactName.trim(),
+      email: newContactEmail.trim() || undefined,
+      phone: newContactPhone.trim() || undefined,
+      role: newContactRole.trim() || undefined,
+    };
+    setOtherContacts(prev => [...prev, newContact]);
+    setNewContactName('');
+    setNewContactEmail('');
+    setNewContactPhone('');
+    setNewContactRole('');
+    setIsAddContactDialogOpen(false);
+    toast({ title: "Contact Ajouté", description: `${newContact.name} a été ajouté aux contacts de l'agence.`});
+  };
+
+  const handleRemoveOtherContact = (contactId: string) => {
+    setOtherContacts(prev => prev.filter(contact => contact.id !== contactId));
+    toast({ title: "Contact Supprimé", description: "Le contact a été retiré de la liste.", variant: "destructive"});
+  };
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,7 +112,7 @@ export default function AdminEditAgencyPage() {
     }
     
     const updatedAgencyData: AdminAgency = {
-        ...MOCK_ADMIN_AGENCIES[agencyIndex], // Preserve existing data like id, createdAt, listingsCount, status, permissions
+        ...MOCK_ADMIN_AGENCIES[agencyIndex],
         name: agencyName,
         contactEmail: agencyEmail,
         agencyAddress: agencyAddress,
@@ -80,6 +120,8 @@ export default function AdminEditAgencyPage() {
         phoneNumber: agencyPhoneNumber,
         ownerName: ownerName,
         ownerEmail: ownerEmail,
+        ownerPhone: ownerPhone,
+        otherContacts: otherContacts,
     };
     
     MOCK_ADMIN_AGENCIES[agencyIndex] = updatedAgencyData;
@@ -151,6 +193,8 @@ export default function AdminEditAgencyPage() {
               </div>
             </section>
 
+            <Separator />
+
             <section>
               <h3 className="text-xl font-semibold mb-4 border-b pb-2">Informations du Propriétaire/Contact Principal</h3>
               <div className="space-y-4">
@@ -158,14 +202,92 @@ export default function AdminEditAgencyPage() {
                   <Label htmlFor="ownerName" className="flex items-center gap-1 mb-1"><User className="h-4 w-4 text-muted-foreground"/>Nom Complet du Propriétaire *</Label>
                   <Input id="ownerName" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="ex. Jean Dupont" required />
                 </div>
-                 <div>
-                    <Label htmlFor="ownerEmail" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email du Propriétaire *</Label>
-                    <Input id="ownerEmail" type="email" value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} placeholder="proprietaire@example.com" required />
-                </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="ownerEmail" className="flex items-center gap-1 mb-1"><Mail className="h-4 w-4 text-muted-foreground"/>Email du Propriétaire *</Label>
+                        <Input id="ownerEmail" type="email" value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} placeholder="proprietaire@example.com" required />
+                    </div>
+                    <div>
+                        <Label htmlFor="ownerPhone" className="flex items-center gap-1 mb-1"><Phone className="h-4 w-4 text-muted-foreground"/>Téléphone du Propriétaire</Label>
+                        <Input id="ownerPhone" type="tel" value={ownerPhone} onChange={(e) => setOwnerPhone(e.target.value)} placeholder="06 01 02 03 04" />
+                    </div>
+                 </div>
               </div>
             </section>
+
+            <Separator />
+
+            <section>
+                <div className="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 className="text-xl font-semibold">Autres Contacts</h3>
+                    <Dialog open={isAddContactDialogOpen} onOpenChange={(isOpen) => {
+                        setIsAddContactDialogOpen(isOpen);
+                        if (!isOpen) { // Reset dialog form on close
+                            setNewContactName('');
+                            setNewContactEmail('');
+                            setNewContactPhone('');
+                            setNewContactRole('');
+                        }
+                    }}>
+                        <DialogTrigger asChild>
+                            <Button type="button" variant="outline" size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" /> Ajouter Contact
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Ajouter un Nouveau Contact</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div>
+                                    <Label htmlFor="newContactNameDialog" className="mb-1">Nom Complet *</Label>
+                                    <Input id="newContactNameDialog" value={newContactName} onChange={(e) => setNewContactName(e.target.value)} placeholder="ex. Alice Bertrand"/>
+                                </div>
+                                 <div>
+                                    <Label htmlFor="newContactEmailDialog" className="mb-1">Email</Label>
+                                    <Input id="newContactEmailDialog" type="email" value={newContactEmail} onChange={(e) => setNewContactEmail(e.target.value)} placeholder="alice.b@example.com"/>
+                                </div>
+                                 <div>
+                                    <Label htmlFor="newContactPhoneDialog" className="mb-1">Téléphone</Label>
+                                    <Input id="newContactPhoneDialog" type="tel" value={newContactPhone} onChange={(e) => setNewContactPhone(e.target.value)} placeholder="07 12 34 56 78"/>
+                                </div>
+                                 <div>
+                                    <Label htmlFor="newContactRoleDialog" className="mb-1">Rôle/Titre</Label>
+                                    <Input id="newContactRoleDialog" value={newContactRole} onChange={(e) => setNewContactRole(e.target.value)} placeholder="ex. Manager, Support Technique"/>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button type="button" variant="outline">Annuler</Button>
+                                </DialogClose>
+                                <Button type="button" onClick={handleAddOtherContact}>Sauvegarder Contact</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+                {otherContacts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun autre contact ajouté.</p>
+                ) : (
+                    <div className="space-y-3">
+                        {otherContacts.map((contact) => (
+                            <Card key={contact.id} className="p-3 bg-muted/50">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-semibold text-sm flex items-center gap-2"><UserCircleIcon className="h-4 w-4 text-muted-foreground"/>{contact.name} {contact.role && <span className="text-xs text-muted-foreground">({contact.role})</span>}</p>
+                                        {contact.email && <p className="text-xs text-muted-foreground ml-6 flex items-center gap-1"><Mail className="h-3 w-3"/>{contact.email}</p>}
+                                        {contact.phone && <p className="text-xs text-muted-foreground ml-6 flex items-center gap-1"><Phone className="h-3 w-3"/>{contact.phone}</p>}
+                                    </div>
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveOtherContact(contact.id)} aria-label="Supprimer contact">
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </section>
             
-            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+            <Button type="submit" size="lg" className="w-full mt-8" disabled={submitting}>
               <Save className="mr-2 h-5 w-5" />
               {submitting ? 'Sauvegarde en cours...' : 'Sauvegarder les Modifications'}
             </Button>
@@ -180,5 +302,3 @@ export default function AdminEditAgencyPage() {
     </div>
   );
 }
-
-    

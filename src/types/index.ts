@@ -36,7 +36,7 @@ export interface Agency {
 
 export interface Review {
   id:string;
-  userId: string; // Could be a generic ID or linked to ClientProfile
+  userId: string; 
   userName: string;
   avatarUrl?: string;
   targetType: 'car' | 'agency';
@@ -48,7 +48,7 @@ export interface Review {
 
 export interface Booking {
   id: string;
-  userId: string; // Could be a Renter ID or ClientProfile ID
+  userId: string; 
   carId: string;
   agencyId: string;
   startDate: string; // ISO date string
@@ -58,7 +58,7 @@ export interface Booking {
   createdAt: string; // ISO date string
   renterName?: string;
   renterEmail?: string;
-  clientId?: string; // For agency-created bookings
+  clientId?: string; 
 }
 
 export interface ClientProfile {
@@ -67,10 +67,10 @@ export interface ClientProfile {
     email: string;
     phone?: string;
     licenseNumber?: string;
-    licenseIssueYear?: number; // Or expiry date, TBD
+    licenseIssueYear?: number; 
     address?: string;
     notes?: string;
-    agencyId?: string; // Link to the agency that created/manages this client, if applicable. Not all clients are agency-specific.
+    agencyId?: string; 
     createdAt: string;
     isBlacklisted?: boolean;
     blacklistReason?: string;
@@ -79,10 +79,10 @@ export interface ClientProfile {
 
 export interface BlockedPeriod {
   id: string;
-  carId: string; // Can be specific carId or 'all' for agency-wide
+  carId: string; 
   startDate: string; // ISO date string
   endDate: string; // ISO date string
-  reason?: string; // e.g., "Maintenance", "Owner Use", "Agency Holiday"
+  reason?: string; 
   createdAt: string; // ISO date string
 }
 
@@ -93,17 +93,25 @@ export interface NavItem {
   requiresAuth?: boolean;
   showOnlyWhenLoggedIn?: boolean;
   hideWhenLoggedIn?: boolean;
-  isAgencyLink?: boolean; // To differentiate agency user links
-  isAdminLink?: boolean; // To differentiate admin user links
+  isAgencyLink?: boolean; 
+  isAdminLink?: boolean; 
 }
 
 // Types for Admin Dashboard
 export interface AgencyPermission {
   canListCars: boolean;
-  maxCarListings?: number; // Maximum number of cars the agency can list
+  maxCarListings?: number; 
   canAccessAnalytics: boolean;
   isVerified: boolean;
   canManageBookings: boolean;
+}
+
+export interface ContactPerson {
+  id: string; // Unique ID for the contact
+  name: string;
+  email?: string;
+  phone?: string;
+  role?: string; // e.g., "Manager", "Support", "Technical Contact"
 }
 
 export interface AdminAgency {
@@ -115,8 +123,10 @@ export interface AdminAgency {
   createdAt: string; // ISO Date string
   ownerName?: string;
   ownerEmail?: string;
+  ownerPhone?: string; // Added owner phone
   agencyAddress?: string;
-  phoneNumber?: string;
+  phoneNumber?: string; // This is agency's main phone
   description?: string;
   permissions?: AgencyPermission;
+  otherContacts?: ContactPerson[]; // Added other contacts
 }

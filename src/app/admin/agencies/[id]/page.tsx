@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, BuildingIcon, MailIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarIcon, ListChecksIcon, ShieldCheckIcon, Edit3Icon, BanIcon, CheckCircle } from 'lucide-react';
+import { ArrowLeft, BuildingIcon, MailIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarIcon, ListChecksIcon, ShieldCheckIcon, Edit3Icon, BanIcon, CheckCircle, UsersIcon, UserCircleIcon } from 'lucide-react';
 import type { AdminAgency } from '@/types';
 import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
 import { format, parseISO } from 'date-fns';
@@ -43,6 +43,14 @@ export default function AgencyDetailsPage() {
     }
     setLoading(false);
   }, [agencyId]);
+
+  // Effect to refresh agency data if MOCK_ADMIN_AGENCIES changes (e.g., after edit)
+  useEffect(() => {
+    if (agencyId) {
+      const updatedAgency = MOCK_ADMIN_AGENCIES.find(a => a.id === agencyId);
+      setAgency(updatedAgency || null);
+    }
+  }, [MOCK_ADMIN_AGENCIES, agencyId]);
 
   const handleToggleSuspendAgency = () => {
     if (!agency) return;
@@ -101,7 +109,7 @@ export default function AgencyDetailsPage() {
         <Badge variant={
             agency.status === 'Approuvée' ? 'default' :
             agency.status === 'En attente' ? 'secondary' : 'destructive'
-            } className={`text-sm ${agency.status === 'Approuvée' ? 'bg-green-600 hover:bg-green-700' : agency.status === 'Suspendue' ? 'bg-destructive hover:bg-destructive/90' : ''}`}>
+            } className={`text-sm ${agency.status === 'Approuvée' ? 'bg-green-600 hover:bg-green-700 text-primary-foreground' : agency.status === 'Suspendue' ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : ''}`}>
             Statut : {agency.status}
         </Badge>
       </header>
@@ -126,7 +134,7 @@ export default function AgencyDetailsPage() {
               {agency.phoneNumber && (
                 <div className="flex items-center">
                   <PhoneIcon className="h-5 w-5 mr-3 text-muted-foreground" />
-                  <p><span className="font-semibold">Téléphone :</span> {agency.phoneNumber}</p>
+                  <p><span className="font-semibold">Téléphone Agence :</span> {agency.phoneNumber}</p>
                 </div>
               )}
               <div className="flex items-center">
@@ -146,22 +154,48 @@ export default function AgencyDetailsPage() {
             </CardContent>
           </Card>
 
-          {agency.ownerName && (
+          {(agency.ownerName || agency.ownerEmail || agency.ownerPhone) && (
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle>Propriétaire / Contact Principal</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                 <div className="flex items-center">
+                 {agency.ownerName && (<div className="flex items-center">
                     <UserIcon className="h-5 w-5 mr-3 text-muted-foreground" />
                     <p><span className="font-semibold">Nom :</span> {agency.ownerName}</p>
-                  </div>
+                  </div>)}
                 {agency.ownerEmail && (
                   <div className="flex items-center">
                     <MailIcon className="h-5 w-5 mr-3 text-muted-foreground" />
                     <p><span className="font-semibold">Email :</span> {agency.ownerEmail}</p>
                   </div>
                 )}
+                {agency.ownerPhone && (
+                  <div className="flex items-center">
+                    <PhoneIcon className="h-5 w-5 mr-3 text-muted-foreground" />
+                    <p><span className="font-semibold">Téléphone :</span> {agency.ownerPhone}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {agency.otherContacts && agency.otherContacts.length > 0 && (
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><UsersIcon className="h-6 w-6 text-primary"/>Autres Contacts</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {agency.otherContacts.map(contact => (
+                  <div key={contact.id} className="p-3 border rounded-md bg-muted/30">
+                    <p className="font-semibold text-sm flex items-center gap-2">
+                      <UserCircleIcon className="h-4 w-4 text-muted-foreground"/>
+                      {contact.name} {contact.role && <span className="text-xs text-muted-foreground">({contact.role})</span>}
+                    </p>
+                    {contact.email && <p className="text-xs text-muted-foreground ml-6 flex items-center gap-1"><MailIcon className="h-3 w-3"/>{contact.email}</p>}
+                    {contact.phone && <p className="text-xs text-muted-foreground ml-6 flex items-center gap-1"><PhoneIcon className="h-3 w-3"/>{contact.phone}</p>}
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}
@@ -192,7 +226,6 @@ export default function AgencyDetailsPage() {
         </div>
       </div>
 
-      {/* Suspend/Reactivate Dialog */}
       <AlertDialog open={isSuspendDialogOpen} onOpenChange={setIsSuspendDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -213,5 +246,3 @@ export default function AgencyDetailsPage() {
     </div>
   );
 }
-
-    
