@@ -9,7 +9,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UsersIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, Ban } from 'lucide-react';
+import { UsersIcon, PlusCircle, Edit3, Trash2, ArrowLeft, MoreHorizontal, EyeIcon, UserXIcon, UserCheckIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -38,13 +38,31 @@ const AdminManageRentersPage: NextPage = () => {
   const [renters, setRenters] = useState<ClientProfile[]>(MOCK_CLIENTS);
   const [renterToModify, setRenterToModify] = useState<ClientProfile | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBlacklistDialogOpen, setIsBlacklistDialogOpen] = useState(false);
 
   const handleViewDetails = (renterId: string) => {
     router.push(`/admin/renters/${renterId}`);
   };
 
-  const handleSuspendRenter = (renterId: string) => {
-    toast({ title: "Fonctionnalité à venir", description: `La suspension du locataire ${renterId} sera bientôt disponible.` });
+  const openBlacklistDialog = (renter: ClientProfile) => {
+    setRenterToModify(renter);
+    setIsBlacklistDialogOpen(true);
+  };
+
+  const handleToggleBlacklist = () => {
+    if (!renterToModify) return;
+
+    const renterIndex = MOCK_CLIENTS.findIndex(r => r.id === renterToModify.id);
+    if (renterIndex !== -1) {
+      MOCK_CLIENTS[renterIndex].isBlacklisted = !MOCK_CLIENTS[renterIndex].isBlacklisted;
+      setRenters([...MOCK_CLIENTS]); // Update local state to trigger re-render
+      toast({
+        title: `Statut du Locataire Mis à Jour`,
+        description: `${renterToModify.fullName} a été ${MOCK_CLIENTS[renterIndex].isBlacklisted ? 'ajouté à' : 'retiré de'} la liste noire.`,
+      });
+    }
+    setIsBlacklistDialogOpen(false);
+    setRenterToModify(null);
   };
 
   const openDeleteDialog = (renter: ClientProfile) => {
@@ -82,7 +100,7 @@ const AdminManageRentersPage: NextPage = () => {
           <UsersIcon className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">Gérer les Locataires</h1>
         </div>
-        <CardDescription>Visualisez, modifiez ou supprimez des comptes locataires.</CardDescription>
+        <CardDescription>Visualisez, modifiez, ajoutez à la liste noire ou supprimez des comptes locataires.</CardDescription>
       </header>
 
       <div className="mb-6 text-right">
@@ -112,7 +130,7 @@ const AdminManageRentersPage: NextPage = () => {
                     <TableHead>Nom Complet</TableHead>
                     <TableHead className="hidden sm:table-cell">Email</TableHead>
                     <TableHead className="hidden md:table-cell">N° Permis</TableHead>
-                    <TableHead>Statut (Simulé)</TableHead>
+                    <TableHead>Statut</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -123,7 +141,11 @@ const AdminManageRentersPage: NextPage = () => {
                       <TableCell className="hidden sm:table-cell">{renter.email}</TableCell>
                       <TableCell className="hidden md:table-cell">{renter.licenseNumber || 'N/A'}</TableCell>
                       <TableCell>
-                        <Badge variant={'default'} className='bg-green-600 hover:bg-green-700'>Actif</Badge> 
+                        {renter.isBlacklisted ? (
+                          <Badge variant={'destructive'}>Liste Noire</Badge>
+                        ) : (
+                          <Badge variant={'default'} className='bg-green-600 hover:bg-green-700'>Actif</Badge>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -138,8 +160,13 @@ const AdminManageRentersPage: NextPage = () => {
                             <DropdownMenuItem onClick={() => handleViewDetails(renter.id)}>
                               <EyeIcon className="mr-2 h-4 w-4" /> Voir Détails
                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleSuspendRenter(renter.id)}>
-                              <Ban className="mr-2 h-4 w-4 text-orange-600" /> Suspendre/Réactiver
+                             <DropdownMenuItem onClick={() => openBlacklistDialog(renter)}>
+                              {renter.isBlacklisted ? (
+                                <UserCheckIcon className="mr-2 h-4 w-4 text-green-600" />
+                              ) : (
+                                <UserXIcon className="mr-2 h-4 w-4 text-orange-600" />
+                              )}
+                              {renter.isBlacklisted ? "Retirer de la liste noire" : "Ajouter à la liste noire"}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -177,10 +204,29 @@ const AdminManageRentersPage: NextPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Blacklist Dialog */}
+      <AlertDialog open={isBlacklistDialogOpen} onOpenChange={setIsBlacklistDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer l'Action sur la Liste Noire</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir {renterToModify?.isBlacklisted ? 'retirer' : 'ajouter'} "{renterToModify?.fullName}" {renterToModify?.isBlacklisted ? 'de la' : 'à la'} liste noire ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRenterToModify(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleToggleBlacklist} 
+              className={renterToModify?.isBlacklisted ? '' : buttonVariants({variant: "destructive"})}
+            >
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AdminManageRentersPage;
-
-    

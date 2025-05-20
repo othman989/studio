@@ -27,8 +27,8 @@ export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, hideWhenLoggedIn: false },
   { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
   { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
-  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false, hideWhenLoggedIn: true },
-  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false, hideWhenLoggedIn: true },
+  { href: '/features', label: 'Fonctionnalités', icon: Star, requiresAuth: false },
+  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
 ];
 
 export const NAV_LINKS_AUTH: NavItem[] = [
@@ -204,17 +204,18 @@ export let SAMPLE_CARS: Car[] = [
   }
 ];
 
+export let MOCK_CLIENTS: ClientProfile[] = [
+    { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: formatISO(subDays(today, 30)), isBlacklisted: false },
+    { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: formatISO(subDays(today, 60)), isBlacklisted: false },
+    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: formatISO(subDays(today, 15)), isBlacklisted: true },
+];
+
 export let MOCK_BOOKINGS: Booking[] = [
   { id: 'booking1', userId: 'client1', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 2)), endDate: formatISO(addDays(today, 4)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 5)), renterName: "Alice Dupont", renterEmail:"alice@example.com", clientId: 'client1' },
   { id: 'booking2', userId: 'client2', carId: '2', agencyId: 'agency1', startDate: formatISO(addDays(today, 5)), endDate: formatISO(addDays(today, 7)), totalPrice: 360, status: 'pending', createdAt: formatISO(subDays(today, 3)), renterName: "Bob Martin", renterEmail:"bob@example.com", clientId: 'client2' },
-  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 10)), endDate: formatISO(addDays(today, 12)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 1)), renterName: "Carole Blanc", renterEmail:"carol@example.com", clientId: 'client3' },
+  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 10)), endDate: formatISO(addDays(today, 12)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 1)), renterName: "Carole Petit", renterEmail:"carol@example.com", clientId: 'client3' },
 ];
 
-export let MOCK_CLIENTS: ClientProfile[] = [
-    { id: 'client1', fullName: 'Alice Dupont', email: 'alice.d@example.com', phone: '0612345678', licenseNumber: 'AB123456', licenseIssueYear: 2018, agencyId: 'agency1', createdAt: formatISO(subDays(today, 30)) },
-    { id: 'client2', fullName: 'Bob Martin', email: 'bob.m@example.com', phone: '0787654321', licenseNumber: 'CD654321', licenseIssueYear: 2015, agencyId: 'agency1', createdAt: formatISO(subDays(today, 60)) },
-    { id: 'client3', fullName: 'Carole Petit', email: 'carole.p@example.com', phone: '0600112233', licenseNumber: 'EF789012', licenseIssueYear: 2020, agencyId: 'agency1', createdAt: formatISO(subDays(today, 15)) },
-];
 
 export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
   {

@@ -4,12 +4,23 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, UserIcon, MailIcon, PhoneIcon, FileTextIcon, CalendarDaysIcon, Edit3Icon, BanIcon } from 'lucide-react';
+import { ArrowLeft, UserIcon, MailIcon, PhoneIcon, FileTextIcon, CalendarDaysIcon, Edit3Icon, UserXIcon, UserCheckIcon, MapPinIcon } from 'lucide-react';
 import type { ClientProfile } from '@/types';
 import { MOCK_CLIENTS } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function RenterDetailsPage() {
   const params = useParams();
@@ -19,6 +30,7 @@ export default function RenterDetailsPage() {
 
   const [renter, setRenter] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isBlacklistDialogOpen, setIsBlacklistDialogOpen] = useState(false);
 
   useEffect(() => {
     const foundRenter = MOCK_CLIENTS.find(r => r.id === renterId);
@@ -27,6 +39,21 @@ export default function RenterDetailsPage() {
     }
     setLoading(false);
   }, [renterId]);
+
+  const handleToggleBlacklist = () => {
+    if (!renter) return;
+
+    const renterIndex = MOCK_CLIENTS.findIndex(r => r.id === renter.id);
+    if (renterIndex !== -1) {
+      MOCK_CLIENTS[renterIndex].isBlacklisted = !MOCK_CLIENTS[renterIndex].isBlacklisted;
+      setRenter({...MOCK_CLIENTS[renterIndex]}); // Update local state to re-render
+      toast({
+        title: `Statut du Locataire Mis à Jour`,
+        description: `${renter.fullName} a été ${MOCK_CLIENTS[renterIndex].isBlacklisted ? 'ajouté à' : 'retiré de'} la liste noire.`,
+      });
+    }
+    setIsBlacklistDialogOpen(false);
+  };
 
   const handlePlaceholderAction = (actionName: string) => {
     toast({
@@ -63,7 +90,11 @@ export default function RenterDetailsPage() {
           <UserIcon className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">{renter.fullName}</h1>
         </div>
-        <CardDescription>Détails du compte locataire.</CardDescription>
+        {renter.isBlacklisted ? (
+            <Badge variant={'destructive'} className="text-sm">Sur Liste Noire</Badge>
+        ) : (
+            <Badge variant={'default'} className="text-sm bg-green-600 hover:bg-green-700">Actif</Badge>
+        )}
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -117,15 +148,43 @@ export default function RenterDetailsPage() {
               <Button className="w-full" variant="outline" onClick={() => handlePlaceholderAction("Modifier les informations")}>
                 <Edit3Icon className="mr-2 h-4 w-4" /> Modifier les Infos
               </Button>
-              <Button className="w-full" variant="outline" onClick={() => handlePlaceholderAction("Suspendre le compte")}>
-                <BanIcon className="mr-2 h-4 w-4 text-orange-600" /> Suspendre le Compte
+              <Button 
+                className="w-full" 
+                variant={renter.isBlacklisted ? 'default' : 'destructive'} 
+                onClick={() => setIsBlacklistDialogOpen(true)}
+              >
+                {renter.isBlacklisted ? (
+                  <UserCheckIcon className="mr-2 h-4 w-4" />
+                ) : (
+                  <UserXIcon className="mr-2 h-4 w-4" />
+                )}
+                {renter.isBlacklisted ? "Retirer de la liste noire" : "Ajouter à la liste noire"}
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Blacklist Dialog */}
+      <AlertDialog open={isBlacklistDialogOpen} onOpenChange={setIsBlacklistDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer l'Action sur la Liste Noire</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir {renter?.isBlacklisted ? 'retirer' : 'ajouter'} "{renter?.fullName}" {renter?.isBlacklisted ? 'de la' : 'à la'} liste noire ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleToggleBlacklist} 
+              className={renter?.isBlacklisted ? '' : buttonVariants({variant: "destructive"})}
+            >
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
-
-    
