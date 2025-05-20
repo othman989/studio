@@ -6,20 +6,24 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ShieldCheckIcon, ListChecksIcon, BarChart3Icon, CheckCircle2Icon, BookMarkedIcon } from 'lucide-react';
+import { ArrowLeft, ShieldCheckIcon, ListChecksIcon, BarChart3Icon, CheckCircle2Icon, BookMarkedIcon, Hash } from 'lucide-react';
 import type { AdminAgency, AgencyPermission } from '@/types';
 import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 
 const defaultPermissions: AgencyPermission = {
   canListCars: false,
+  maxCarListings: 0,
   canAccessAnalytics: false,
   isVerified: false,
   canManageBookings: false,
 };
+
+const DEFAULT_MAX_CARS = 10;
 
 export default function AgencyPermissionsPage() {
   const params = useParams();
@@ -42,8 +46,27 @@ export default function AgencyPermissionsPage() {
   }, [agencyId]);
 
   const handlePermissionChange = (permissionKey: keyof AgencyPermission, value: boolean) => {
-    setPermissions(prev => ({ ...prev, [permissionKey]: value }));
+    setPermissions(prev => {
+      const newPermissions = { ...prev, [permissionKey]: value };
+      if (permissionKey === 'canListCars') {
+        if (value && (newPermissions.maxCarListings === undefined || newPermissions.maxCarListings === 0)) {
+          newPermissions.maxCarListings = DEFAULT_MAX_CARS; // Default to 10 if enabling and not set
+        } else if (!value) {
+          newPermissions.maxCarListings = 0; // Reset to 0 if disabling
+        }
+      }
+      return newPermissions;
+    });
   };
+
+  const handleMaxListingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPermissions(prev => ({
+      ...prev,
+      maxCarListings: value === '' ? undefined : parseInt(value, 10)
+    }));
+  };
+
 
   const handleSaveChanges = () => {
     if (!agency) return;
@@ -111,22 +134,42 @@ export default function AgencyPermissionsPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {permissionItems.map((item) => (
-            <div key={item.key} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
-              <div className="flex items-start gap-3 mb-2 sm:mb-0">
-                <item.icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-                <div>
-                    <Label htmlFor={`permission-${item.key}`} className="text-md font-semibold cursor-pointer">
-                    {item.label}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">{item.description}</p>
+            <div key={item.key} className="p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <div className="flex items-start gap-3 mb-2 sm:mb-0">
+                  <item.icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                  <div>
+                      <Label htmlFor={`permission-${item.key}`} className="text-md font-semibold cursor-pointer">
+                      {item.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
+                <Switch
+                  id={`permission-${item.key}`}
+                  checked={permissions[item.key as keyof Omit<AgencyPermission, 'maxCarListings'>]}
+                  onCheckedChange={(value) => handlePermissionChange(item.key as keyof Omit<AgencyPermission, 'maxCarListings'>, value)}
+                  aria-label={item.label}
+                />
               </div>
-              <Switch
-                id={`permission-${item.key}`}
-                checked={permissions[item.key as keyof AgencyPermission]}
-                onCheckedChange={(value) => handlePermissionChange(item.key as keyof AgencyPermission, value)}
-                aria-label={item.label}
-              />
+              {item.key === 'canListCars' && permissions.canListCars && (
+                <div className="mt-4 pl-9 space-y-2"> {/* Aligned with text, below switch */}
+                  <Label htmlFor="maxCarListings" className="flex items-center text-sm">
+                    <Hash className="mr-2 h-4 w-4 text-muted-foreground"/>
+                    Nombre Max. d'Annonces
+                  </Label>
+                  <Input
+                    id="maxCarListings"
+                    type="number"
+                    value={permissions.maxCarListings === undefined ? '' : permissions.maxCarListings}
+                    onChange={handleMaxListingsChange}
+                    placeholder={`Ex. ${DEFAULT_MAX_CARS}`}
+                    className="w-full sm:w-40 h-9"
+                    min="0"
+                  />
+                   <p className="text-xs text-muted-foreground">Laisser vide ou 0 pour illimité (si la case est cochée).</p>
+                </div>
+              )}
             </div>
           ))}
           <Separator className="my-6" />

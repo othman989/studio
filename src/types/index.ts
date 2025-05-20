@@ -98,6 +98,7 @@ export interface NavItem {
 // Types for Admin Dashboard
 export interface AgencyPermission {
   canListCars: boolean;
+  maxCarListings?: number; // Maximum number of cars the agency can list
   canAccessAnalytics: boolean;
   isVerified: boolean;
   canManageBookings: boolean;
@@ -117,3 +118,4 @@ export interface AdminAgency {
   description?: string;
   permissions?: AgencyPermission;
 }
+
