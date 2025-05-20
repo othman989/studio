@@ -5,7 +5,7 @@ import type { NextPage } from 'next';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button'; // Added buttonVariants
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -28,8 +28,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog"; // AlertDialogTrigger was not used, removed
 import type { AdminAgency } from '@/types';
 import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
 import { format, parseISO } from 'date-fns';
@@ -70,7 +69,7 @@ const AdminManageAgenciesPage: NextPage = () => {
          MOCK_ADMIN_AGENCIES[agencyIndex].permissions!.canManageBookings = false;
       }
     }
-    setAgencies([...MOCK_ADMIN_AGENCIES]);
+    setAgencies([...MOCK_ADMIN_AGENCIES]); // Trigger re-render
     toast({
       title: `Statut de l'agence ${agencyToModify.name} mis à jour`,
       description: `L'agence est maintenant ${newStatus.toLowerCase()}.`,
@@ -85,7 +84,7 @@ const AdminManageAgenciesPage: NextPage = () => {
     if (agencyIndex !== -1) {
       MOCK_ADMIN_AGENCIES.splice(agencyIndex, 1);
     }
-    setAgencies([...MOCK_ADMIN_AGENCIES]);
+    setAgencies([...MOCK_ADMIN_AGENCIES]); // Trigger re-render
     toast({
       title: "Agence Supprimée (Simulation)",
       description: `L'agence ${agencyToModify.name} a été supprimée de la liste.`,
@@ -153,7 +152,7 @@ const AdminManageAgenciesPage: NextPage = () => {
                         <Badge variant={
                           agency.status === 'Approuvée' ? 'default' :
                           agency.status === 'En attente' ? 'secondary' : 'destructive'
-                        } className={agency.status === 'Approuvée' ? 'bg-green-600 hover:bg-green-700' : ''}>
+                        } className={agency.status === 'Approuvée' ? 'bg-green-600 hover:bg-green-700 text-primary-foreground' : agency.status === 'Suspendue' ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : ''}>
                           {agency.status}
                         </Badge>
                       </TableCell>
@@ -180,7 +179,7 @@ const AdminManageAgenciesPage: NextPage = () => {
                               <ShieldAlert className="mr-2 h-4 w-4" /> Gérer Permissions
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openSuspendDialog(agency)}>
-                               {agency.status === 'Suspendue' ? <CheckCircle className="mr-2 h-4 w-4 text-green-600"/> : <Ban className="mr-2 h-4 w-4 text-destructive"/>}
+                               {agency.status === 'Suspendue' ? <CheckCircle className="mr-2 h-4 w-4 text-green-600"/> : <Ban className="mr-2 h-4 w-4 text-orange-600"/>}
                               {agency.status === 'Suspendue' ? "Réactiver" : "Suspendre"}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -214,7 +213,7 @@ const AdminManageAgenciesPage: NextPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setAgencyToModify(null)}>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleToggleSuspendAgency}>
+            <AlertDialogAction onClick={handleToggleSuspendAgency} className={agencyToModify?.status === 'Suspendue' ? '' : buttonVariants({variant: "destructive"})}>
               Confirmer {agencyToModify?.status === 'Suspendue' ? 'Réactivation' : 'Suspension'}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -243,5 +242,3 @@ const AdminManageAgenciesPage: NextPage = () => {
 };
 
 export default AdminManageAgenciesPage;
-
-    
