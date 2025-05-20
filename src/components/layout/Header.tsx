@@ -3,11 +3,20 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect, Fragment } from 'react';
-import { Menu, X, LogInIcon, UserPlusIcon, LogOutIcon } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Menu, X } from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button'; // Ensure buttonVariants is imported
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { LogoIcon } from '@/components/icons/LogoIcon';
-import { NAV_LINKS_MAIN, NAV_LINKS_AUTH, APP_NAME, NAV_LINK_ACCOUNT_DASHBOARD, NAV_LINK_ADMIN_DASHBOARD, NAV_ACTION_LOGOUT, NAV_LINKS_AGENCY_MENU, NAV_LINKS_ADMIN_MENU } from '@/lib/constants';
+import {
+  NAV_LINKS_MAIN,
+  NAV_LINKS_AUTH,
+  APP_NAME,
+  NAV_LINK_ACCOUNT_DASHBOARD,
+  NAV_LINK_ADMIN_DASHBOARD,
+  NAV_ACTION_LOGOUT,
+  NAV_LINKS_AGENCY_MENU,
+  NAV_LINKS_ADMIN_MENU
+} from '@/lib/constants';
 import type { NavItem } from '@/types';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
@@ -25,14 +34,13 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    if (mounted && typeof window !== 'undefined') {
+    if (mounted) {
       const loggedInStatus = window.localStorage.getItem('isLoggedIn');
       const adminStatus = window.localStorage.getItem('isAdminLoggedIn');
       setIsLoggedIn(loggedInStatus === 'true');
       setIsAdmin(adminStatus === 'true');
     }
-  }, [pathname, mounted]);
-
+  }, [mounted]); // Simplified: Check only once after mounted
 
   const NavLink = ({ href, label, className, onClick, icon: Icon }: NavItem & { className?: string; onClick?: () => void }) => {
     const linkClasses = cn(
@@ -41,16 +49,19 @@ export function Header() {
       className
     );
 
+    // If an icon is present, wrap icon and label in a span for flex layout
     if (Icon) {
       return (
         <Link href={href} onClick={onClick} className={linkClasses}>
-          <span className="flex items-center gap-x-2">
+          <span className={cn("flex items-center", Icon ? "gap-x-2" : "")}>
+            {/* lg:hidden for icon means it appears on smaller than lg, hidden on lg+ */}
             <Icon className="h-4 w-4 lg:hidden" />
             {label}
           </span>
         </Link>
       );
     }
+    // If no icon, just render the label
     return (
       <Link href={href} onClick={onClick} className={linkClasses}>
         {label}
@@ -67,32 +78,34 @@ export function Header() {
     setIsAdmin(false);
     setIsMobileMenuOpen(false);
     router.push('/');
-    // Potentially show a toast notification for logout
   };
 
   const renderDesktopNavLinks = () => {
     if (!mounted) {
       // Render placeholders or public links only
-      return NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).map((item) => (
-        <span key={item.label} className={cn(buttonVariants({ variant: "ghost" }), "opacity-50 cursor-not-allowed text-sm font-medium")}>
-          {item.label}
-        </span>
-      ));
+      return NAV_LINKS_MAIN
+        .filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs'))
+        .map((item) => (
+          <span key={item.label} className={cn(buttonVariants({ variant: "ghost" }), "opacity-50 cursor-not-allowed text-sm font-medium")}>
+            {item.label}
+          </span>
+        ));
     }
 
     const linksToRender: NavItem[] = [];
     if (isLoggedIn) {
       if (isAdmin) {
         linksToRender.push(NAV_LINK_ADMIN_DASHBOARD);
-        // Admins might see a different set of main links or none if all managed via dashboard
       } else {
         linksToRender.push(NAV_LINK_ACCOUNT_DASHBOARD);
         NAV_LINKS_MAIN.filter(link => link.isAgencyLink && link.requiresAuth).forEach(link => linksToRender.push(link));
       }
     } else {
-      // Logged out: Show public links (Features, Pricing)
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).forEach(link => linksToRender.push(link));
+      // Logged out: Show public links (Fonctionnalités, Tarifs)
+      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => linksToRender.push(link));
     }
+     NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && !(link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => linksToRender.push(link));
+
 
     return (
       <>
@@ -140,50 +153,51 @@ export function Header() {
   };
 
   const renderMobileNavLinks = () => {
-    if (!mounted) {
-      return NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).map((item) => (
-         <NavLink key={item.label} {...item} onClick={() => setIsMobileMenuOpen(false)} className="text-base py-2"/>
-      ));
-    }
-
     const links: NavItem[] = [];
-    if (isLoggedIn) {
-      if (isAdmin) {
-        NAV_LINKS_ADMIN_MENU.forEach(link => links.push(link));
-      } else {
-        NAV_LINKS_AGENCY_MENU.forEach(link => links.push(link));
-      }
+
+    if (!mounted) {
+      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => links.push(link));
     } else {
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).forEach(link => links.push(link));
+      if (isLoggedIn) {
+        if (isAdmin) {
+          NAV_LINKS_ADMIN_MENU.forEach(link => links.push(link));
+        } else {
+          NAV_LINKS_AGENCY_MENU.forEach(link => links.push(link));
+        }
+      } else {
+        NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => links.push(link));
+      }
+      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && !(link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => links.push(link));
     }
 
-    return (
-      <>
-        {links.map((item) => (
-           <NavLink
-            key={item.label}
-            href={item.href}
-            label={item.label}
-            icon={item.icon}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="text-base py-2"
-          />
-        ))}
-        {isLoggedIn && (
-          <NavLink
-            key={NAV_ACTION_LOGOUT.label}
-            href={NAV_ACTION_LOGOUT.href}
-            label={NAV_ACTION_LOGOUT.label}
-            icon={NAV_ACTION_LOGOUT.icon}
-            onClick={() => {
-              handleLogout();
-              setIsMobileMenuOpen(false);
-            }}
-            className="text-base py-2"
-          />
-        )}
-      </>
-    );
+
+    const renderedLinks = links.map((item) => (
+      <NavLink
+        key={item.label}
+        href={item.href}
+        label={item.label}
+        icon={item.icon}
+        onClick={() => setIsMobileMenuOpen(false)}
+        className="text-base py-2"
+      />
+    ));
+
+    if (mounted && isLoggedIn) {
+      renderedLinks.push(
+        <NavLink
+          key={NAV_ACTION_LOGOUT.label}
+          href={NAV_ACTION_LOGOUT.href}
+          label={NAV_ACTION_LOGOUT.label}
+          icon={NAV_ACTION_LOGOUT.icon}
+          onClick={() => {
+            handleLogout();
+            setIsMobileMenuOpen(false);
+          }}
+          className="text-base py-2"
+        />
+      );
+    }
+    return <>{renderedLinks}</>;
   };
 
   const renderMobileAuthSection = () => {
@@ -242,7 +256,7 @@ export function Header() {
                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} page d'accueil`}>
                   <LogoIcon />
                 </Link>
-                <SheetTitle className="sr-only">Menu principal</SheetTitle>
+                <SheetTitle className="sr-only">Menu principal</SheetTitle> {/* For accessibility */}
                 <SheetClose asChild>
                    <Button variant="ghost" size="icon" aria-label="Fermer le menu mobile">
                       <X className="h-6 w-6" />
@@ -254,7 +268,7 @@ export function Header() {
                 {renderMobileNavLinks()}
               </nav>
 
-              {(!isLoggedIn || !mounted) && (
+              {(!isLoggedIn && mounted) && ( // Show only if not logged in AND mounted
                 <>
                   <hr className="my-4"/>
                   <div className="flex flex-col space-y-3 mt-auto">

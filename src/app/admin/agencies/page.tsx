@@ -5,7 +5,7 @@ import type { NextPage } from 'next';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, buttonVariants } from '@/components/ui/button'; // Added buttonVariants
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -28,9 +28,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"; // AlertDialogTrigger was not used, removed
+} from "@/components/ui/alert-dialog";
 import type { AdminAgency } from '@/types';
-import { MOCK_ADMIN_AGENCIES } from '@/lib/constants';
+import { MOCK_ADMIN_AGENCIES, SAMPLE_CARS, MOCK_BOOKINGS } from '@/lib/constants';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -80,14 +80,37 @@ const AdminManageAgenciesPage: NextPage = () => {
 
   const handleDeleteAgency = () => {
     if (!agencyToModify) return;
-    const agencyIndex = MOCK_ADMIN_AGENCIES.findIndex(a => a.id === agencyToModify.id);
+    const agencyIdToDelete = agencyToModify.id;
+
+    // Remove agency
+    const agencyIndex = MOCK_ADMIN_AGENCIES.findIndex(a => a.id === agencyIdToDelete);
     if (agencyIndex !== -1) {
       MOCK_ADMIN_AGENCIES.splice(agencyIndex, 1);
     }
+
+    // Remove associated cars
+    const carsToRemove = SAMPLE_CARS.filter(car => car.agencyId === agencyIdToDelete);
+    carsToRemove.forEach(carToRemove => {
+      const carIndex = SAMPLE_CARS.findIndex(car => car.id === carToRemove.id);
+      if (carIndex !== -1) {
+        SAMPLE_CARS.splice(carIndex, 1);
+      }
+    });
+
+    // Remove associated bookings
+     const bookingsToRemove = MOCK_BOOKINGS.filter(booking => booking.agencyId === agencyIdToDelete);
+     bookingsToRemove.forEach(bookingToRemove => {
+        const bookingIndex = MOCK_BOOKINGS.findIndex(booking => booking.id === bookingToRemove.id);
+        if (bookingIndex !== -1) {
+            MOCK_BOOKINGS.splice(bookingIndex, 1);
+        }
+     });
+
+
     setAgencies([...MOCK_ADMIN_AGENCIES]); // Trigger re-render
     toast({
       title: "Agence Supprimée (Simulation)",
-      description: `L'agence ${agencyToModify.name} a été supprimée de la liste.`,
+      description: `L'agence ${agencyToModify.name} et toutes ses données associées (voitures, réservations) ont été supprimées de la liste.`,
       variant: "destructive"
     });
     setIsDeleteDialogOpen(false);
@@ -226,7 +249,7 @@ const AdminManageAgenciesPage: NextPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmer Suppression</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer définitivement l'agence "{agencyToModify?.name}" ? Cette action est irréversible.
+              Êtes-vous sûr de vouloir supprimer définitivement l'agence "{agencyToModify?.name}" ? Cette action est irréversible et supprimera toutes les données associées (voitures, réservations).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
