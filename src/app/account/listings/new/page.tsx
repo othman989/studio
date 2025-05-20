@@ -60,14 +60,11 @@ export default function NewListingPage() {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const newCarData: Partial<Car> = {
-      make, model, year: Number(year), pricePerDay: Number(pricePerDay), location, type: carType as Car['type'],
-      description, features, fuelType: fuelType as Car['fuelType'], transmission: transmission as Car['transmission'], seats: Number(seats),
-    };
-
-    console.log('Nouvelle Annonce de Voiture Soumise :', newCarData);
-    if(imageFiles) console.log('Images à télécharger :', imageFiles.length);
-
+    // const newCarData: Partial<Car> = {
+    //   make, model, year: Number(year), pricePerDay: Number(pricePerDay), location, type: carType as Car['type'],
+    //   description, features, fuelType: fuelType as Car['fuelType'], transmission: transmission as Car['transmission'], seats: Number(seats),
+    // };
+    // if(imageFiles) // Simulate image upload logic
 
     setSubmitting(false);
     toast({
@@ -206,3 +203,5 @@ export default function NewListingPage() {
     </div>
   );
 }
+
+    

@@ -151,7 +151,6 @@ export default function NewReservationPage() {
         createdAt: new Date().toISOString(),
         isBlacklisted: false, // Nouveaux clients ne sont pas sur liste noire par défaut
       };
-      console.log("Création d'un nouveau client simulée :", newClient);
       setExistingClients(prev => [...prev, newClient]); 
       finalClientId = newClient.id;
       clientNameForToast = newClient.fullName;
@@ -195,7 +194,6 @@ export default function NewReservationPage() {
         renterEmail: finalClientEmail,
     };
 
-    console.log('Nouvelle Réservation (Agence) Soumise :', newBookingData);
     MOCK_BOOKINGS.push(newBookingData); 
 
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -448,5 +446,7 @@ export default function NewReservationPage() {
   );
 }
 
+
+    
 
     

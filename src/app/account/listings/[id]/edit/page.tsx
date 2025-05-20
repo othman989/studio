@@ -138,9 +138,6 @@ export default function EditListingPage() {
     // Mutate the SAMPLE_CARS array (for client-side mock persistence)
     SAMPLE_CARS[carIndex] = updatedCarData;
 
-    console.log('Annonce de Voiture Mise à Jour (mock) :', updatedCarData);
-    if(imageFiles) console.log('Nouvelles images à traiter (simulation) :', imageFiles.length);
-
     setSubmitting(false);
     toast({
       title: "Voiture mise à jour avec succès !",
@@ -291,3 +288,5 @@ export default function EditListingPage() {
     </div>
   );
 }
+
+    

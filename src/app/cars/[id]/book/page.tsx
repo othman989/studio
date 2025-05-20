@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { SAMPLE_CARS as ALL_CARS } from '@/lib/constants';
+import { SAMPLE_CARS as ALL_CARS, MOCK_BOOKINGS } from '@/lib/constants'; // Added MOCK_BOOKINGS
 import type { Car, Booking } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react'; // Removed DollarSign
+import { Calendar as CalendarIcon, User, Mail, Phone, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale'; 
@@ -84,19 +84,22 @@ export default function BookingPage() {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const bookingData: Partial<Booking> = {
-      userId: 'current_user_id', 
+    const newBooking: Booking = { // Changed to full Booking type
+      id: `booking-${Date.now()}`, // Ensure an ID is generated
+      userId: 'current_user_id_placeholder', // Placeholder
       carId: car.id,
-      agencyId: car.agencyId || 'default_agency_id',
+      agencyId: car.agencyId || 'default_agency_id_placeholder',
       startDate: dateRange.from.toISOString(),
       endDate: dateRange.to.toISOString(),
       totalPrice,
       status: 'pending', 
-      renterName: fullName, // Assuming this page is for renters
+      renterName: fullName, 
       renterEmail: email,
+      createdAt: new Date().toISOString(),
+      // clientId could be added if integrating with ClientProfile system more deeply here
     };
     
-    console.log('Réservation Soumise :', bookingData);
+    MOCK_BOOKINGS.push(newBooking); // Add to the shared mock bookings
 
     setSubmitting(false);
     toast({
@@ -275,3 +278,5 @@ export default function BookingPage() {
     </div>
   );
 }
+
+    

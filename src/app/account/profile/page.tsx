@@ -44,7 +44,7 @@ export default function ProfilePage() {
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmittingProfile(true);
-    console.log('Mise à jour du profil :', { fullName, email, phone, profileBio, agencyName, agencyAddress });
+    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     toast({ title: "Profil Mis à Jour", description: "Vos informations de profil ont été enregistrées." });
     setSubmittingProfile(false);
@@ -62,7 +62,7 @@ export default function ProfilePage() {
       return;
     }
     setSubmittingPassword(true);
-    console.log('Changement de mot de passe avec actuel :', currentPassword, 'vers nouveau :', newPassword);
+    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     toast({ title: "Mot de Passe Changé", description: "Votre mot de passe a été mis à jour avec succès." });
     setCurrentPassword('');
@@ -181,3 +181,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
