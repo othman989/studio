@@ -61,7 +61,7 @@ export default function RenterDetailsPage() {
       MOCK_CLIENTS[renterIndex].isBlacklisted = newBlacklistStatus;
       MOCK_CLIENTS[renterIndex].blacklistReason = newBlacklistStatus ? blacklistReasonInput : undefined;
       
-      setRenter({...MOCK_CLIENTS[renterIndex]});
+      setRenter({...MOCK_CLIENTS[renterIndex]}); // Update local state to re-render
       toast({
         title: `Statut du Locataire Mis à Jour`,
         description: `${renter.fullName} a été ${newBlacklistStatus ? 'ajouté à' : 'retiré de'} la liste noire.`,
@@ -78,10 +78,10 @@ export default function RenterDetailsPage() {
   };
 
 
-  const handlePlaceholderAction = (actionName: string) => {
+  const handleContactRenter = () => {
     toast({
       title: "Fonctionnalité à venir",
-      description: `${actionName} pour le locataire ${renter?.fullName} sera bientôt disponible.`,
+      description: `Contacter le locataire ${renter?.fullName} par message sera bientôt disponible.`,
     });
   };
 
@@ -116,7 +116,7 @@ export default function RenterDetailsPage() {
         {renter.isBlacklisted ? (
             <Badge variant={'destructive'} className="text-sm">Sur Liste Noire</Badge>
         ) : (
-            <Badge variant={'default'} className="text-sm bg-green-600 hover:bg-green-700">Actif</Badge>
+            <Badge variant={'default'} className="text-sm bg-green-600 hover:bg-green-700 text-primary-foreground">Actif</Badge>
         )}
       </header>
 
@@ -161,7 +161,7 @@ export default function RenterDetailsPage() {
               {renter.isBlacklisted && renter.blacklistReason && (
                  <div className="pt-2">
                     <p className="font-semibold text-destructive">Motif de la liste noire :</p>
-                    <p className="text-sm text-destructive bg-destructive/10 p-2 rounded-md">{renter.blacklistReason}</p>
+                    <p className="text-sm text-destructive p-2 border border-destructive/30 rounded-md bg-destructive/10">{renter.blacklistReason}</p>
                  </div>
               )}
             </CardContent>
@@ -183,7 +183,7 @@ export default function RenterDetailsPage() {
               <CardTitle className="text-lg">Actions Administrateur</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button className="w-full" variant="outline" onClick={() => handlePlaceholderAction("Modifier les informations")}>
+              <Button className="w-full" variant="outline" onClick={() => router.push(`/admin/renters/${renter.id}/edit`)}>
                 <Edit3Icon className="mr-2 h-4 w-4" /> Modifier les Infos
               </Button>
               <Button 
@@ -198,7 +198,7 @@ export default function RenterDetailsPage() {
                 )}
                 {renter.isBlacklisted ? "Retirer de la liste noire" : "Ajouter à la liste noire"}
               </Button>
-               <Button className="w-full" variant="outline" onClick={() => handlePlaceholderAction("Envoyer un message")}>
+               <Button className="w-full" variant="outline" onClick={handleContactRenter}>
                 <MessageSquareIcon className="mr-2 h-4 w-4" /> Envoyer un Message
               </Button>
             </CardContent>
@@ -253,4 +253,3 @@ export default function RenterDetailsPage() {
     </div>
   );
 }
-

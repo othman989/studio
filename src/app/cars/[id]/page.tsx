@@ -1,52 +1,81 @@
 
+"use client"; // Convert to Client Component to fetch reviews dynamically
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { SAMPLE_CARS, CAR_TYPES as ALL_CAR_TYPES_CONST, SAMPLE_CARS as ALL_CARS } from '@/lib/constants';
+import { useParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { SAMPLE_CARS as ALL_CARS, CAR_TYPES as ALL_CAR_TYPES_CONST, MOCK_REVIEWS } from '@/lib/constants';
 import type { Car, Review } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Star, DollarSign, CalendarDays, Fuel, Settings, Users, MessageSquare, CheckCircle, ShieldCheck } from 'lucide-react';
+import { MapPin, Star, DollarSign, CalendarDays, Fuel, Settings, Users, MessageSquare, CheckCircle, ShieldCheck, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CarCard } from '@/components/CarCard';
 import { fr } from 'date-fns/locale';
+import { format } from 'date-fns';
 
-const MOCK_REVIEWS: Review[] = [
-  { id: 'r1', userId: 'u1', userName: 'Alice Merveille', avatarUrl: 'https://picsum.photos/seed/alice/40/40', targetType: 'car', targetId: '1', rating: 5, comment: 'Voiture incroyable, conduite super douce et très propre. L\'agence était également très serviable. Je louerais à nouveau !', createdAt: '2023-10-15T10:00:00Z' },
-  { id: 'r2', userId: 'u2', userName: 'Bob Le Bricoleur', avatarUrl: 'https://picsum.photos/seed/bob/40/40', targetType: 'car', targetId: '1', rating: 4, comment: 'Excellente voiture, bon rapport qualité-prix. Un peu d\'attente à la prise en charge, mais globalement une expérience positive.', createdAt: '2023-10-18T14:30:00Z' },
-  { id: 'r3', userId: 'u3', userName: 'Charles Chaplin', targetType: 'car', targetId: '2', rating: 5, comment: 'J\'ai adoré ce VE ! Si silencieux et amusant à conduire. Parfait pour explorer la ville.', createdAt: '2023-11-01T09:00:00Z' },
-];
 
 async function getCarDetails(id: string): Promise<Car | undefined> {
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
   return ALL_CARS.find(car => car.id === id);
 }
 
 async function getCarReviews(carId: string): Promise<Review[]> {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  return MOCK_REVIEWS.filter(review => review.targetId === carId && review.targetType === 'car');
+  await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
+  return MOCK_REVIEWS.filter(review => review.targetId === carId && review.targetType === 'car').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 async function getRelatedCars(currentCar: Car): Promise<Car[]> {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  return ALL_CARS.filter(car => car.id !== currentCar.id && car.type === currentCar.type).slice(0, 3);
+  await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
+  return ALL_CARS.filter(car => car.id !== currentCar.id && car.type === currentCar.type && car.isVisible).slice(0, 3);
 }
 
+export default function CarDetailsPage() {
+  const params = useParams();
+  const carId = params.id as string;
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const car = await getCarDetails(params.id);
-  if (!car) {
-    return { title: 'Voiture Non Trouvée' };
+  const [car, setCar] = useState<Car | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [relatedCars, setRelatedCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (carId) {
+        setLoading(true);
+        const carData = await getCarDetails(carId);
+        if (carData) {
+          setCar(carData);
+          const carReviewsData = await getCarReviews(carId);
+          setReviews(carReviewsData);
+
+          const avgRating = carReviewsData.length > 0 
+            ? carReviewsData.reduce((sum, review) => sum + review.rating, 0) / carReviewsData.length 
+            : carData.averageRating || 0;
+          setAverageRating(avgRating);
+
+          const relatedCarsData = await getRelatedCars(carData);
+          setRelatedCars(relatedCarsData);
+        }
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [carId]);
+  
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <Loader2 className="mx-auto h-12 w-12 text-primary animate-spin mb-4" />
+        <p className="text-lg text-muted-foreground">Chargement des détails de la voiture...</p>
+      </div>
+    );
   }
-  return {
-    title: `${car.make} ${car.model} (${car.year})`,
-    description: `Détails, avis et informations de réservation pour ${car.make} ${car.model}. Située à ${car.location}. Prix par jour : ${car.pricePerDay}€.`,
-  };
-}
-
-export default async function CarDetailsPage({ params }: { params: { id: string } }) {
-  const car = await getCarDetails(params.id);
 
   if (!car) {
     return (
@@ -59,14 +88,8 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
       </div>
     );
   }
-
-  const reviews = await getCarReviews(car.id);
-  const relatedCars = await getRelatedCars(car);
-  const averageRating = reviews.length > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : car.averageRating || 0;
   
   const carTypeLabel = ALL_CAR_TYPES_CONST.find(ct => ct.value === car.type)?.label || car.type;
-
-
   const carFeatures = car.features || [];
   const keySpecs = [
     { icon: Fuel, label: 'Type de Carburant', value: car.fuelType === 'Gasoline' ? 'Essence' : car.fuelType === 'Diesel' ? 'Diesel' : car.fuelType === 'Electric' ? 'Électrique' : car.fuelType === 'Hybrid' ? 'Hybride' : 'N/A' },
@@ -194,7 +217,7 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
                 <CardContent className="p-2 sm:p-4">
                   <div className="flex items-start gap-4">
                     <Avatar>
-                      <AvatarImage src={review.avatarUrl || undefined} alt={review.userName} data-ai-hint="person avatar"/>
+                      <AvatarImage src={review.avatarUrl || `https://placehold.co/40x40.png?text=${review.userName.substring(0,1)}`} alt={review.userName} data-ai-hint="person avatar"/>
                       <AvatarFallback>{review.userName.substring(0,1)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
@@ -210,7 +233,7 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">
-                        {new Date(review.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        {format(new Date(review.createdAt), 'dd MMMM yyyy', { locale: fr })}
                       </p>
                       <p className="text-sm text-muted-foreground">{review.comment}</p>
                     </div>
@@ -224,7 +247,7 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
         )}
         <div className="mt-6 text-center">
             <Button variant="outline" asChild>
-              <Link href={`/cars/${params.id}/reviews/new`}>Laisser un Avis</Link>
+              <Link href={`/cars/${carId}/reviews/new`}>Laisser un Avis</Link>
             </Button>
         </div>
       </div>
@@ -244,10 +267,4 @@ export default async function CarDetailsPage({ params }: { params: { id: string 
       )}
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  return ALL_CARS.map(car => ({
-    id: car.id,
-  }));
 }

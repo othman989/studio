@@ -36,7 +36,7 @@ export interface Agency {
 
 export interface Review {
   id:string;
-  userId: string;
+  userId: string; // Could be a generic ID or linked to ClientProfile
   userName: string;
   avatarUrl?: string;
   targetType: 'car' | 'agency';
@@ -70,7 +70,7 @@ export interface ClientProfile {
     licenseIssueYear?: number; // Or expiry date, TBD
     address?: string;
     notes?: string;
-    agencyId: string; // Link to the agency that created/manages this client
+    agencyId?: string; // Link to the agency that created/manages this client, if applicable. Not all clients are agency-specific.
     createdAt: string;
     isBlacklisted?: boolean;
     blacklistReason?: string;
@@ -120,4 +120,3 @@ export interface AdminAgency {
   description?: string;
   permissions?: AgencyPermission;
 }
-

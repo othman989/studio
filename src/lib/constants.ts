@@ -1,11 +1,11 @@
 
-import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency } from '@/types';
+import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency, Review } from '@/types';
 import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon } from 'lucide-react';
 import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
 
-export const NAV_LINK_DASHBOARD: NavItem = { // Renamed for clarity, used by Header
+export const NAV_LINK_DASHBOARD: NavItem = { 
   href: '/account/dashboard',
   label: 'Tableau de Bord',
   icon: LayoutDashboardIcon,
@@ -45,7 +45,7 @@ export const NAV_LINKS_AUTH: NavItem[] = [
   { href: '/register', label: 'S\'inscrire', icon: UserPlusIcon },
 ];
 
-export const NAV_LINKS_AGENCY_MENU: NavItem[] = [ // For mobile menu of agency
+export const NAV_LINKS_AGENCY_MENU: NavItem[] = [ 
     NAV_LINK_ACCOUNT_DASHBOARD,
     { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus },
     { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon },
@@ -56,7 +56,7 @@ export const NAV_LINKS_AGENCY_MENU: NavItem[] = [ // For mobile menu of agency
     { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
 ];
 
-export const NAV_LINKS_ADMIN_MENU: NavItem[] = [ // For mobile menu of admin
+export const NAV_LINKS_ADMIN_MENU: NavItem[] = [ 
     NAV_LINK_ADMIN_DASHBOARD,
     { href: '/admin/agencies', label: 'Gérer les Agences', icon: Building },
     { href: '/admin/renters', label: 'Gérer les Locataires', icon: UsersIcon },
@@ -183,7 +183,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
-    agencyId: 'agency1', // Corrected agencyId
+    agencyId: 'agency1', 
     agencyName: 'Aquitaine Loc Auto',
     description: 'Le Peugeot 2008 est un SUV compact et agile, parfait pour la ville et les escapades.',
     isVisible: true,
@@ -203,7 +203,7 @@ export let SAMPLE_CARS: Car[] = [
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Manual',
-    agencyId: 'agency2', // Corrected agencyId
+    agencyId: 'agency2', 
     agencyName: 'Nantes Auto Partage',
     description: 'La Renault Clio est une citadine polyvalente, économique et agréable à conduire.',
     isVisible: true,
@@ -226,6 +226,12 @@ export let MOCK_BOOKINGS: Booking[] = [
   { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 10)), endDate: formatISO(addDays(today, 12)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 1)), renterName: "Carole Petit", renterEmail:"carol@example.com", clientId: 'client3' },
 ];
 
+export let MOCK_REVIEWS: Review[] = [
+  { id: 'r1', userId: 'client1', userName: 'Alice Dupont', avatarUrl: 'https://picsum.photos/seed/alice/40/40', targetType: 'car', targetId: '1', rating: 5, comment: 'Voiture incroyable, conduite super douce et très propre. L\'agence était également très serviable. Je louerais à nouveau !', createdAt: formatISO(subDays(today, 10)) },
+  { id: 'r2', userId: 'client2', userName: 'Bob Martin', avatarUrl: 'https://picsum.photos/seed/bob/40/40', targetType: 'car', targetId: '1', rating: 4, comment: 'Excellente voiture, bon rapport qualité-prix. Un peu d\'attente à la prise en charge, mais globalement une expérience positive.', createdAt: formatISO(subDays(today, 8)) },
+  { id: 'r3', userId: 'u3_generic', userName: 'Charles Chaplin', targetType: 'car', targetId: '2', rating: 5, comment: 'J\'ai adoré ce VE ! Si silencieux et amusant à conduire. Parfait pour explorer la ville.', createdAt: formatISO(subDays(today, 5)) },
+];
+
 
 export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
   {
@@ -233,7 +239,7 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     name: 'Location Verte Paris',
     contactEmail: 'contact@verteparis.fr',
     status: 'Approuvée',
-    listingsCount: 3,
+    listingsCount: SAMPLE_CARS.filter(c => c.agencyId === 'agency1').length,
     createdAt: formatISO(subDays(today, 100)),
     ownerName: 'Jean Écologiste',
     ownerEmail: 'jean.eco@verteparis.fr',
@@ -247,7 +253,7 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     name: 'EV Loc Lyon',
     contactEmail: 'info@evlyon.com',
     status: 'Approuvée',
-    listingsCount: 5,
+    listingsCount: SAMPLE_CARS.filter(c => c.agencyId === 'agency2').length,
     createdAt: formatISO(subDays(today, 80)),
     ownerName: 'Sophie Ampère',
     ownerEmail: 'sophie.ampere@evlyon.com',
@@ -273,7 +279,7 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     name: 'Roues Agiles Bordeaux',
     contactEmail: 'bordeaux@rouesagiles.fr',
     status: 'Suspendue',
-    listingsCount: 2,
+    listingsCount: 0, // Assuming suspended agency has 0 active listings shown
     createdAt: formatISO(subDays(today, 200)),
     ownerName: 'Alain Vitesse',
     ownerEmail: 'alain.vitesse@rouesagiles.fr',

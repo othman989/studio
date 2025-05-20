@@ -6,14 +6,25 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, BookMarkedIcon, CarIcon, UserIcon, CalendarRangeIcon, DollarSignIcon, BuildingIcon, TagIcon, CheckCircle2Icon, XCircleIcon } from 'lucide-react';
-import type { Booking, Car } from '@/types';
+import { ArrowLeft, BookMarkedIcon, CarIcon, UserIcon, CalendarRangeIcon, DollarSignIcon, BuildingIcon, TagIcon, CheckCircle2Icon, XCircleIcon, MailIcon } from 'lucide-react';
+import type { Booking, Car, ClientProfile } from '@/types'; // Added ClientProfile
 import { MOCK_BOOKINGS, SAMPLE_CARS, MOCK_CLIENTS } from '@/lib/constants';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 
 export default function BookingDetailsPage() {
   const params = useParams();
@@ -23,8 +34,10 @@ export default function BookingDetailsPage() {
 
   const [booking, setBooking] = useState<Booking | null>(null);
   const [car, setCar] = useState<Car | null>(null);
-  const [renter, setRenter] = useState<any | null>(null); // Can be ClientProfile or generic user
+  const [renter, setRenter] = useState<ClientProfile | { fullName: string; email: string; } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   useEffect(() => {
     const foundBooking = MOCK_BOOKINGS.find(b => b.id === bookingId);
@@ -32,28 +45,47 @@ export default function BookingDetailsPage() {
       setBooking(foundBooking);
       const foundCar = SAMPLE_CARS.find(c => c.id === foundBooking.carId);
       setCar(foundCar || null);
-      // Try to find renter in MOCK_CLIENTS if clientId is present, otherwise use renterName/Email
-      const foundClient = MOCK_CLIENTS.find(client => client.id === foundBooking.clientId || client.id === foundBooking.userId);
+      
+      const foundClient = MOCK_CLIENTS.find(client => client.id === (foundBooking.clientId || foundBooking.userId));
       if (foundClient) {
         setRenter(foundClient);
-      } else if (foundBooking.renterName) {
-        setRenter({ fullName: foundBooking.renterName, email: foundBooking.renterEmail || 'N/A' });
+      } else if (foundBooking.renterName && foundBooking.renterEmail) {
+        setRenter({ fullName: foundBooking.renterName, email: foundBooking.renterEmail });
       }
     }
     setLoading(false);
   }, [bookingId]);
 
-  const handleCancelBookingAdmin = () => {
-     if (!booking) return;
+  const updateBookingStatus = (newStatus: Booking['status']) => {
+    if (!booking) return;
     const bookingIndex = MOCK_BOOKINGS.findIndex(b => b.id === booking.id);
     if (bookingIndex !== -1) {
-      MOCK_BOOKINGS[bookingIndex].status = 'cancelled';
-      setBooking({...MOCK_BOOKINGS[bookingIndex]}); // Update local state
+      MOCK_BOOKINGS[bookingIndex].status = newStatus;
+      setBooking({...MOCK_BOOKINGS[bookingIndex]}); 
+      toast({
+        title: `Réservation ${newStatus === 'cancelled' ? 'Annulée' : 'Confirmée'}`,
+        description: `La réservation ${booking.id} a été ${newStatus === 'cancelled' ? 'annulée' : 'confirmée'}.`,
+        variant: newStatus === 'cancelled' ? "destructive" : "default",
+      });
     }
+  };
+
+  const handleOpenCancelDialog = () => setIsCancelDialogOpen(true);
+  const handleConfirmCancelBooking = () => {
+    updateBookingStatus('cancelled');
+    setIsCancelDialogOpen(false);
+  };
+  
+  const handleOpenConfirmDialog = () => setIsConfirmDialogOpen(true);
+  const handleConfirmBooking = () => {
+    updateBookingStatus('confirmed');
+    setIsConfirmDialogOpen(false);
+  };
+
+  const handleContactAction = (target: 'Locataire' | 'Agence') => {
     toast({
-      title: "Réservation Annulée",
-      description: `La réservation ${booking.id} a été annulée par l'administrateur.`,
-      variant: "destructive",
+      title: "Fonctionnalité à venir",
+      description: `Contacter ${target === 'Locataire' ? (renter as ClientProfile)?.fullName || 'le locataire' : car?.agencyName || "l'agence"} sera bientôt disponible.`,
     });
   };
 
@@ -119,7 +151,7 @@ export default function BookingDetailsPage() {
             <CardContent className="space-y-2">
               <p><span className="font-semibold">Début :</span> {format(parseISO(booking.startDate), 'PPPP p', { locale: fr })}</p>
               <p><span className="font-semibold">Fin :</span> {format(parseISO(booking.endDate), 'PPPP p', { locale: fr })}</p>
-              <p><span className="font-semibold">Durée :</span> {Math.max(1, Math.ceil((parseISO(booking.endDate).getTime() - parseISO(booking.startDate).getTime()) / (1000 * 60 * 60 * 24)))} jours</p>
+              <p><span className="font-semibold">Durée :</span> {Math.max(1, differenceInDays(parseISO(booking.endDate), parseISO(booking.startDate)) +1 )} jours</p>
               <Separator className="my-3"/>
               <p className="text-lg"><span className="font-semibold">Prix Total :</span> <span className="text-accent font-bold">{booking.totalPrice.toFixed(2)}€</span></p>
               <p className="text-xs text-muted-foreground">Réservé le : {format(parseISO(booking.createdAt), 'PPP p', { locale: fr })}</p>
@@ -149,10 +181,10 @@ export default function BookingDetailsPage() {
                 <CardContent className="space-y-2">
                 <p><span className="font-semibold">Nom :</span> {renter.fullName}</p>
                 <p><span className="font-semibold">Email :</span> {renter.email}</p>
-                {renter.phone && <p><span className="font-semibold">Téléphone :</span> {renter.phone}</p>}
-                {renter.licenseNumber && <p><span className="font-semibold">N° Permis :</span> {renter.licenseNumber}</p>}
+                {(renter as ClientProfile).phone && <p><span className="font-semibold">Téléphone :</span> {(renter as ClientProfile).phone}</p>}
+                {(renter as ClientProfile).licenseNumber && <p><span className="font-semibold">N° Permis :</span> {(renter as ClientProfile).licenseNumber}</p>}
                  <Button variant="outline" size="sm" asChild className="mt-2">
-                    <Link href={`/admin/renters/${renter.id || booking.userId}`}>Voir Profil Locataire</Link>
+                    <Link href={`/admin/renters/${(renter as ClientProfile).id || booking.userId}`}>Voir Profil Locataire</Link>
                  </Button>
                 </CardContent>
             </Card>
@@ -166,27 +198,61 @@ export default function BookingDetailsPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               {(booking.status === 'pending' || booking.status === 'confirmed') && (
-                <Button className="w-full" variant="destructive" onClick={handleCancelBookingAdmin}>
+                <Button className="w-full" variant="destructive" onClick={handleOpenCancelDialog}>
                   <XCircleIcon className="mr-2 h-4 w-4" /> Annuler la Réservation
                 </Button>
               )}
               {booking.status === 'pending' && (
-                 <Button className="w-full" variant="default" onClick={() => toast({title: "Fonctionnalité à venir"})}>
+                 <Button className="w-full" variant="default" onClick={handleOpenConfirmDialog}>
                   <CheckCircle2Icon className="mr-2 h-4 w-4" /> Confirmer la Réservation
                 </Button>
               )}
-              <Button className="w-full" variant="outline" onClick={() => toast({title: "Fonctionnalité à venir"})}>
+              <Button className="w-full" variant="outline" onClick={() => handleContactAction('Locataire')}>
                 <MailIcon className="mr-2 h-4 w-4" /> Contacter le Locataire
               </Button>
-               <Button className="w-full" variant="outline" onClick={() => toast({title: "Fonctionnalité à venir"})}>
+               <Button className="w-full" variant="outline" onClick={() => handleContactAction('Agence')}>
                 <BuildingIcon className="mr-2 h-4 w-4" /> Contacter l'Agence
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Cancel Booking Dialog */}
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer l'Annulation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir annuler cette réservation ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Non</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancelBooking} className={buttonVariants({variant: "destructive"})}>
+              Oui, Annuler
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirm Booking Dialog */}
+      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la Réservation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir confirmer cette réservation ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Non</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmBooking}>
+              Oui, Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
-
-    

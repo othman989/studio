@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Star, Zap, DollarSign, MessageSquare } from 'lucide-react'; // Added DollarSign & MessageSquare
+import { CheckCircle, Star, Zap, DollarSign, MessageSquare, ShieldCheckIcon } from 'lucide-react'; 
 import { APP_NAME } from '@/lib/constants';
 
 export default function FeaturesPage() {
@@ -21,17 +21,17 @@ export default function FeaturesPage() {
       description: 'Prenez des décisions éclairées grâce aux avis authentiques d\'autres utilisateurs.',
     },
     {
-      icon: <DollarSign className="h-8 w-8 text-primary" />, // Changed icon
+      icon: <DollarSign className="h-8 w-8 text-primary" />, 
       title: 'Réservation Instantanée (Bientôt)',
       description: 'Réservez votre voiture préférée instantanément sans attendre la confirmation de l\'agence.',
     },
     {
-      icon: <ShieldCheckIcon className="h-8 w-8 text-accent" />, // Changed icon
+      icon: <ShieldCheckIcon className="h-8 w-8 text-accent" />, 
       title: 'Paiements Sécurisés',
       description: 'Vos informations de paiement sont traitées en toute sécurité par nos partenaires de confiance.',
     },
     {
-      icon: <MessageSquare className="h-8 w-8 text-yellow-400" />, // Changed icon
+      icon: <MessageSquare className="h-8 w-8 text-yellow-400" />, 
       title: 'Support 24/7',
       description: 'Notre équipe de support dédiée est là pour vous aider à toute heure.',
     },
@@ -62,26 +62,5 @@ export default function FeaturesPage() {
         ))}
       </div>
     </div>
-  );
-}
-
-// Helper icon for placeholder
-function ShieldCheckIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }
