@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import React, { useState, useEffect, Fragment } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button'; // Ensure buttonVariants is imported
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { LogoIcon } from '@/components/icons/LogoIcon';
 import {
@@ -40,7 +40,7 @@ export function Header() {
       setIsLoggedIn(loggedInStatus === 'true');
       setIsAdmin(adminStatus === 'true');
     }
-  }, [mounted]); // Simplified: Check only once after mounted
+  }, [mounted, pathname]); // Re-check on mount and pathname change
 
   const NavLink = ({ href, label, className, onClick, icon: Icon }: NavItem & { className?: string; onClick?: () => void }) => {
     const linkClasses = cn(
@@ -49,25 +49,23 @@ export function Header() {
       className
     );
 
-    // If an icon is present, wrap icon and label in a span for flex layout
     if (Icon) {
       return (
         <Link href={href} onClick={onClick} className={linkClasses}>
           <span className={cn("flex items-center", Icon ? "gap-x-2" : "")}>
-            {/* lg:hidden for icon means it appears on smaller than lg, hidden on lg+ */}
             <Icon className="h-4 w-4 lg:hidden" />
             {label}
           </span>
         </Link>
       );
     }
-    // If no icon, just render the label
     return (
       <Link href={href} onClick={onClick} className={linkClasses}>
         {label}
       </Link>
     );
   };
+
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -76,15 +74,15 @@ export function Header() {
     }
     setIsLoggedIn(false);
     setIsAdmin(false);
-    setIsMobileMenuOpen(false);
+    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
     router.push('/');
   };
 
   const renderDesktopNavLinks = () => {
     if (!mounted) {
-      // Render placeholders or public links only
+      // Render placeholders or public links only for SSR consistency
       return NAV_LINKS_MAIN
-        .filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs'))
+        .filter(link => !link.requiresAuth && !link.hideWhenLoggedIn)
         .map((item) => (
           <span key={item.label} className={cn(buttonVariants({ variant: "ghost" }), "opacity-50 cursor-not-allowed text-sm font-medium")}>
             {item.label}
@@ -93,27 +91,34 @@ export function Header() {
     }
 
     const linksToRender: NavItem[] = [];
+
     if (isLoggedIn) {
       if (isAdmin) {
         linksToRender.push(NAV_LINK_ADMIN_DASHBOARD);
-      } else {
+        // Add other admin-specific main links from NAV_LINKS_ADMIN_MENU if they're meant for desktop nav
+        // For now, NAV_LINKS_ADMIN_MENU is more for the mobile sheet structure.
+      } else { // Agency
         linksToRender.push(NAV_LINK_ACCOUNT_DASHBOARD);
-        NAV_LINKS_MAIN.filter(link => link.isAgencyLink && link.requiresAuth).forEach(link => linksToRender.push(link));
+        // Add agency-specific main links that are not the dashboard itself
+        NAV_LINKS_MAIN
+          .filter(link => link.isAgencyLink && link.requiresAuth && link.href !== NAV_LINK_ACCOUNT_DASHBOARD.href)
+          .forEach(link => linksToRender.push(link));
+        // "Trouver une voiture" should be available for logged-in agency too
+        const findCarLink = NAV_LINKS_MAIN.find(link => link.href === '/cars');
+        if (findCarLink && !linksToRender.some(l => l.href === findCarLink.href)) {
+          linksToRender.push(findCarLink);
+        }
       }
-    } else {
-      // Logged out: Show public links (Fonctionnalités, Tarifs)
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => linksToRender.push(link));
+    } else { // Logged out
+      NAV_LINKS_MAIN
+        .filter(link => !link.requiresAuth && !link.hideWhenLoggedIn)
+        .forEach(link => {
+          if (!linksToRender.find(l => l.href === link.href)) { // Avoid duplicates
+              linksToRender.push(link);
+          }
+        });
     }
-     NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && !(link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => linksToRender.push(link));
-
-
-    return (
-      <>
-        {linksToRender.map((item) => (
-          <NavLink key={item.label} {...item} />
-        ))}
-      </>
-    );
+    return (<>{linksToRender.map((item) => ( <NavLink key={`${item.href}-${item.label}`} {...item} /> ))}</>);
   };
 
 
@@ -142,38 +147,40 @@ export function Header() {
           </Link>
         </Button>
       ));
+    } else { // User is logged in
+      return (
+        <Button variant="outline" size="sm" onClick={handleLogout}>
+           {NAV_ACTION_LOGOUT.icon && <NAV_ACTION_LOGOUT.icon className="mr-2 h-4 w-4" />}
+          {NAV_ACTION_LOGOUT.label}
+        </Button>
+      );
     }
-
-    return (
-      <Button variant="outline" size="sm" onClick={handleLogout}>
-         {NAV_ACTION_LOGOUT.icon && <NAV_ACTION_LOGOUT.icon className="mr-2 h-4 w-4" />}
-        {NAV_ACTION_LOGOUT.label}
-      </Button>
-    );
   };
 
   const renderMobileNavLinks = () => {
     const links: NavItem[] = [];
 
     if (!mounted) {
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => links.push(link));
+       NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).forEach(link => links.push(link));
     } else {
       if (isLoggedIn) {
         if (isAdmin) {
           NAV_LINKS_ADMIN_MENU.forEach(link => links.push(link));
-        } else {
+        } else { // Agency
           NAV_LINKS_AGENCY_MENU.forEach(link => links.push(link));
         }
-      } else {
-        NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && (link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => links.push(link));
+      } else { // Logged out
+         NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn).forEach(link => {
+            if (!links.find(l => l.href === link.href)) { // Avoid duplicates
+                links.push(link);
+            }
+        });
       }
-      NAV_LINKS_MAIN.filter(link => !link.requiresAuth && !link.hideWhenLoggedIn && !(link.label === 'Fonctionnalités' || link.label === 'Tarifs')).forEach(link => links.push(link));
     }
-
 
     const renderedLinks = links.map((item) => (
       <NavLink
-        key={item.label}
+        key={`${item.href}-${item.label}-mobile`}
         href={item.href}
         label={item.label}
         icon={item.icon}
@@ -182,16 +189,16 @@ export function Header() {
       />
     ));
 
+    // Add logout to the list if logged in and mounted
     if (mounted && isLoggedIn) {
       renderedLinks.push(
         <NavLink
-          key={NAV_ACTION_LOGOUT.label}
+          key={`${NAV_ACTION_LOGOUT.href}-${NAV_ACTION_LOGOUT.label}-mobile`}
           href={NAV_ACTION_LOGOUT.href}
           label={NAV_ACTION_LOGOUT.label}
           icon={NAV_ACTION_LOGOUT.icon}
           onClick={() => {
-            handleLogout();
-            setIsMobileMenuOpen(false);
+            handleLogout(); // This already closes the mobile menu
           }}
           className="text-base py-2"
         />
@@ -215,7 +222,7 @@ export function Header() {
         </span>
       ));
     }
-    if (!isLoggedIn) {
+    if (!isLoggedIn) { // Only show Sign In/Sign Up if not logged in
       return NAV_LINKS_AUTH.map((item) => (
         <Button key={item.label} variant={item.label === "S'inscrire" ? 'default' : 'outline'} className="w-full justify-start" asChild>
            <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
@@ -225,14 +232,14 @@ export function Header() {
         </Button>
       ));
     }
-    return null;
+    return null; // Don't show anything here if logged in, logout is in main links
   };
 
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2" aria-label={`${APP_NAME} page d'accueil`}>
+        <Link href="/" className="flex items-center gap-2" aria-label={`${APP_NAME} page d'accueil`} onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)}>
           <LogoIcon />
         </Link>
 
@@ -252,11 +259,11 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs p-6 flex flex-col">
-              <SheetHeader className="flex flex-row justify-between items-center mb-4">
+               <SheetHeader className="flex flex-row justify-between items-center mb-4">
                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label={`${APP_NAME} page d'accueil`}>
                   <LogoIcon />
                 </Link>
-                <SheetTitle className="sr-only">Menu principal</SheetTitle> {/* For accessibility */}
+                <SheetTitle className="sr-only">Menu principal</SheetTitle>
                 <SheetClose asChild>
                    <Button variant="ghost" size="icon" aria-label="Fermer le menu mobile">
                       <X className="h-6 w-6" />
@@ -268,7 +275,7 @@ export function Header() {
                 {renderMobileNavLinks()}
               </nav>
 
-              {(!isLoggedIn && mounted) && ( // Show only if not logged in AND mounted
+              {(!isLoggedIn && mounted) && (
                 <>
                   <hr className="my-4"/>
                   <div className="flex flex-col space-y-3 mt-auto">
