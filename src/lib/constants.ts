@@ -1,6 +1,6 @@
 
 import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency, Review, ContactPerson } from '@/types';
-import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon, StarIcon } from 'lucide-react';
+import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings as SettingsGearIcon, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon, StarIcon } from 'lucide-react';
 import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
@@ -32,12 +32,21 @@ export const NAV_LINK_ADMIN_DASHBOARD: NavItem = {
   isAdminLink: true,
 };
 
+export const NAV_LINK_NEW_RESERVATION_AGENCY: NavItem = {
+  href: '/account/reservations/new', 
+  label: 'Nouvelle Réservation', 
+  icon: CalendarPlus, 
+  requiresAuth: true, 
+  showOnlyWhenLoggedIn: true, 
+  isAgencyLink: true 
+};
+
 export const NAV_LINKS_MAIN: NavItem[] = [
-  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: true, hideWhenLoggedIn: false },
-  { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
+  NAV_LINK_NEW_RESERVATION_AGENCY, // Added for agency owners
+  { href: '/cars', label: 'Trouver une Voiture', icon: SearchIcon, requiresAuth: false, hideWhenLoggedIn: false }, // Changed requiresAuth to false for broader access
   { href: '/account/listings/new', label: 'Ajouter une Voiture', icon: ListPlusIcon, requiresAuth: true, showOnlyWhenLoggedIn: true, isAgencyLink: true },
-  { href: '/features', label: 'Fonctionnalités', icon: StarIcon, requiresAuth: false },
-  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false },
+  { href: '/features', label: 'Fonctionnalités', icon: StarIcon, requiresAuth: false, hideWhenLoggedIn: true },
+  { href: '/pricing', label: 'Tarifs', icon: DollarSign, requiresAuth: false, hideWhenLoggedIn: true },
 ];
 
 export const NAV_LINKS_AUTH: NavItem[] = [
@@ -47,7 +56,7 @@ export const NAV_LINKS_AUTH: NavItem[] = [
 
 export const NAV_LINKS_AGENCY_MENU: NavItem[] = [ 
     NAV_LINK_ACCOUNT_DASHBOARD,
-    { href: '/account/reservations/new', label: 'Nouvelle Réservation', icon: CalendarPlus },
+    NAV_LINK_NEW_RESERVATION_AGENCY,
     { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon },
     { href: '/account/listings', label: 'Mes Annonces', icon: ListPlusIcon },
     { href: '/account/listings/visibility', label: 'Visibilité Flotte', icon: ListFilterIcon },
@@ -62,6 +71,7 @@ export const NAV_LINKS_ADMIN_MENU: NavItem[] = [
     { href: '/admin/renters', label: 'Gérer les Locataires', icon: UsersIcon },
     { href: '/admin/listings', label: 'Gérer les Annonces', icon: CarIcon },
     { href: '/admin/bookings', label: 'Gérer les Réservations', icon: BookMarkedIcon },
+    // Consider adding a link to general settings if it's admin-specific
 ];
 
 
@@ -87,7 +97,7 @@ export let SAMPLE_CARS: Car[] = [
     make: 'Tesla',
     model: 'Model S',
     year: 2023,
-    pricePerDay: 150,
+    pricePerDay: 1500, // Changed currency
     location: 'Paris, FR',
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
@@ -110,7 +120,7 @@ export let SAMPLE_CARS: Car[] = [
     make: 'Ford',
     model: 'Mustang Mach-E',
     year: 2023,
-    pricePerDay: 120,
+    pricePerDay: 1200, // Changed currency
     location: 'Lyon, FR',
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
@@ -120,7 +130,7 @@ export let SAMPLE_CARS: Car[] = [
     fuelType: 'Electric',
     transmission: 'Automatic',
     agencyId: 'agency1',
-    agencyName: 'EV Loc Lyon',
+    agencyName: 'EV Loc Lyon', // Kept agencyName as it's specific
     description: 'Le Ford Mustang Mach-E combine l\'héritage iconique de la Mustang avec des performances tout électriques.',
     isVisible: true,
     bookedPeriods: [
@@ -132,7 +142,7 @@ export let SAMPLE_CARS: Car[] = [
     make: 'BMW',
     model: 'X5',
     year: 2022,
-    pricePerDay: 180,
+    pricePerDay: 1800, // Changed currency
     location: 'Marseille, FR',
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
@@ -152,7 +162,7 @@ export let SAMPLE_CARS: Car[] = [
     make: 'Toyota',
     model: 'Camry',
     year: 2024,
-    pricePerDay: 70,
+    pricePerDay: 700, // Changed currency
     location: 'Lille, FR',
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'Sedan',
@@ -174,12 +184,12 @@ export let SAMPLE_CARS: Car[] = [
     make: 'Peugeot',
     model: '2008',
     year: 2023,
-    pricePerDay: 90,
+    pricePerDay: 900, // Changed currency
     location: 'Bordeaux, FR',
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'SUV',
     averageRating: 4.4,
-    features: ['Compact SUV', 'Apple CarPlay', 'Caméra de Recul', 'Toit Panoramique'],
+    features: ['SUV Compact', 'Apple CarPlay', 'Caméra de Recul', 'Toit Panoramique'],
     seats: 5,
     fuelType: 'Gasoline',
     transmission: 'Automatic',
@@ -194,7 +204,7 @@ export let SAMPLE_CARS: Car[] = [
     make: 'Renault',
     model: 'Clio',
     year: 2023,
-    pricePerDay: 60,
+    pricePerDay: 600, // Changed currency
     location: 'Nantes, FR',
     imageUrl: 'https://placehold.co/600x400.png',
     type: 'Hatchback',
@@ -221,9 +231,9 @@ export let MOCK_CLIENTS: ClientProfile[] = [
 ];
 
 export let MOCK_BOOKINGS: Booking[] = [
-  { id: 'booking1', userId: 'client1', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 2)), endDate: formatISO(addDays(today, 4)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 5)), renterName: "Alice Dupont", renterEmail:"alice@example.com", clientId: 'client1' },
-  { id: 'booking2', userId: 'client2', carId: '2', agencyId: 'agency1', startDate: formatISO(addDays(today, 5)), endDate: formatISO(addDays(today, 7)), totalPrice: 360, status: 'pending', createdAt: formatISO(subDays(today, 3)), renterName: "Bob Martin", renterEmail:"bob@example.com", clientId: 'client2' },
-  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 10)), endDate: formatISO(addDays(today, 12)), totalPrice: 450, status: 'confirmed', createdAt: formatISO(subDays(today, 1)), renterName: "Carole Petit", renterEmail:"carol@example.com", clientId: 'client3' },
+  { id: 'booking1', userId: 'client1', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 2)), endDate: formatISO(addDays(today, 4)), totalPrice: 4500, status: 'confirmed', createdAt: formatISO(subDays(today, 5)), renterName: "Alice Dupont", renterEmail:"alice@example.com", clientId: 'client1' },
+  { id: 'booking2', userId: 'client2', carId: '2', agencyId: 'agency1', startDate: formatISO(addDays(today, 5)), endDate: formatISO(addDays(today, 7)), totalPrice: 3600, status: 'pending', createdAt: formatISO(subDays(today, 3)), renterName: "Bob Martin", renterEmail:"bob@example.com", clientId: 'client2' },
+  { id: 'booking3', userId: 'client3', carId: '1', agencyId: 'agency1', startDate: formatISO(addDays(today, 10)), endDate: formatISO(addDays(today, 12)), totalPrice: 4500, status: 'confirmed', createdAt: formatISO(subDays(today, 1)), renterName: "Carole Petit", renterEmail:"carol@example.com", clientId: 'client3' },
 ];
 
 export let MOCK_REVIEWS: Review[] = [
