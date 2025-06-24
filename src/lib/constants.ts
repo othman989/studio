@@ -1,18 +1,9 @@
 
 import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency, Review, ContactPerson } from '@/types';
-import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, Settings as SettingsGearIcon, CalendarDaysIcon, Briefcase, HomeIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon, StarIcon } from 'lucide-react';
+import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, CalendarDaysIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon, StarIcon } from 'lucide-react';
 import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
-
-export const NAV_LINK_DASHBOARD: NavItem = { 
-  href: '/account/dashboard',
-  label: 'Tableau de Bord',
-  icon: LayoutDashboardIcon,
-  requiresAuth: true,
-  showOnlyWhenLoggedIn: true,
-  isAgencyLink: true,
-};
 
 export const NAV_LINK_ACCOUNT_DASHBOARD: NavItem = {
   href: '/account/dashboard',
@@ -305,3 +296,5 @@ export let MOCK_ADMIN_AGENCIES: AdminAgency[] = [
     permissions: { canListCars: false, maxCarListings: 5, canAccessAnalytics: true, isVerified: true, canManageBookings: false }
   },
 ];
+
+    
