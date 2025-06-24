@@ -14,7 +14,8 @@ import {
   UserPlusIcon,
   BriefcaseIcon,
   WrenchIcon,
-  ListChecksIcon
+  ListChecksIcon,
+  DatabaseZap
 } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
 import { useEffect, useState } from 'react';
@@ -63,6 +64,7 @@ const AdminDashboardPage = () => {
       icon: SettingsIcon,
       links: [
         { href: '/admin/settings', label: 'Paramètres Généraux', icon: WrenchIcon, description: "Configurer les aspects clés de la plateforme." , disabled: false},
+        { href: '/admin/seed', label: 'Charger les Données de Démo', icon: DatabaseZap, description: "Remplir la base de données avec des données de démonstration.", disabled: false },
         { href: '#', label: 'Gestion des Permissions (Future)', icon: ShieldCheckIcon, description: "Définir les rôles et permissions (fonctionnalité avancée).", disabled: true },
       ]
     }
@@ -101,7 +103,7 @@ const AdminDashboardPage = () => {
                 <CardContent className="flex-grow flex items-end pt-2">
                   <Button asChild className="w-full mt-auto" variant="outline" disabled={link.disabled}>
                     <Link href={link.disabled ? '#' : link.href}>
-                      {link.label.includes('Créer') || link.label.includes('Paramètres') ? 'Accéder' : `Gérer ${link.label.replace('Gérer les ', '').replace(' (Global)', '').replace(' (Bientôt)', '').replace(' (Future)', '')}`}
+                      {link.label.includes('Créer') || link.label.includes('Paramètres') || link.label.includes('Charger') ? 'Accéder' : `Gérer ${link.label.replace('Gérer les ', '').replace(' (Global)', '').replace(' (Bientôt)', '').replace(' (Future)', '')}`}
                       {link.disabled && <span className="ml-1 text-xs">(Bientôt)</span>}
                     </Link>
                   </Button>
@@ -116,5 +118,3 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
-
-    
