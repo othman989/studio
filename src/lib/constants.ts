@@ -1,6 +1,6 @@
 
 import type { Car, NavItem, CarType, Booking, ClientProfile, AdminAgency, Review, ContactPerson } from '@/types';
-import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, CalendarDaysIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilterIcon, StarIcon } from 'lucide-react';
+import { SearchIcon, LogInIcon, UserPlusIcon, ListPlusIcon, MessageSquareIcon, CalendarRangeIcon, LayoutDashboardIcon, SettingsIcon, BookMarkedIcon, EyeIcon, LogOutIcon, CarIcon, ShieldCheckIcon, FileTextIcon, MailIcon, InfoIcon, Building, Phone, UserCircle, Lock, DollarSign, Star, Zap, CheckCircle, Users, ArrowRight, MapPin, Fuel, CalendarDaysIcon, CalendarPlus, UsersIcon, BriefcaseIcon, WrenchIcon, ListFilter, StarIcon } from 'lucide-react';
 import { addDays, formatISO, subDays } from 'date-fns';
 
 export const APP_NAME = "AutoPool";
@@ -50,7 +50,7 @@ export const NAV_LINKS_AGENCY_MENU: NavItem[] = [
     NAV_LINK_NEW_RESERVATION_AGENCY,
     { href: '/account/bookings', label: 'Demandes de Réservation', icon: BookMarkedIcon },
     { href: '/account/listings', label: 'Mes Annonces', icon: ListPlusIcon },
-    { href: '/account/listings/visibility', label: 'Visibilité Flotte', icon: ListFilterIcon },
+    { href: '/account/listings/visibility', label: 'Visibilité Flotte', icon: ListFilter },
     { href: '/account/calendar', label: 'Calendrier Agence', icon: CalendarRangeIcon },
     { href: '/account/chat', label: 'Messages', icon: MessageSquareIcon },
     { href: '/account/profile', label: 'Profil & Paramètres', icon: SettingsIcon },
