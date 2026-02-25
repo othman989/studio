@@ -1,0 +1,40 @@
+# Settings to manage and configure a Firebase App Hosting backend.
+# https://firebase.google.com/docs/app-hosting/configure
+
+# Specifies the runtime environment and scaling options.
+runConfig:
+  # Increase this value to automatically spin up more instances in response to traffic.
+  maxInstances: 10
+
+# Makes specified secrets available as environment variables in the app's runtime.
+# availableDuringBuild: true is critical for server-side rendering and build-time operations.
+secretEnv:
+  - secret: FIREBASE_PROJECT_ID
+    availableDuringBuild: true
+  - secret: FIREBASE_PRIVATE_KEY
+    availableDuringBuild: true
+  - secret: FIREBASE_CLIENT_EMAIL
+    availableDuringBuild: true
+  - secret: BREVO_API_KEY
+    availableDuringBuild: true
+  - secret: ADMIN_EMAIL_ADDRESS
+    availableDuringBuild: true
+  - secret: GBP_CLIENT_ID
+    availableDuringBuild: true
+  - secret: GBP_CLIENT_SECRET
+    availableDuringBuild: true
+  - secret: DEEPSEEK_API_KEY
+    availableDuringBuild: true
+  - secret: GEMINI_API_KEY
+    availableDuringBuild: true
+
+  - secret: APP_URL
+    availableDuringBuild: true
+  - secret: NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID
+    availableDuringBuild: true
+  - secret: GBP_OAUTH_CLIENT_ID
+    availableDuringBuild: true
+  - secret: CRON_SYNC_SECRET
+    availableDuringBuild: true
+  - secret: NEXT_PUBLIC_APP_URL
+    availableDuringBuild: true

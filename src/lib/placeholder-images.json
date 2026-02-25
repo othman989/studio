@@ -1,0 +1,28 @@
+{
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "Default user avatar placeholder",
+      "imageUrl": "https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx1c2VyJTIwYXZhdGFyfGVufDB8fHx8MTc2Mzg0MDE3NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "user avatar"
+    },
+    {
+      "id": "testimonial-sarah",
+      "description": "Avatar for Sarah K testimonial",
+      "imageUrl": "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2NTAxNzM4OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "testimonial-david",
+      "description": "Avatar for David L testimonial",
+      "imageUrl": "https://images.unsplash.com/photo-1594672830234-ba4cfe1202dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzY0OTc2OTkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "testimonial-jessica",
+      "description": "Avatar for Dr. Jessica M testimonial",
+      "imageUrl": "https://images.unsplash.com/photo-1550831107-1553da8c8464?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkb2N0b3IlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjUwMTE4NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "doctor portrait"
+    }
+  ]
+}
